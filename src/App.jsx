@@ -30,13 +30,11 @@ import { sounds } from './lib/sound';
 import {
   Sparkles,
   Zap,
-  Cpu,
   Layers,
   ArrowRight,
   ShieldAlert,
   FolderSync,
   FolderPlus,
-  ArrowUp,
   Activity
 } from 'lucide-react';
 
@@ -56,7 +54,6 @@ export default function App() {
   const [activeMilestone, setActiveMilestone] = useState(null);
   const [activeStage, setActiveStage] = useState(null);
   const [isMyWorkOnly, setIsMyWorkOnly] = useState(false);
-  const [showScrollHUD, setShowScrollHUD] = useState(false);
 
   const [inspectedItem, setInspectedItem] = useState(null);
   const [renderItem, setRenderItem] = useState(null);
@@ -70,15 +67,6 @@ export default function App() {
   const [isDbInspectorOpen, setIsDbInspectorOpen] = useState(false);
   const [isQRScannerOpen, setIsQRScannerOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-
-  // Scroll listener for Floating Luxury HUD
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowScrollHUD(window.scrollY > 280);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const renderingCount = items.filter(i => i.status === 'rendering').length;
 
@@ -323,65 +311,6 @@ export default function App() {
           )}
         </main>
       </div>
-
-      {/* Floating Glass HUD (reveals on scroll past hero) */}
-      {showScrollHUD && (
-        <aside 
-          aria-label="Workstation Status HUD"
-          className="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded-2xl glass-panel border border-black/[0.08] shadow-lg bg-white/90 backdrop-blur-2xl flex items-center gap-3 animate-fadeIn transition-all select-none"
-        >
-          <div className="flex items-center gap-2 pr-2 border-r border-black/[0.06]">
-            <span className={`w-2 h-2 rounded-full ${bridge.is_online ? 'bg-emerald-500' : 'bg-neutral-400'}`} />
-            <span className="text-xs font-bold text-neutral-900 font-mono">
-              {bridge.is_online ? 'Node Active' : 'Offline'}
-            </span>
-          </div>
-
-          {renderingCount > 0 ? (
-            <button
-              type="button"
-              onClick={() => {
-                sounds.playTap();
-                const active = items.find(i => i.status === 'rendering');
-                if (active) setMonitorItemId(active.id);
-                setIsRenderMonitorOpen(true);
-              }}
-              className="flex items-center gap-1.5 text-xs font-bold text-emerald-950 bg-emerald-100 hover:bg-emerald-200 px-3 py-1 rounded-xl border border-emerald-300 shadow-2xs cursor-pointer transition-all"
-            >
-              <Cpu className="w-3.5 h-3.5 animate-spin text-emerald-700" />
-              <span>{renderingCount} Rendering • Monitor</span>
-            </button>
-          ) : (
-            <span className="text-xs text-neutral-600 font-medium hidden sm:inline">
-              {items.length} Productions Loaded
-            </span>
-          )}
-
-          <div className="flex items-center gap-1.5 pl-1">
-            <button
-              type="button"
-              onClick={() => {
-                sounds.playTap();
-                setIsNewProductionOpen(true);
-              }}
-              className="px-3 py-1 rounded-xl text-xs font-semibold glass-button-primary shadow-xs cursor-pointer"
-            >
-              + New
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                sounds.playTap();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="p-1.5 rounded-xl glass-pill hover:bg-white text-neutral-700 hover:text-neutral-950 border border-black/[0.08] cursor-pointer"
-              title="Scroll to top"
-            >
-              <ArrowUp className="w-3.5 h-3.5 text-neutral-600" />
-            </button>
-          </div>
-        </aside>
-      )}
 
       <MobileBottomNav
         currentView={currentView}

@@ -110,7 +110,7 @@ export default function NotificationCenter({ onSelectItem, onNavigateToTracker }
 
       {/* Filter Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-        {['all', 'render_completed', 'correction_needed', 'render_started', 'assigned'].map((k) => (
+        {['all', 'batch_render_completed', 'render_completed', 'correction_needed', 'render_started', 'assigned'].map((k) => (
           <button
             key={k}
             onClick={() => {
