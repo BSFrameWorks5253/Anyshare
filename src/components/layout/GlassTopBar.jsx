@@ -11,7 +11,8 @@ import {
   RefreshCw,
   Zap,
   AtSign,
-  QrCode
+  QrCode,
+  Smartphone
 } from 'lucide-react';
 
 export default function GlassTopBar({
@@ -22,7 +23,7 @@ export default function GlassTopBar({
   currentView,
   onNavigate
 }) {
-  const { currentUser, notifications, isAdmin, items } = useApp();
+  const { currentUser, notifications, isAdmin, items, canInstallPWA, installPWA } = useApp();
 
   const unreadCount = notifications.filter(
     n => !n.read_at && (n.recipient_user_id === currentUser.id || isAdmin)
@@ -105,6 +106,22 @@ export default function GlassTopBar({
             <QrCode className="w-3.5 h-3.5 text-[#8A6614]" />
             <span className="hidden sm:inline">QR Login</span>
           </button>
+
+          {/* Install PWA Button (when installable) */}
+          {canInstallPWA && (
+            <button
+              type="button"
+              onClick={() => {
+                sounds.playTap();
+                installPWA();
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-stone-900 text-[#FAF8F5] hover:bg-stone-800 transition-colors cursor-pointer border border-[#C5A059]/60 shadow-xs animate-bounce"
+              title="Install AnyShare to Home Screen"
+            >
+              <Smartphone className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span className="hidden sm:inline">Install App</span>
+            </button>
+          )}
 
           {/* Notifications Button */}
           <button

@@ -1,12 +1,15 @@
 {
-  "name": "AnyShare",
+  "id": "anyshare-production-bridge",
+  "name": "AnyShare — Video Production Hub",
   "short_name": "AnyShare",
-  "description": "One Tap remote workflow status and render-command bridge for the Anything Ecosystem",
+  "description": "One Tap remote workflow status, live telemetry, and render command bridge for the Anything Ecosystem",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#070a13",
-  "theme_color": "#070a13",
+  "background_color": "#FAF8F5",
+  "theme_color": "#D4AF37",
   "orientation": "portrait-primary",
+  "categories": ["production", "multimedia", "productivity"],
   "icons": [
     {
       "src": "/icon-192.svg",
@@ -25,6 +28,22 @@
       "sizes": "100x100",
       "type": "image/svg+xml",
       "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Production Queue",
+      "short_name": "Queue",
+      "description": "View active video productions and render status",
+      "url": "/?view=work",
+      "icons": [{ "src": "/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "QR Scanner",
+      "short_name": "Scan",
+      "description": "Scan One Tap app QR to log in and sync workstation",
+      "url": "/?action=qr",
+      "icons": [{ "src": "/icon-192.svg", "sizes": "192x192" }]
     }
   ]
 }

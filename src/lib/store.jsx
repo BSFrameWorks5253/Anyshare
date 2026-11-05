@@ -123,6 +123,109 @@ export function AppProvider({ children }) {
     };
   }, []);
 
+  // -------------------------------------------------------------
+  // PWA INSTALL PROMPT HANDLER (iOS & Android)
+  // -------------------------------------------------------------
+  const [deferredInstallPrompt, setDeferredInstallPrompt] = useState(null);
+
+  useEffect(() => {
+    const handleBeforeInstall = (e) => {
+      e.preventDefault();
+      setDeferredInstallPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+  }, []);
+
+  const installPWA = async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredInstallPrompt(null);
+    }
+  };
+
+  // -------------------------------------------------------------
+  // SUPABASE REALTIME SUBSCRIPTIONS & CLOUD TABLE SYNC
+  // -------------------------------------------------------------
+  useEffect(() => {
+    let isSubscribed = true;
+
+    // 1. Initial Cloud Sync from Supabase
+    const fetchCloudData = async () => {
+      try {
+        const { data: cloudItems, error: itemsErr } = await supabase
+          .from('anyshare_items')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!itemsErr && cloudItems && cloudItems.length > 0 && isSubscribed) {
+          setItems(prev => {
+            const itemMap = new Map();
+            prev.forEach(i => itemMap.set(i.id, i));
+            cloudItems.forEach(i => itemMap.set(i.id, i));
+            return Array.from(itemMap.values());
+          });
+        }
+      } catch (e) {
+        // Fallback to local storage persistence
+      }
+    };
+
+    fetchCloudData();
+
+    // 2. Setup Realtime Listener Channel
+    const channel = supabase.channel('anyshare_realtime_hub')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'anyshare_items' }, payload => {
+        if (!isSubscribed) return;
+        if (payload.eventType === 'INSERT' && payload.new) {
+          setItems(prev => prev.some(i => i.id === payload.new.id) ? prev : [payload.new, ...prev]);
+        } else if (payload.eventType === 'UPDATE' && payload.new) {
+          setItems(prev => prev.map(i => i.id === payload.new.id ? { ...i, ...payload.new } : i));
+        } else if (payload.eventType === 'DELETE' && payload.old) {
+          setItems(prev => prev.filter(i => i.id !== payload.old.id));
+        }
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'anyshare_events' }, payload => {
+        if (!isSubscribed) return;
+        if (payload.new) {
+          setEvents(prev => prev.some(e => e.id === payload.new.id) ? prev : [payload.new, ...prev]);
+        }
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'anyshare_notifications' }, payload => {
+        if (!isSubscribed) return;
+        if (payload.new) {
+          setNotifications(prev => prev.some(n => n.id === payload.new.id) ? prev : [payload.new, ...prev]);
+        }
+      })
+      .subscribe();
+
+    return () => {
+      isSubscribed = false;
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  // Background Cloud Sync Helpers
+  const syncItemToSupabase = (item) => {
+    try {
+      supabase.from('anyshare_items').upsert(item).catch(() => {});
+    } catch (e) {}
+  };
+
+  const syncEventToSupabase = (event) => {
+    try {
+      supabase.from('anyshare_events').insert(event).catch(() => {});
+    } catch (e) {}
+  };
+
+  const syncNotificationToSupabase = (notification) => {
+    try {
+      supabase.from('anyshare_notifications').insert(notification).catch(() => {});
+    } catch (e) {}
+  };
+
   // Persist state
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.ITEMS, JSON.stringify(items));
@@ -261,9 +364,10 @@ export function AppProvider({ children }) {
     };
 
     setItems(prev => [newItem, ...prev]);
+    syncItemToSupabase(newItem);
 
     // Add audit event
-    setEvents(prev => [{
+    const newEvt = {
       id: 'evt_' + Date.now(),
       item_id: newItem.id,
       event_type: 'detected',
@@ -274,7 +378,9 @@ export function AppProvider({ children }) {
       reason: 'Workstation folder scan detected verified project structure ready for render.',
       evidence_summary: newItem.evidence_summary,
       created_at: new Date().toISOString()
-    }, ...prev]);
+    };
+    setEvents(prev => [newEvt, ...prev]);
+    syncEventToSupabase(newEvt);
 
     addNotification({
       recipientId: currentUser.id,
@@ -338,6 +444,7 @@ export function AppProvider({ children }) {
       created_at: new Date().toISOString()
     };
     setNotifications(prev => [notif, ...prev]);
+    syncNotificationToSupabase(notif);
 
     // Dispatch to Vercel Serverless notification gateway in background
     try {
@@ -844,8 +951,11 @@ export function AppProvider({ children }) {
       events,
       notifications,
       bridge,
+      setBridge,
       pushEnabled,
       setPushEnabled,
+      canInstallPWA: Boolean(deferredInstallPrompt),
+      installPWA,
       updateEcosystemUser,
       createNewProductionItem,
       toggleBridgeOnline,
