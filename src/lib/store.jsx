@@ -178,6 +178,17 @@ export function AppProvider({ children }) {
 
     // 2. Setup Realtime Broadcast Nexus (Zero-Latency WebSockets between Phone and Desktop)
     const nexus = supabase.channel('anyshare_realtime_nexus')
+      .on('broadcast', { event: 'workstation_heartbeat' }, payload => {
+        if (!isSubscribed) return;
+        const ws = payload.payload;
+        setBridge(prev => ({
+          ...prev,
+          is_online: true,
+          label: ws?.label || prev.label,
+          workstation_storage_free_gb: ws?.storageFreeGB || prev.workstation_storage_free_gb,
+          last_heartbeat_at: new Date().toISOString()
+        }));
+      })
       .on('broadcast', { event: 'pairing_created' }, payload => {
         if (!isSubscribed) return;
         setBridge(prev => ({
@@ -229,6 +240,13 @@ export function AppProvider({ children }) {
           } : i));
           setActiveRenderJob(null);
           sounds.playSuccess();
+        }
+      })
+      .on('broadcast', { event: 'user_notification' }, payload => {
+        if (!isSubscribed) return;
+        const notif = payload.payload;
+        if (notif && notif.id) {
+          setNotifications(prev => prev.some(n => n.id === notif.id) ? prev : [notif, ...prev]);
         }
       })
       .subscribe();
@@ -283,7 +301,16 @@ export function AppProvider({ children }) {
 
   const syncNotificationToSupabase = (notification) => {
     try {
+      // 1. Supabase Postgres table insert
       supabase.from('anyshare_notifications').insert(notification).catch(() => {});
+      // 2. Supabase Realtime Nexus channel broadcast (instant cross-device delivery)
+      if (nexusChannelRef.current) {
+        nexusChannelRef.current.send({
+          type: 'broadcast',
+          event: 'user_notification',
+          payload: notification
+        }).catch(() => {});
+      }
     } catch (e) {}
   };
 
@@ -505,16 +532,8 @@ export function AppProvider({ children }) {
       created_at: new Date().toISOString()
     };
     setNotifications(prev => [notif, ...prev]);
+    // Exclusive Supabase live delivery (zero external reliance)
     syncNotificationToSupabase(notif);
-
-    // Dispatch to Vercel Serverless notification gateway in background
-    try {
-      fetch('/api/notifications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, message, kind, recipientId, itemId })
-      }).catch(() => {});
-    } catch (e) {}
   };
 
   const markNotificationRead = (notifId) => {

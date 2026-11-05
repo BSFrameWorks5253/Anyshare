@@ -1,61 +1,39 @@
 // AnyShare Ecosystem Data & Stage Models (Islamic Golden & White Edition)
 
-// 5 Unified Executive Pipeline Milestones (Streamlined from 14 micro-stages)
+// 3 Unified Executive Pipeline Milestones (Streamlined from 14 micro-stages for clean executive clarity)
 export const PIPELINE_MILESTONES = [
   {
     key: 'editing',
-    title: 'In Editing',
-    shortTitle: '1. Editing',
-    description: 'Assembly & Fine Cut',
+    title: 'In Production & Editing',
+    shortTitle: '1. Production',
+    description: 'Assembly, Fine Cut & Preflight',
     stepNumber: '01',
     icon: 'FileEdit',
-    statuses: ['pending_edit_1', 'edit_1', 'pending_edit_2', 'edit_2'],
+    statuses: ['pending_edit_1', 'edit_1', 'pending_edit_2', 'edit_2', 'ready_to_render'],
     color: 'amber',
-    badgeClass: 'bg-amber-100 text-amber-950 font-bold border-amber-300'
-  },
-  {
-    key: 'ready',
-    title: 'Ready to Render',
-    shortTitle: '2. Ready',
-    description: 'Preflight Cleared',
-    stepNumber: '02',
-    icon: 'Zap',
-    statuses: ['ready_to_render', 'render_requested'],
-    color: 'gold',
-    badgeClass: 'bg-amber-200 text-stone-950 font-extrabold border-amber-400'
+    badgeClass: 'bg-amber-100 text-stone-950 font-black border border-amber-400'
   },
   {
     key: 'rendering',
-    title: 'Node Rendering',
-    shortTitle: '3. Rendering',
-    description: 'Active Workstation GPU',
-    stepNumber: '03',
+    title: 'GPU Workstation Node',
+    shortTitle: '2. Rendering',
+    description: 'Hardware Accelerated 4K Encoding',
+    stepNumber: '02',
     icon: 'Cpu',
-    statuses: ['checking', 'rendering'],
+    statuses: ['render_requested', 'checking', 'rendering'],
     color: 'gold',
-    badgeClass: 'bg-gradient-to-r from-amber-300 to-yellow-400 text-stone-950 font-extrabold border-amber-500 shadow-sm'
-  },
-  {
-    key: 'review',
-    title: 'QA & Review',
-    shortTitle: '4. QA Review',
-    description: 'Integrity & Corrections',
-    stepNumber: '04',
-    icon: 'ShieldCheck',
-    statuses: ['rendered', 'correction_needed'],
-    color: 'emerald',
-    badgeClass: 'bg-emerald-100 text-emerald-950 font-extrabold border-emerald-400'
+    badgeClass: 'bg-gradient-to-r from-amber-300 to-yellow-400 text-stone-950 font-black border border-amber-500 shadow-sm'
   },
   {
     key: 'delivered',
-    title: 'Delivered',
-    shortTitle: '5. Delivered',
-    description: 'Uploaded & Done',
-    stepNumber: '05',
+    title: 'QA Review & Delivered',
+    shortTitle: '3. Delivered',
+    description: 'Output Verified, Uploaded & Archived',
+    stepNumber: '03',
     icon: 'Sparkles',
-    statuses: ['pending_upload', 'uploaded', 'given_to_jamey', 'done'],
+    statuses: ['rendered', 'correction_needed', 'pending_upload', 'uploaded', 'given_to_jamey', 'done', 'cancelled'],
     color: 'emerald',
-    badgeClass: 'bg-emerald-100 text-emerald-950 font-bold border-emerald-300'
+    badgeClass: 'bg-emerald-200 text-emerald-950 font-black border border-emerald-500'
   }
 ];
 

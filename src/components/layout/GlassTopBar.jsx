@@ -20,10 +20,11 @@ export default function GlassTopBar({
   onOpenAccount,
   onOpenBridge,
   onOpenQRScanner,
+  onOpenLogin,
   currentView,
   onNavigate
 }) {
-  const { currentUser, notifications, isAdmin, items, canInstallPWA, installPWA } = useApp();
+  const { currentUser, users, notifications, isAdmin, items, canInstallPWA, installPWA } = useApp();
 
   const unreadCount = notifications.filter(
     n => !n.read_at && (n.recipient_user_id === currentUser.id || isAdmin)
@@ -67,26 +68,72 @@ export default function GlassTopBar({
           </div>
         </div>
 
-        {/* Center: Bridge Health Status (interactive) */}
-        <div className="flex items-center gap-2">
+        {/* Center: Top Navigation Tabs + Bridge Health */}
+        <div className="flex items-center gap-3">
+          <nav className="hidden lg:flex items-center gap-1 bg-amber-50/70 p-1 rounded-2xl border border-[#C5A059]/30 shadow-xs">
+            <button
+              type="button"
+              onClick={() => { sounds.playTap(); onNavigate('overview'); }}
+              className={`px-3 py-1 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                currentView === 'overview'
+                  ? 'bg-stone-900 text-amber-200 shadow-xs'
+                  : 'text-stone-700 hover:text-stone-950 hover:bg-white/80'
+              }`}
+            >
+              Pipeline
+            </button>
+            <button
+              type="button"
+              onClick={() => { sounds.playTap(); onNavigate('work'); }}
+              className={`px-3 py-1 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
+                currentView === 'work'
+                  ? 'bg-stone-900 text-amber-200 shadow-xs'
+                  : 'text-stone-700 hover:text-stone-950 hover:bg-white/80'
+              }`}
+            >
+              <span>Productions</span>
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-200 text-stone-950">
+                {items.length}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => { sounds.playTap(); onNavigate('users'); }}
+              className={`px-3 py-1 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
+                currentView === 'users'
+                  ? 'bg-stone-900 text-amber-200 shadow-xs'
+                  : 'text-stone-700 hover:text-stone-950 hover:bg-white/80'
+              }`}
+            >
+              <span>Team & Users</span>
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-200 text-stone-950">
+                {users.length}
+              </span>
+            </button>
+          </nav>
+
           <BridgeHealthBadge onClick={onOpenBridge} showDetail={true} />
         </div>
 
         {/* Right side controls */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Active Username Pill */}
+          {/* Active Username / Sign In Button */}
           <button
             type="button"
             onClick={() => {
               sounds.playTap();
-              onOpenAccount();
+              if (onOpenLogin) {
+                onOpenLogin();
+              } else {
+                onOpenAccount();
+              }
             }}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold glass-pill hover:bg-white text-stone-900 transition-colors cursor-pointer border border-[#C5A059]/40 shadow-xs"
-            title="Ecosystem Identity & Username Settings"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black glass-pill hover:bg-white text-stone-900 transition-colors cursor-pointer border border-[#C5A059]/40 shadow-xs"
+            title="Log In with Username or Switch Ecosystem Account"
           >
             <AtSign className="w-3.5 h-3.5 text-[#8A6614]" />
-            <span className="font-mono text-[#785005] font-extrabold">@{currentUser.username || 'creator'}</span>
-            <span className={`text-[10px] uppercase font-black px-1.5 py-0.5 rounded ${
+            <span className="font-mono text-[#785005] font-black">@{currentUser.username || 'creator'}</span>
+            <span className={`hidden sm:inline-block text-[9px] uppercase font-black px-1.5 py-0.5 rounded ${
               isAdmin ? 'bg-amber-200 text-stone-950 border border-amber-400' : 'bg-stone-200 text-stone-900'
             }`}>
               {isAdmin ? 'Admin' : 'Member'}

@@ -1,8 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function GlassShell({ children }) {
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalScroll = document.documentElement.scrollTop;
+      const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      if (windowHeight > 0) {
+        setScrollProgress((totalScroll / windowHeight) * 100);
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div className="relative min-h-screen bg-[#FAF8F5] text-stone-950 flex flex-col selection:bg-amber-400 selection:text-stone-950 font-sans">
+      {/* 24K Islamic Gold Scroll Indicator Bar at Top of Viewport */}
+      <div 
+        className="fixed top-0 left-0 right-0 h-1 z-50 pointer-events-none transition-all duration-150 ease-out"
+        style={{
+          width: `${scrollProgress}%`,
+          background: 'linear-gradient(90deg, #D4AF37 0%, #F5E6C8 50%, #B8860B 100%)',
+          boxShadow: '0 0 10px rgba(212, 175, 55, 0.8), 0 0 4px rgba(212, 175, 55, 0.4)'
+        }}
+      />
       {/* Ambient background glows & Islamic Geometric Watermark */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         {/* Top-right Warm 24K Gold Ambient Lighting */}

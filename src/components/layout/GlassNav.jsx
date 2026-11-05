@@ -10,7 +10,8 @@ import {
   Database,
   User,
   ExternalLink,
-  QrCode
+  QrCode,
+  Users
 } from 'lucide-react';
 
 export default function GlassNav({
@@ -22,7 +23,7 @@ export default function GlassNav({
   onOpenDbInspector,
   onOpenQRScanner
 }) {
-  const { notifications, currentUser, isAdmin, items, bridge } = useApp();
+  const { notifications, currentUser, users, isAdmin, items, bridge } = useApp();
 
   const unreadCount = notifications.filter(
     n => !n.read_at && (n.recipient_user_id === currentUser.id || isAdmin)
@@ -42,6 +43,13 @@ export default function GlassNav({
       label: isAdmin ? 'Production Queue' : 'My Assigned Work',
       icon: Briefcase,
       badge: items.length
+    },
+    {
+      id: 'users',
+      label: 'Team & User Intelligence',
+      icon: Users,
+      badge: users.length,
+      badgeColor: 'bg-amber-100 text-[#785005] border-amber-300'
     },
     ...(isAdmin ? [{
       id: 'corrections',

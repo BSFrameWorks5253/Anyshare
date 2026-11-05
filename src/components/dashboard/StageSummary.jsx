@@ -61,8 +61,8 @@ export default function StageSummary({ activeMilestone, onSelectMilestone }) {
               </span>
             )}
           </div>
-          <p className="text-xs text-stone-700 font-medium mt-0.5">
-            <strong className="text-stone-950 font-bold">{totalActive} Active</strong> of {items.length} total productions across 5 studio phases
+          <p className="text-xs text-stone-800 font-semibold mt-0.5">
+            <strong className="text-stone-950 font-black">{totalActive} Active</strong> of {items.length} total productions across 3 executive studio phases
           </p>
         </div>
 
@@ -73,10 +73,10 @@ export default function StageSummary({ activeMilestone, onSelectMilestone }) {
             sounds.playTap();
             onSelectMilestone(null);
           }}
-          className={`self-start sm:self-auto px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer flex items-center gap-1.5 ${
+          className={`self-start sm:self-auto px-4 py-2 rounded-xl text-xs font-black transition-all border cursor-pointer flex items-center gap-1.5 ${
             activeMilestone === null
-              ? 'bg-stone-900 text-[#F5E6C8] border-stone-800 shadow-sm'
-              : 'bg-white/80 text-stone-700 border-[#C5A059]/30 hover:bg-white hover:text-stone-950'
+              ? 'bg-stone-900 text-[#F5E6C8] border-stone-800 shadow-md'
+              : 'bg-white/95 text-stone-900 border-[#C5A059]/40 hover:bg-white hover:text-black shadow-xs'
           }`}
         >
           <Layers className="w-3.5 h-3.5 text-[#B8860B]" />
@@ -84,16 +84,16 @@ export default function StageSummary({ activeMilestone, onSelectMilestone }) {
         </button>
       </div>
 
-      {/* 5-Step Connected Luxury Pipeline Grid */}
-      <div className="glass-panel rounded-3xl p-3 sm:p-5 border border-[#C5A059]/40 bg-white/85 shadow-md relative overflow-hidden">
+      {/* 3-Step Streamlined Luxury Pipeline Grid */}
+      <div className="glass-panel rounded-3xl p-4 sm:p-6 border-2 border-[#C5A059]/45 bg-white/95 shadow-md relative overflow-hidden">
         {/* Continuous Golden Laser Connector Line (visible on desktop) */}
-        <div className="hidden lg:block absolute top-[45px] left-12 right-12 h-1 bg-gradient-to-r from-amber-200 via-[#C5A059]/40 to-emerald-200 z-0">
+        <div className="hidden lg:block absolute top-[45px] left-16 right-16 h-1 bg-gradient-to-r from-amber-300 via-[#C5A059]/50 to-emerald-300 z-0">
           {isAnyRendering && (
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent animate-gold-beam" />
           )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
           {PIPELINE_MILESTONES.map((milestone, idx) => {
             const count = milestoneCounts[milestone.key] || 0;
             const Icon = MILESTONE_ICONS[milestone.icon] || FileEdit;
@@ -135,21 +135,21 @@ export default function StageSummary({ activeMilestone, onSelectMilestone }) {
                   <h3 className="text-sm font-black text-stone-950 tracking-tight flex items-center gap-1.5">
                     {milestone.title}
                   </h3>
-                  <p className="text-[11px] text-stone-600 font-medium truncate mt-0.5">
+                  <p className="text-xs text-stone-800 font-bold truncate mt-0.5">
                     {milestone.description}
                   </p>
                 </div>
 
                 {/* Bottom Row: Item Count Pill */}
-                <div className="pt-2 border-t border-[#C5A059]/20 flex items-center justify-between">
-                  <span className={`text-2xl font-black ${hasActiveWork ? 'text-stone-950' : 'text-stone-400'}`}>
+                <div className="pt-2.5 border-t border-[#C5A059]/25 flex items-center justify-between">
+                  <span className={`text-2xl font-black ${hasActiveWork ? 'text-stone-950 font-serif' : 'text-stone-500 font-serif'}`}>
                     {count}
                   </span>
 
-                  <span className={`text-[11px] font-extrabold px-2.5 py-1 rounded-full border transition-all ${
+                  <span className={`text-xs font-black px-3 py-1 rounded-full border transition-all ${
                     hasActiveWork
                       ? milestone.badgeClass
-                      : 'bg-stone-100 text-stone-500 border-stone-200'
+                      : 'bg-stone-100 text-stone-800 border-stone-300 font-bold'
                   }`}>
                     {count === 1 ? '1 Job' : `${count} Jobs`}
                   </span>

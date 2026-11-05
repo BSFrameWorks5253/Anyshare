@@ -7,7 +7,8 @@ import {
   ShieldAlert,
   Bell,
   User,
-  QrCode
+  QrCode,
+  Users
 } from 'lucide-react';
 
 export default function MobileBottomNav({
@@ -60,6 +61,23 @@ export default function MobileBottomNav({
         >
           <Briefcase className="w-5 h-5 mb-0.5" />
           <span className="text-[10px]">{isAdmin ? 'Work' : 'My Work'}</span>
+        </button>
+
+        {/* 2.5 Team & Users */}
+        <button
+          type="button"
+          onClick={() => {
+            sounds.playTap();
+            onNavigate('users');
+          }}
+          className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all cursor-pointer ${
+            currentView === 'users'
+              ? 'text-[#B8860B] font-bold'
+              : 'text-stone-500 hover:text-stone-800 font-medium'
+          }`}
+        >
+          <Users className="w-5 h-5 mb-0.5" />
+          <span className="text-[10px]">Team</span>
         </button>
 
         {/* Center: Quick QR Scan Button */}
