@@ -8,8 +8,6 @@ import {
   Bell,
   Cpu,
   Database,
-  User,
-  ExternalLink,
   QrCode,
   Users,
   CalendarDays
@@ -50,29 +48,29 @@ export default function GlassNav({
       label: 'Safar Hub & Uploads',
       icon: CalendarDays,
       badge: 'Matrix',
-      badgeColor: 'bg-emerald-100 text-emerald-950 border-emerald-300 font-black'
+      badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200 font-bold'
     },
     {
       id: 'users',
-      label: 'Team & User Intelligence',
+      label: 'Team Directory',
       icon: Users,
       badge: users.length,
-      badgeColor: 'bg-amber-100 text-[#785005] border-amber-300'
+      badgeColor: 'bg-neutral-100 text-neutral-800 border-neutral-200'
     },
     ...(isAdmin ? [{
       id: 'corrections',
       label: 'Correction Queue',
       icon: ShieldAlert,
       badge: correctionCount > 0 ? correctionCount : null,
-      badgeColor: 'bg-rose-500/15 text-rose-800 border-rose-400/40'
+      badgeColor: 'bg-rose-50 text-rose-700 border-rose-200'
     }] : [])
   ];
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 glass-panel border-r border-[#C5A059]/25 p-5 shrink-0 select-none bg-white/70">
+    <aside className="studio-sidebar hidden lg:flex flex-col w-64 border-r border-black/[0.06] p-4 shrink-0 select-none bg-white/60 backdrop-blur-2xl">
       {/* Navigation Group */}
-      <div className="space-y-1.5 mb-8">
-        <div className="text-[10px] font-bold uppercase tracking-wider text-stone-500 px-3 mb-2">
+      <div className="space-y-1 mb-8">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 px-3 mb-2">
           Workspace Navigation
         </div>
         {navItems.map((item) => {
@@ -87,20 +85,20 @@ export default function GlassNav({
                 sounds.playTap();
                 onNavigate(item.id);
               }}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all cursor-pointer ${
                 isActive
-                  ? 'bg-gradient-to-r from-amber-100/90 to-amber-50/70 text-[#785406] border border-amber-400/50 shadow-xs font-bold'
-                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100/60 border border-transparent'
+                  ? 'bg-neutral-950 text-white font-bold shadow-xs'
+                  : 'text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100/70 font-semibold'
               }`}
             >
-              <div className="flex items-center gap-3">
-                <Icon className={`w-4 h-4 ${isActive ? 'text-[#B8860B]' : 'text-stone-500'}`} />
+              <div className="flex items-center gap-2.5">
+                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-neutral-500'}`} />
                 <span>{item.label}</span>
               </div>
 
               {item.badge !== null && item.badge !== undefined && (
                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                  item.badgeColor || 'bg-stone-200/80 text-stone-700 border-stone-300'
+                  isActive ? 'bg-neutral-800 text-neutral-200 border-neutral-700' : (item.badgeColor || 'bg-neutral-100 text-neutral-700 border-neutral-200/80')
                 }`}>
                   {item.badge}
                 </span>
@@ -111,8 +109,8 @@ export default function GlassNav({
       </div>
 
       {/* Systems & Diagnostics Section */}
-      <div className="space-y-1.5 mb-auto">
-        <div className="text-[10px] font-bold uppercase tracking-wider text-stone-500 px-3 mb-2">
+      <div className="space-y-1 mb-auto">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 px-3 mb-2">
           Systems & Hardware
         </div>
 
@@ -122,13 +120,13 @@ export default function GlassNav({
             sounds.playTap();
             if (onOpenQRScanner) onOpenQRScanner();
           }}
-          className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-[#8A6614] bg-amber-100/70 hover:bg-amber-100 border border-amber-300 transition-all cursor-pointer shadow-xs"
+          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-neutral-800 bg-white/80 hover:bg-white border border-black/[0.06] transition-all cursor-pointer shadow-2xs"
         >
-          <div className="flex items-center gap-3">
-            <QrCode className="w-4 h-4 text-[#8A6614]" />
+          <div className="flex items-center gap-2.5">
+            <QrCode className="w-4 h-4 text-neutral-700" />
             <span>QR Login & Sync</span>
           </div>
-          <span className="text-[9px] uppercase font-mono px-1.5 py-0.5 rounded bg-white text-stone-900 border border-amber-300 font-black">SCAN</span>
+          <span className="text-[9px] uppercase font-mono px-1.5 py-0.5 rounded bg-neutral-100 text-neutral-700 border border-neutral-200 font-bold">SCAN</span>
         </button>
 
         <button
@@ -137,13 +135,13 @@ export default function GlassNav({
             sounds.playTap();
             onOpenBridge();
           }}
-          className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-stone-600 hover:text-stone-900 hover:bg-stone-100/60 transition-all cursor-pointer"
+          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100/70 transition-all cursor-pointer"
         >
-          <div className="flex items-center gap-3">
-            <Cpu className="w-4 h-4 text-emerald-600" />
+          <div className="flex items-center gap-2.5">
+            <Cpu className="w-4 h-4 text-neutral-500" />
             <span>One Tap Node</span>
           </div>
-          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+          <span className={`w-2 h-2 rounded-full ${bridge.is_online ? 'bg-emerald-500' : 'bg-neutral-400'}`} />
         </button>
 
         <button
@@ -152,14 +150,14 @@ export default function GlassNav({
             sounds.playTap();
             onOpenNotifications();
           }}
-          className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-stone-600 hover:text-stone-900 hover:bg-stone-100/60 transition-all cursor-pointer"
+          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100/70 transition-all cursor-pointer"
         >
-          <div className="flex items-center gap-3">
-            <Bell className="w-4 h-4 text-[#B8860B]" />
-            <span>Notification Feed</span>
+          <div className="flex items-center gap-2.5">
+            <Bell className="w-4 h-4 text-neutral-500" />
+            <span>Notifications</span>
           </div>
           {unreadCount > 0 && (
-            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/15 text-rose-800 border border-rose-300">
+            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
               {unreadCount}
             </span>
           )}
@@ -171,23 +169,25 @@ export default function GlassNav({
             sounds.playTap();
             onOpenDbInspector();
           }}
-          className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-stone-600 hover:text-stone-900 hover:bg-stone-100/60 transition-all cursor-pointer"
+          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100/70 transition-all cursor-pointer"
         >
-          <div className="flex items-center gap-3">
-            <Database className="w-4 h-4 text-amber-700" />
-            <span>Supabase DDL</span>
+          <div className="flex items-center gap-2.5">
+            <Database className="w-4 h-4 text-neutral-500" />
+            <span>Supabase Schema</span>
           </div>
         </button>
       </div>
 
       {/* Footer Workstation Card */}
-      <div className="p-3.5 rounded-2xl glass-panel-subtle border border-[#C5A059]/20 text-xs space-y-1 bg-amber-50/50">
+      <div className="sidebar-node p-3 rounded-xl border border-black/[0.06] text-xs space-y-1 bg-white/70 backdrop-blur-md">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] text-stone-500 font-medium">Node</span>
-          <span className="text-[10px] font-mono text-emerald-700 font-bold">ONLINE</span>
+          <span className="text-[11px] text-neutral-500 font-medium">Node</span>
+          <span className={`text-[10px] font-mono font-bold ${bridge.is_online ? 'text-emerald-600' : 'text-neutral-500'}`}>
+            {bridge.is_online ? 'ONLINE' : 'OFFLINE'}
+          </span>
         </div>
-        <div className="text-stone-900 font-bold truncate">Studio-PC-01</div>
-        <div className="text-[10px] text-stone-500 truncate">NVENC 4K UHD Master Encoder</div>
+        <div className="text-neutral-950 font-bold truncate">{bridge.label?.split(' (')[0] || 'One Tap workstation'}</div>
+        <div className="text-[10px] text-neutral-500 truncate">{bridge.last_scan_at ? 'Folder scan connected' : 'Waiting for first scan'}</div>
       </div>
     </aside>
   );

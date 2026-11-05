@@ -50,19 +50,19 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-900/40 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-neutral-950/40 backdrop-blur-md animate-fadeIn">
       <div 
         className="glass-panel w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl border border-rose-500/30 shadow-2xl flex flex-col overflow-hidden text-left bg-white/95"
         role="dialog"
       >
         {/* Header */}
-        <div className="p-5 border-b border-[#C5A059]/20 flex items-start justify-between gap-3 bg-gradient-to-r from-rose-50/70 to-amber-50/40">
+        <div className="p-5 border-b border-[rgba(0,0,0,0.08)]/20 flex items-start justify-between gap-3 bg-gradient-to-r from-rose-50/70 to-neutral-50">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-2xl bg-rose-100 border border-rose-300 text-rose-700">
               <ShieldAlert className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-stone-900">
+              <h2 className="text-base font-bold text-neutral-900">
                 Admin Correction Review
               </h2>
               <p className="text-xs text-rose-700 font-mono truncate max-w-[260px] font-semibold">
@@ -76,7 +76,7 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
               sounds.playTap();
               onClose();
             }}
-            className="p-1.5 rounded-xl text-stone-400 hover:text-stone-800 hover:bg-[#C5A059]/10 transition-colors"
+            className="p-1.5 rounded-xl text-neutral-400 hover:text-neutral-800 hover:bg-[rgba(0,0,0,0.08)]/10 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -101,7 +101,7 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
           </div>
 
           {/* Action selection tabs */}
-          <div className="grid grid-cols-2 gap-2 p-1 bg-amber-50/70 rounded-2xl border border-[#C5A059]/30">
+          <div className="grid grid-cols-2 gap-2 p-1 bg-neutral-50/80 rounded-2xl border border-[rgba(0,0,0,0.08)]/30">
             <button
               type="button"
               onClick={() => {
@@ -112,7 +112,7 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
               className={`py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 actionTab === 'confirm'
                   ? 'bg-emerald-600 text-white shadow-sm'
-                  : 'text-stone-600 hover:text-stone-900'
+                  : 'text-neutral-600 hover:text-neutral-900'
               }`}
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
@@ -127,8 +127,8 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
               }}
               className={`py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 actionTab === 'correct'
-                  ? 'bg-[#997328] text-white shadow-sm'
-                  : 'text-stone-600 hover:text-stone-900'
+                  ? 'bg-[#334155] text-white shadow-sm'
+                  : 'text-neutral-600 hover:text-neutral-900'
               }`}
             >
               <Edit3 className="w-3.5 h-3.5" />
@@ -138,7 +138,7 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
 
           {/* TAB 1: Confirm Details */}
           {actionTab === 'confirm' && (
-            <div className="bg-white/80 rounded-2xl p-4 border border-[#C5A059]/20 space-y-3 text-xs text-stone-700">
+            <div className="bg-white/80 rounded-2xl p-4 border border-[rgba(0,0,0,0.08)]/20 space-y-3 text-xs text-neutral-700">
               <p className="leading-relaxed">
                 Confirming indicates you have manually verified the workstation folder assets and wish to approve this item as valid.
               </p>
@@ -153,13 +153,13 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
           {actionTab === 'correct' && (
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-stone-600 mb-1.5">
+                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1.5">
                   Select Target Status
                 </label>
                 <select
                   value={selectedStatus}
                   onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="w-full bg-white border border-[#C5A059]/30 text-xs text-stone-900 rounded-xl p-2.5 focus:outline-none focus:border-[#C5A059]"
+                  className="w-full bg-white border border-[rgba(0,0,0,0.08)]/30 text-xs text-neutral-900 rounded-xl p-2.5 focus:outline-none focus:border-[rgba(0,0,0,0.08)]"
                 >
                   <option value="pending_edit_1">Pending Edit 1</option>
                   <option value="edit_1">Edit 1</option>
@@ -174,7 +174,7 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-stone-600 mb-1.5">
+                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1.5">
                   Mandatory Audit Reason <span className="text-rose-500">*</span>
                 </label>
                 <textarea
@@ -185,7 +185,7 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
                   }}
                   rows={3}
                   placeholder="Explain why this status is being corrected (e.g., 'Deleted obsolete duplicate prproj and verified audio files on drive D')..."
-                  className="w-full bg-white border border-[#C5A059]/30 text-xs text-stone-900 rounded-xl p-3 focus:outline-none focus:border-[#C5A059] placeholder-stone-400"
+                  className="w-full bg-white border border-[rgba(0,0,0,0.08)]/30 text-xs text-neutral-900 rounded-xl p-3 focus:outline-none focus:border-[rgba(0,0,0,0.08)] placeholder-stone-400"
                 />
               </div>
             </div>
@@ -201,11 +201,11 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 border-t border-[#C5A059]/20 bg-amber-50/40 flex items-center justify-between gap-3">
+        <div className="p-4 border-t border-[rgba(0,0,0,0.08)]/20 bg-neutral-50/80 flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={handleRescan}
-            className="px-3.5 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-[#C5A059]/15 text-[#997328] flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-[rgba(0,0,0,0.08)]/15 text-[#334155] flex items-center gap-1.5 cursor-pointer"
             title="Request fresh scan from One Tap"
           >
             <RefreshCw className="w-3.5 h-3.5" />
@@ -219,7 +219,7 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
                 sounds.playTap();
                 onClose();
               }}
-              className="px-4 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-stone-200 text-stone-700"
+              className="px-4 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-neutral-200 text-neutral-700"
             >
               Cancel
             </button>

@@ -362,7 +362,7 @@ export default function QRScannerModal({ isOpen, onClose }) {
         scale: 7,
         color: {
           dark: '#111827',
-          light: '#FAF8F5'
+          light: '#F5F5F7'
         }
       });
       setGeneratedQR(url);
@@ -379,30 +379,30 @@ export default function QRScannerModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-900/60 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-neutral-950/60 backdrop-blur-md animate-fadeIn">
       {/* Hidden dummy container for file scans */}
       <div id="anyshare-qr-file-dummy" className="hidden" />
 
       <div 
-        className="glass-panel w-full sm:max-w-xl max-h-[92vh] sm:rounded-3xl rounded-t-3xl border border-[#C5A059]/40 shadow-2xl flex flex-col overflow-hidden text-left bg-[#FAF8F5]/98 text-stone-900"
+        className="glass-panel w-full sm:max-w-xl max-h-[92vh] sm:rounded-3xl rounded-t-3xl border border-[rgba(0,0,0,0.08)]/40 shadow-2xl flex flex-col overflow-hidden text-left bg-[#F5F5F7]/98 text-neutral-900"
         role="dialog"
       >
         {/* Header */}
-        <div className="p-5 border-b border-[#C5A059]/25 flex items-start justify-between gap-3 bg-gradient-to-r from-amber-100/70 via-stone-50/50 to-transparent shrink-0">
+        <div className="p-5 border-b border-[rgba(0,0,0,0.08)]/25 flex items-start justify-between gap-3 bg-gradient-to-r from-neutral-100/80 via-stone-50/50 to-transparent shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-gradient-to-br from-[#D4AF37] to-[#8A6614] text-white shadow-md">
+            <div className="p-2.5 rounded-2xl bg-gradient-to-br from-[#0f172a] to-[#334155] text-white shadow-md">
               <QrCode className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-500/20 text-[#8B6508] border border-amber-500/30">
+                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-neutral-500/20 text-[#1e293b] border border-amber-500/30">
                   One-Time QR Login & Sync
                 </span>
-                <span className="text-xs font-mono font-bold text-stone-600">
+                <span className="text-xs font-mono font-bold text-neutral-600">
                   Universal Session
                 </span>
               </div>
-              <h2 className="text-base font-black text-stone-950 truncate max-w-sm mt-0.5">
+              <h2 className="text-base font-black text-neutral-950 truncate max-w-sm mt-0.5">
                 Scan App QR Code to Log In
               </h2>
             </div>
@@ -413,7 +413,7 @@ export default function QRScannerModal({ isOpen, onClose }) {
               sounds.playTap();
               onClose();
             }}
-            className="p-2 rounded-xl text-stone-500 hover:text-stone-900 hover:bg-stone-200/60 transition-colors"
+            className="p-2 rounded-xl text-neutral-500 hover:text-neutral-900 hover:bg-neutral-200/60 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -421,7 +421,7 @@ export default function QRScannerModal({ isOpen, onClose }) {
 
         {/* Tab Switcher */}
         {!successInfo && (
-          <div className="flex items-center px-5 pt-3 border-b border-[#C5A059]/15 gap-2 bg-amber-50/40 shrink-0 text-xs font-bold overflow-x-auto">
+          <div className="flex items-center px-5 pt-3 border-b border-[rgba(0,0,0,0.08)]/15 gap-2 bg-neutral-50/80 shrink-0 text-xs font-bold overflow-x-auto">
             <button
               type="button"
               onClick={() => {
@@ -430,8 +430,8 @@ export default function QRScannerModal({ isOpen, onClose }) {
               }}
               className={`pb-2.5 px-3 flex items-center gap-1.5 border-b-2 transition-all cursor-pointer ${
                 activeTab === 'scan'
-                  ? 'border-[#B8860B] text-[#8B6508]'
-                  : 'border-transparent text-stone-500 hover:text-stone-800'
+                  ? 'border-[#0f172a] text-[#1e293b]'
+                  : 'border-transparent text-neutral-500 hover:text-neutral-800'
               }`}
             >
               <Camera className="w-4 h-4" />
@@ -446,8 +446,8 @@ export default function QRScannerModal({ isOpen, onClose }) {
               }}
               className={`pb-2.5 px-3 flex items-center gap-1.5 border-b-2 transition-all cursor-pointer ${
                 activeTab === 'upload'
-                  ? 'border-[#B8860B] text-[#8B6508]'
-                  : 'border-transparent text-stone-500 hover:text-stone-800'
+                  ? 'border-[#0f172a] text-[#1e293b]'
+                  : 'border-transparent text-neutral-500 hover:text-neutral-800'
               }`}
             >
               <Upload className="w-4 h-4" />
@@ -462,8 +462,8 @@ export default function QRScannerModal({ isOpen, onClose }) {
               }}
               className={`pb-2.5 px-3 flex items-center gap-1.5 border-b-2 transition-all cursor-pointer ${
                 activeTab === 'manual'
-                  ? 'border-[#B8860B] text-[#8B6508]'
-                  : 'border-transparent text-stone-500 hover:text-stone-800'
+                  ? 'border-[#0f172a] text-[#1e293b]'
+                  : 'border-transparent text-neutral-500 hover:text-neutral-800'
               }`}
             >
               <KeyRound className="w-4 h-4" />
@@ -479,8 +479,8 @@ export default function QRScannerModal({ isOpen, onClose }) {
               }}
               className={`pb-2.5 px-3 flex items-center gap-1.5 border-b-2 transition-all cursor-pointer ${
                 activeTab === 'generate'
-                  ? 'border-[#B8860B] text-[#8B6508]'
-                  : 'border-transparent text-stone-500 hover:text-stone-800'
+                  ? 'border-[#0f172a] text-[#1e293b]'
+                  : 'border-transparent text-neutral-500 hover:text-neutral-800'
               }`}
             >
               <Laptop className="w-4 h-4" />
@@ -499,42 +499,42 @@ export default function QRScannerModal({ isOpen, onClose }) {
               </div>
 
               <div>
-                <h3 className="text-lg font-black text-stone-950">
+                <h3 className="text-lg font-black text-neutral-950">
                   Authentication & Workstation Synced!
                 </h3>
-                <p className="text-xs text-stone-600 max-w-sm mx-auto mt-1 leading-relaxed">
+                <p className="text-xs text-neutral-600 max-w-sm mx-auto mt-1 leading-relaxed">
                   You are now authenticated on the website and permanently synchronized with your One Tap workstation node.
                 </p>
               </div>
 
               {/* User Profile Card */}
-              <div className="p-4 rounded-2xl bg-white border border-[#C5A059]/30 shadow-sm max-w-md mx-auto text-left space-y-3">
-                <div className="flex items-center gap-3 pb-3 border-b border-[#C5A059]/15">
+              <div className="p-4 rounded-2xl bg-white border border-[rgba(0,0,0,0.08)]/30 shadow-sm max-w-md mx-auto text-left space-y-3">
+                <div className="flex items-center gap-3 pb-3 border-b border-[rgba(0,0,0,0.08)]/15">
                   <img
                     src={successInfo.user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'}
                     alt={successInfo.user.name}
-                    className="w-11 h-11 rounded-full object-cover border-2 border-[#D4AF37]"
+                    className="w-11 h-11 rounded-full object-cover border-2 border-[#0f172a]"
                   />
                   <div>
-                    <h4 className="text-sm font-black text-stone-950">{successInfo.user.name}</h4>
-                    <p className="text-xs font-mono text-[#8B6508] font-bold">@{successInfo.user.username}</p>
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded bg-amber-100 text-amber-900 border border-amber-300">
+                    <h4 className="text-sm font-black text-neutral-950">{successInfo.user.name}</h4>
+                    <p className="text-xs font-mono text-[#1e293b] font-bold">@{successInfo.user.username}</p>
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded bg-neutral-100 text-neutral-900 border border-neutral-300">
                       {successInfo.user.role}
                     </span>
                   </div>
                 </div>
 
-                <div className="space-y-1.5 text-xs text-stone-700">
+                <div className="space-y-1.5 text-xs text-neutral-700">
                   <div className="flex items-center justify-between">
-                    <span className="text-stone-500">Connected Node:</span>
-                    <span className="font-bold text-stone-900">{successInfo.workstation.label}</span>
+                    <span className="text-neutral-500">Connected Node:</span>
+                    <span className="font-bold text-neutral-900">{successInfo.workstation.label}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-stone-500">GPU Encoder:</span>
-                    <span className="font-mono text-stone-900 font-semibold">{successInfo.workstation.gpu}</span>
+                    <span className="text-neutral-500">GPU Encoder:</span>
+                    <span className="font-mono text-neutral-900 font-semibold">{successInfo.workstation.gpu}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-stone-500">Local Bridge Port:</span>
+                    <span className="text-neutral-500">Local Bridge Port:</span>
                     <span className="font-mono text-emerald-800 font-bold">:{successInfo.workstation.bridgePort || 5253} (Active)</span>
                   </div>
                 </div>
@@ -556,18 +556,18 @@ export default function QRScannerModal({ isOpen, onClose }) {
               {/* TAB 1: LIVE CAMERA SCANNER */}
               {activeTab === 'scan' && (
                 <div className="space-y-4">
-                  <div className="relative rounded-3xl overflow-hidden bg-black/90 border-2 border-[#C5A059]/40 aspect-square max-w-sm mx-auto shadow-inner flex items-center justify-center">
+                  <div className="relative rounded-3xl overflow-hidden bg-black/90 border-2 border-[rgba(0,0,0,0.08)]/40 aspect-square max-w-sm mx-auto shadow-inner flex items-center justify-center">
                     {/* Viewfinder Target Reticle */}
-                    <div className="absolute inset-8 border-2 border-dashed border-[#D4AF37]/60 rounded-2xl pointer-events-none z-10 flex flex-col justify-between p-2">
+                    <div className="absolute inset-8 border-2 border-dashed border-[#0f172a]/60 rounded-2xl pointer-events-none z-10 flex flex-col justify-between p-2">
                       <div className="flex justify-between">
-                        <div className="w-5 h-5 border-t-4 border-l-4 border-[#D4AF37] rounded-tl" />
-                        <div className="w-5 h-5 border-t-4 border-r-4 border-[#D4AF37] rounded-tr" />
+                        <div className="w-5 h-5 border-t-4 border-l-4 border-[#0f172a] rounded-tl" />
+                        <div className="w-5 h-5 border-t-4 border-r-4 border-[#0f172a] rounded-tr" />
                       </div>
                       {/* Laser beam */}
-                      <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent animate-pulse shadow-[0_0_10px_#D4AF37]" />
+                      <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-[#0f172a] to-transparent animate-pulse shadow-[0_0_10px_#0f172a]" />
                       <div className="flex justify-between">
-                        <div className="w-5 h-5 border-b-4 border-l-4 border-[#D4AF37] rounded-bl" />
-                        <div className="w-5 h-5 border-b-4 border-r-4 border-[#D4AF37] rounded-br" />
+                        <div className="w-5 h-5 border-b-4 border-l-4 border-[#0f172a] rounded-bl" />
+                        <div className="w-5 h-5 border-b-4 border-r-4 border-[#0f172a] rounded-br" />
                       </div>
                     </div>
 
@@ -585,7 +585,7 @@ export default function QRScannerModal({ isOpen, onClose }) {
                     <div id="anyshare-qr-reader" className="w-full h-full" />
                   </div>
 
-                  <p className="text-xs text-center text-stone-600 font-medium">
+                  <p className="text-xs text-center text-neutral-600 font-medium">
                     Point your camera at the QR code generated in the <strong>One Tap Desktop App</strong> or mobile companion.
                   </p>
                 </div>
@@ -596,18 +596,18 @@ export default function QRScannerModal({ isOpen, onClose }) {
                 <div className="space-y-4 py-2">
                   <div 
                     onClick={() => fileInputRef.current?.click()}
-                    className="p-8 border-2 border-dashed border-[#C5A059]/50 rounded-3xl bg-white/70 hover:bg-white text-center cursor-pointer transition-all hover:border-[#D4AF37] space-y-3"
+                    className="p-8 border-2 border-dashed border-[rgba(0,0,0,0.08)]/50 rounded-3xl bg-white/70 hover:bg-white text-center cursor-pointer transition-all hover:border-[#0f172a] space-y-3"
                   >
-                    <div className="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-300 text-[#8B6508] flex items-center justify-center mx-auto shadow-xs">
+                    <div className="w-12 h-12 rounded-2xl bg-neutral-100 border border-neutral-300 text-[#1e293b] flex items-center justify-center mx-auto shadow-xs">
                       <Upload className="w-6 h-6" />
                     </div>
                     <div>
-                      <h4 className="text-sm font-black text-stone-900">Upload QR Screenshot or Photo</h4>
-                      <p className="text-xs text-stone-500 mt-1">
+                      <h4 className="text-sm font-black text-neutral-900">Upload QR Screenshot or Photo</h4>
+                      <p className="text-xs text-neutral-500 mt-1">
                         PNG, JPG, or WEBP containing the One-Time Login QR
                       </p>
                     </div>
-                    <span className="inline-block text-xs font-bold text-[#8B6508] bg-amber-100/80 px-3 py-1 rounded-lg border border-[#C5A059]/30">
+                    <span className="inline-block text-xs font-bold text-[#1e293b] bg-neutral-100/80 px-3 py-1 rounded-lg border border-[rgba(0,0,0,0.08)]/30">
                       Browse Files
                     </span>
                   </div>
@@ -626,7 +626,7 @@ export default function QRScannerModal({ isOpen, onClose }) {
               {activeTab === 'manual' && (
                 <form onSubmit={handleManualSubmit} className="space-y-4 py-2">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-[#8B6508] block">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[#1e293b] block">
                       Enter Pairing Token or JSON Payload
                     </label>
                     <textarea
@@ -634,7 +634,7 @@ export default function QRScannerModal({ isOpen, onClose }) {
                       value={manualToken}
                       onChange={(e) => setManualToken(e.target.value)}
                       placeholder='Paste token string (e.g. pair_ot_...) or full JSON payload'
-                      className="w-full p-3 rounded-2xl bg-white border border-[#C5A059]/35 text-xs font-mono text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
+                      className="w-full p-3 rounded-2xl bg-white border border-[rgba(0,0,0,0.08)]/35 text-xs font-mono text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-[#0f172a]"
                     />
                   </div>
 
@@ -661,7 +661,7 @@ export default function QRScannerModal({ isOpen, onClose }) {
               {/* TAB 4: APP QR PREVIEW (Simulates One Tap App generating the QR) */}
               {activeTab === 'generate' && (
                 <div className="space-y-4 py-2 text-center">
-                  <div className="p-4 rounded-3xl bg-white border border-[#C5A059]/30 shadow-sm inline-block mx-auto">
+                  <div className="p-4 rounded-3xl bg-white border border-[rgba(0,0,0,0.08)]/30 shadow-sm inline-block mx-auto">
                     {generatedQR ? (
                       <img
                         src={generatedQR}
@@ -669,15 +669,15 @@ export default function QRScannerModal({ isOpen, onClose }) {
                         className="w-52 h-52 mx-auto rounded-xl shadow-xs"
                       />
                     ) : (
-                      <div className="w-52 h-52 flex items-center justify-center text-xs text-stone-400">
+                      <div className="w-52 h-52 flex items-center justify-center text-xs text-neutral-400">
                         Generating QR...
                       </div>
                     )}
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-black text-stone-950">One Tap Workstation Node QR</h4>
-                    <p className="text-xs text-stone-600 max-w-xs mx-auto mt-0.5">
+                    <h4 className="text-sm font-black text-neutral-950">One Tap Workstation Node QR</h4>
+                    <p className="text-xs text-neutral-600 max-w-xs mx-auto mt-0.5">
                       This is the QR generated by the One Tap desktop app for Studio-PC-01. Scan with AnyShare mobile or copy token below.
                     </p>
                   </div>
@@ -686,7 +686,7 @@ export default function QRScannerModal({ isOpen, onClose }) {
                     <button
                       type="button"
                       onClick={handleCopyPayload}
-                      className="px-4 py-2 rounded-xl text-xs font-bold glass-pill hover:bg-stone-200 text-stone-900 border border-[#C5A059]/30 flex items-center gap-1.5 cursor-pointer"
+                      className="px-4 py-2 rounded-xl text-xs font-bold glass-pill hover:bg-neutral-200 text-neutral-900 border border-[rgba(0,0,0,0.08)]/30 flex items-center gap-1.5 cursor-pointer"
                     >
                       {copiedToken ? <Check className="w-3.5 h-3.5 text-emerald-700" /> : <Copy className="w-3.5 h-3.5" />}
                       <span>{copiedToken ? 'Copied Payload!' : 'Copy Pairing JSON'}</span>
@@ -695,10 +695,10 @@ export default function QRScannerModal({ isOpen, onClose }) {
                     <button
                       type="button"
                       onClick={generateAppLoginQR}
-                      className="p-2 rounded-xl glass-pill hover:bg-stone-200 text-stone-800 border border-[#C5A059]/30 cursor-pointer"
+                      className="p-2 rounded-xl glass-pill hover:bg-neutral-200 text-neutral-800 border border-[rgba(0,0,0,0.08)]/30 cursor-pointer"
                       title="Regenerate QR"
                     >
-                      <RefreshCw className="w-3.5 h-3.5 text-[#8A6614]" />
+                      <RefreshCw className="w-3.5 h-3.5 text-[#334155]" />
                     </button>
                   </div>
                 </div>
@@ -719,9 +719,9 @@ export default function QRScannerModal({ isOpen, onClose }) {
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-[#C5A059]/25 bg-stone-100/80 flex items-center justify-between gap-3 shrink-0">
-          <div className="flex items-center gap-1.5 text-[11px] text-stone-600">
-            <ShieldCheck className="w-3.5 h-3.5 text-[#8A6614]" />
+        <div className="p-4 border-t border-[rgba(0,0,0,0.08)]/25 bg-neutral-100/80 flex items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 text-[11px] text-neutral-600">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#334155]" />
             <span>Encrypted One-Time Auth Token</span>
           </div>
 
@@ -731,7 +731,7 @@ export default function QRScannerModal({ isOpen, onClose }) {
               sounds.playTap();
               onClose();
             }}
-            className="px-4 py-2 rounded-xl text-xs font-bold glass-pill hover:bg-white text-stone-900 border border-[#C5A059]/40 cursor-pointer"
+            className="px-4 py-2 rounded-xl text-xs font-bold glass-pill hover:bg-white text-neutral-900 border border-[rgba(0,0,0,0.08)]/40 cursor-pointer"
           >
             Close
           </button>

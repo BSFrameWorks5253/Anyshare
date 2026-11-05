@@ -28,7 +28,7 @@ export default function MobileBottomNav({
   const correctionCount = items.filter(i => i.status === 'correction_needed').length;
 
   return (
-    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 glass-panel border-t border-[#C5A059]/30 px-3 py-2 pb-safe backdrop-blur-2xl bg-white/90 shadow-lg">
+    <nav className="studio-mobile-dock sm:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-black/[0.06] px-2 py-1.5 pb-safe backdrop-blur-2xl bg-white/85 shadow-lg">
       <div className="flex items-center justify-around">
         {/* 1. Overview */}
         <button
@@ -37,10 +37,10 @@ export default function MobileBottomNav({
             sounds.playTap();
             onNavigate('overview');
           }}
-          className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all cursor-pointer ${
+          className={`flex flex-col items-center justify-center p-1.5 rounded-xl transition-all cursor-pointer ${
             currentView === 'overview'
-              ? 'text-[#B8860B] font-bold'
-              : 'text-stone-500 hover:text-stone-800 font-medium'
+              ? 'text-neutral-950 font-bold'
+              : 'text-neutral-500 hover:text-neutral-800 font-medium'
           }`}
         >
           <LayoutDashboard className="w-5 h-5 mb-0.5" />
@@ -54,10 +54,10 @@ export default function MobileBottomNav({
             sounds.playTap();
             onNavigate('work');
           }}
-          className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all cursor-pointer ${
+          className={`flex flex-col items-center justify-center p-1.5 rounded-xl transition-all cursor-pointer ${
             currentView === 'work'
-              ? 'text-[#B8860B] font-bold'
-              : 'text-stone-500 hover:text-stone-800 font-medium'
+              ? 'text-neutral-950 font-bold'
+              : 'text-neutral-500 hover:text-neutral-800 font-medium'
           }`}
         >
           <Briefcase className="w-5 h-5 mb-0.5" />
@@ -71,31 +71,14 @@ export default function MobileBottomNav({
             sounds.playTap();
             onNavigate('safar');
           }}
-          className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all cursor-pointer ${
+          className={`flex flex-col items-center justify-center p-1.5 rounded-xl transition-all cursor-pointer ${
             currentView === 'safar'
-              ? 'text-[#B8860B] font-bold'
-              : 'text-stone-500 hover:text-stone-800 font-medium'
+              ? 'text-neutral-950 font-bold'
+              : 'text-neutral-500 hover:text-neutral-800 font-medium'
           }`}
         >
           <CalendarDays className="w-5 h-5 mb-0.5" />
-          <span className="text-[10px]">Safar Hub</span>
-        </button>
-
-        {/* 2.6 Team & Users */}
-        <button
-          type="button"
-          onClick={() => {
-            sounds.playTap();
-            onNavigate('users');
-          }}
-          className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all cursor-pointer ${
-            currentView === 'users'
-              ? 'text-[#B8860B] font-bold'
-              : 'text-stone-500 hover:text-stone-800 font-medium'
-          }`}
-        >
-          <Users className="w-5 h-5 mb-0.5" />
-          <span className="text-[10px]">Team</span>
+          <span className="text-[10px]">Safar</span>
         </button>
 
         {/* Center: Quick QR Scan Button */}
@@ -105,14 +88,31 @@ export default function MobileBottomNav({
             sounds.playTap();
             if (onOpenQRScanner) onOpenQRScanner();
           }}
-          className="flex flex-col items-center justify-center -mt-3.5 p-2 px-3 rounded-2xl bg-gradient-to-tr from-[#D4AF37] to-[#8A6614] text-white shadow-md border-2 border-white cursor-pointer active:scale-95 transition-transform"
+          className="flex flex-col items-center justify-center -mt-3.5 p-2 px-3 rounded-2xl bg-neutral-950 text-white shadow-md border border-neutral-700 cursor-pointer active:scale-95 transition-transform"
           title="Scan One Tap App QR"
         >
           <QrCode className="w-5 h-5" />
-          <span className="text-[8px] font-black uppercase tracking-wider mt-0.5">Scan</span>
+          <span className="text-[8px] font-bold uppercase tracking-wider mt-0.5">Scan</span>
         </button>
 
-        {/* 3. Corrections */}
+        {/* 2.6 Team & Users */}
+        <button
+          type="button"
+          onClick={() => {
+            sounds.playTap();
+            onNavigate('users');
+          }}
+          className={`flex flex-col items-center justify-center p-1.5 rounded-xl transition-all cursor-pointer ${
+            currentView === 'users'
+              ? 'text-neutral-950 font-bold'
+              : 'text-neutral-500 hover:text-neutral-800 font-medium'
+          }`}
+        >
+          <Users className="w-5 h-5 mb-0.5" />
+          <span className="text-[10px]">Team</span>
+        </button>
+
+        {/* 3. Corrections / Review */}
         {isAdmin && (
           <button
             type="button"
@@ -120,16 +120,16 @@ export default function MobileBottomNav({
               sounds.playTap();
               onNavigate('corrections');
             }}
-            className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all cursor-pointer relative ${
+            className={`flex flex-col items-center justify-center p-1.5 rounded-xl transition-all cursor-pointer relative ${
               currentView === 'corrections'
-                ? 'text-rose-700 font-bold'
-                : 'text-stone-500 hover:text-stone-800 font-medium'
+                ? 'text-rose-600 font-bold'
+                : 'text-neutral-500 hover:text-neutral-800 font-medium'
             }`}
           >
             <ShieldAlert className="w-5 h-5 mb-0.5" />
             <span className="text-[10px]">Review</span>
             {correctionCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500 animate-ping" />
             )}
           </button>
         )}
@@ -141,16 +141,16 @@ export default function MobileBottomNav({
             sounds.playTap();
             onOpenNotifications();
           }}
-          className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all cursor-pointer relative ${
+          className={`flex flex-col items-center justify-center p-1.5 rounded-xl transition-all cursor-pointer relative ${
             currentView === 'notifications'
-              ? 'text-[#B8860B] font-bold'
-              : 'text-stone-500 hover:text-stone-800 font-medium'
+              ? 'text-neutral-950 font-bold'
+              : 'text-neutral-500 hover:text-neutral-800 font-medium'
           }`}
         >
           <Bell className="w-5 h-5 mb-0.5" />
           <span className="text-[10px]">Alerts</span>
           {unreadCount > 0 && (
-            <span className="absolute top-1 right-2 min-w-3.5 h-3.5 px-1 rounded-full bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center">
+            <span className="absolute top-1 right-1.5 min-w-3.5 h-3.5 px-1 rounded-full bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center">
               {unreadCount}
             </span>
           )}
@@ -163,7 +163,7 @@ export default function MobileBottomNav({
             sounds.playTap();
             onOpenAccount();
           }}
-          className="flex flex-col items-center justify-center p-2 rounded-xl text-stone-500 hover:text-stone-800 font-medium transition-all cursor-pointer"
+          className="flex flex-col items-center justify-center p-1.5 rounded-xl text-neutral-500 hover:text-neutral-800 font-medium transition-all cursor-pointer"
         >
           <User className="w-5 h-5 mb-0.5" />
           <span className="text-[10px]">Account</span>

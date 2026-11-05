@@ -35,10 +35,10 @@ export default function CorrectionQueue({ onReviewItem }) {
                   {correctionItems.length} Pending
                 </span>
               </div>
-              <h2 className="text-xl font-extrabold text-stone-900">
+              <h2 className="text-xl font-extrabold text-neutral-900">
                 Admin Correction Queue
               </h2>
-              <p className="text-xs text-stone-600 mt-1 max-w-xl leading-relaxed">
+              <p className="text-xs text-neutral-600 mt-1 max-w-xl leading-relaxed">
                 One Tap halted automatic progression because of ambiguous files, missing audio, or preflight failures. Deterministic safety protocol prohibits silent guesses. Review evidence and confirm or correct.
               </p>
             </div>
@@ -47,7 +47,7 @@ export default function CorrectionQueue({ onReviewItem }) {
           <button
             type="button"
             onClick={() => triggerBridgeScan()}
-            className="self-start sm:self-center px-4 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-[#C5A059]/15 text-[#997328] flex items-center gap-2 shrink-0 cursor-pointer"
+            className="self-start sm:self-center px-4 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-[rgba(0,0,0,0.08)]/15 text-[#334155] flex items-center gap-2 shrink-0 cursor-pointer"
           >
             <RefreshCw className="w-4 h-4" />
             <span>Scan Workstation</span>
@@ -57,12 +57,12 @@ export default function CorrectionQueue({ onReviewItem }) {
 
       {/* List of items needing correction */}
       {correctionItems.length === 0 ? (
-        <div className="glass-panel rounded-3xl p-12 text-center border border-[#C5A059]/25 bg-white/80">
+        <div className="glass-panel rounded-3xl p-12 text-center border border-[rgba(0,0,0,0.08)]/25 bg-white/80">
           <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-500/25 text-emerald-700 flex items-center justify-center mx-auto mb-4">
             <CheckCircle2 className="w-6 h-6" />
           </div>
-          <h3 className="text-base font-bold text-stone-900 mb-1">All Clear! No Corrections Needed</h3>
-          <p className="text-xs text-stone-600 max-w-sm mx-auto">
+          <h3 className="text-base font-bold text-neutral-900 mb-1">All Clear! No Corrections Needed</h3>
+          <p className="text-xs text-neutral-600 max-w-sm mx-auto">
             All workstation folder structures and preflight checks match deterministic One Tap rules.
           </p>
         </div>
@@ -79,9 +79,9 @@ export default function CorrectionQueue({ onReviewItem }) {
                   <div>
                     <div className="flex items-center gap-2 mb-1.5">
                       <StatusPill status={item.status} size="sm" />
-                      <span className="text-xs font-mono text-stone-500">{item.external_key}</span>
+                      <span className="text-xs font-mono text-neutral-500">{item.external_key}</span>
                     </div>
-                    <h3 className="text-base font-bold text-stone-900">{item.display_label}</h3>
+                    <h3 className="text-base font-bold text-neutral-900">{item.display_label}</h3>
                   </div>
 
                   <button

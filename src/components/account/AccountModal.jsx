@@ -108,13 +108,13 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-900/50 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-neutral-950/50 backdrop-blur-md animate-fadeIn">
       <div 
-        className="glass-panel w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl border border-[#C5A059]/40 shadow-2xl flex flex-col overflow-hidden text-left bg-white/95"
+        className="glass-panel w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl border border-[rgba(0,0,0,0.08)]/40 shadow-2xl flex flex-col overflow-hidden text-left bg-white/95"
         role="dialog"
       >
         {/* Header with High-Contrast Islamic Gold Styling */}
-        <div className="p-5 border-b border-[#C5A059]/30 flex items-start justify-between gap-3 bg-gradient-to-r from-amber-100/90 via-yellow-50/70 to-white">
+        <div className="p-5 border-b border-[rgba(0,0,0,0.08)]/30 flex items-start justify-between gap-3 bg-gradient-to-r from-neutral-100/80 via-neutral-50 to-white">
           <div className="flex items-center gap-4">
             <UserAvatarWithReflection
               src={currentUser.avatar}
@@ -123,15 +123,15 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
             />
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-black text-stone-950 font-serif">
+                <h2 className="text-lg font-black text-neutral-950 font-sans">
                   {currentUser.name}
                 </h2>
-                <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-200 text-stone-950 border border-amber-400 shadow-xs">
+                <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-200 text-neutral-950 border border-neutral-300 shadow-xs">
                   {currentUser.role}
                 </span>
               </div>
-              <p className="text-xs text-[#785005] font-mono font-black flex items-center gap-1 mt-0.5">
-                <AtSign className="w-3.5 h-3.5 text-[#8A6614]" />
+              <p className="text-xs text-[#1e293b] font-mono font-black flex items-center gap-1 mt-0.5">
+                <AtSign className="w-3.5 h-3.5 text-[#334155]" />
                 {currentUser.username || 'creator'}
               </p>
             </div>
@@ -142,14 +142,14 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
               sounds.playTap();
               onClose();
             }}
-            className="p-2 rounded-xl text-stone-500 hover:text-stone-950 hover:bg-[#C5A059]/15 transition-colors"
+            className="p-2 rounded-xl text-neutral-500 hover:text-neutral-950 hover:bg-[rgba(0,0,0,0.08)]/15 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Navigation Tabs: My Profile vs Team Directory */}
-        <div className="flex border-b border-[#C5A059]/20 bg-amber-50/50 p-1 px-4 gap-2">
+        <div className="flex border-b border-[rgba(0,0,0,0.08)]/20 bg-neutral-50/80 p-1 px-4 gap-2">
           <button
             type="button"
             onClick={() => {
@@ -158,11 +158,11 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
             }}
             className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
               activeTab === 'profile'
-                ? 'bg-stone-900 text-[#F5E6C8] shadow-sm'
-                : 'text-stone-700 hover:text-stone-950 hover:bg-white/80'
+                ? 'bg-neutral-950 text-[#F5E6C8] shadow-sm'
+                : 'text-neutral-700 hover:text-neutral-950 hover:bg-white/80'
             }`}
           >
-            <User className="w-4 h-4 text-[#D4AF37]" />
+            <User className="w-4 h-4 text-[#0f172a]" />
             <span>My Account & Login</span>
           </button>
 
@@ -174,11 +174,11 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
             }}
             className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
               activeTab === 'team'
-                ? 'bg-stone-900 text-[#F5E6C8] shadow-sm'
-                : 'text-stone-700 hover:text-stone-950 hover:bg-white/80'
+                ? 'bg-neutral-950 text-[#F5E6C8] shadow-sm'
+                : 'text-neutral-700 hover:text-neutral-950 hover:bg-white/80'
             }`}
           >
-            <Users className="w-4 h-4 text-[#D4AF37]" />
+            <Users className="w-4 h-4 text-[#0f172a]" />
             <span>Team & Users Directory ({users.length})</span>
           </button>
         </div>
@@ -190,12 +190,12 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
           {activeTab === 'profile' && (
             <div className="space-y-4">
               {/* Child App Registration Status Banner */}
-              <div className="p-3.5 rounded-2xl bg-amber-50 border-2 border-[#C5A059]/50 flex items-center justify-between shadow-sm">
+              <div className="p-3.5 rounded-2xl bg-neutral-50 border-2 border-[rgba(0,0,0,0.08)]/50 flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-2.5">
-                  <Laptop className="w-4 h-4 text-[#8A6614] shrink-0" />
+                  <Laptop className="w-4 h-4 text-[#334155] shrink-0" />
                   <div>
-                    <span className="text-[11px] text-stone-800 font-extrabold block">Child App Folder Identity:</span>
-                    <span className="text-xs font-black text-stone-950 font-mono">Anything share</span>
+                    <span className="text-[11px] text-neutral-800 font-extrabold block">Child App Folder Identity:</span>
+                    <span className="text-xs font-black text-neutral-950 font-mono">Anything share</span>
                   </div>
                 </div>
                 <span className="text-[10px] font-black px-2.5 py-0.5 rounded-md bg-emerald-200 text-emerald-950 border border-emerald-500 shadow-xs">
@@ -212,14 +212,14 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
               )}
 
               {/* Edit Username / Ecosystem Identity Section */}
-              <div className="rounded-2xl p-4 border border-[#C5A059]/30 bg-white/95 space-y-3 shadow-xs">
+              <div className="rounded-2xl p-4 border border-[rgba(0,0,0,0.08)]/30 bg-white/95 space-y-3 shadow-xs">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="font-black text-stone-950 text-sm flex items-center gap-1.5">
-                      <User className="w-4 h-4 text-[#8A6614]" />
+                    <h4 className="font-black text-neutral-950 text-sm flex items-center gap-1.5">
+                      <User className="w-4 h-4 text-[#334155]" />
                       Anything Website Login Credentials
                     </h4>
-                    <p className="text-[11px] text-stone-600 font-semibold">
+                    <p className="text-[11px] text-neutral-600 font-semibold">
                       Set the username you use to log into the master Anything website and child apps
                     </p>
                   </div>
@@ -231,35 +231,35 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
                         sounds.playTap();
                         setIsEditingProfile(true);
                       }}
-                      className="px-3 py-1.5 rounded-xl text-xs font-black glass-pill hover:bg-stone-100 text-stone-900 border border-[#C5A059]/40 flex items-center gap-1.5 cursor-pointer shadow-xs"
+                      className="px-3 py-1.5 rounded-xl text-xs font-black glass-pill hover:bg-neutral-100 text-neutral-900 border border-[rgba(0,0,0,0.08)]/40 flex items-center gap-1.5 cursor-pointer shadow-xs"
                     >
-                      <Edit2 className="w-3.5 h-3.5 text-[#8A6614]" />
+                      <Edit2 className="w-3.5 h-3.5 text-[#334155]" />
                       <span>Edit</span>
                     </button>
                   )}
                 </div>
 
                 {isEditingProfile ? (
-                  <form onSubmit={handleSaveProfile} className="space-y-3 pt-2 border-t border-[#C5A059]/20">
+                  <form onSubmit={handleSaveProfile} className="space-y-3 pt-2 border-t border-[rgba(0,0,0,0.08)]/20">
                     <div>
-                      <label className="block text-[11px] text-stone-900 font-black mb-1">
+                      <label className="block text-[11px] text-neutral-900 font-black mb-1">
                         Ecosystem Username (@handle)
                       </label>
                       <div className="relative">
-                        <AtSign className="w-3.5 h-3.5 text-stone-600 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <AtSign className="w-3.5 h-3.5 text-neutral-600 absolute left-3 top-1/2 -translate-y-1/2" />
                         <input
                           type="text"
                           required
                           value={usernameInput}
                           onChange={(e) => setUsernameInput(e.target.value)}
                           placeholder="e.g. burhanuddin or creator_lead"
-                          className="w-full pl-8 pr-3 py-2 bg-stone-50 border border-[#C5A059]/40 rounded-xl text-xs text-stone-950 font-bold focus:outline-none focus:border-[#B8860B] font-mono"
+                          className="w-full pl-8 pr-3 py-2 bg-neutral-50 border border-[rgba(0,0,0,0.08)]/40 rounded-xl text-xs text-neutral-950 font-bold focus:outline-none focus:border-[#0f172a] font-mono"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-[11px] text-stone-900 font-black mb-1">
+                      <label className="block text-[11px] text-neutral-900 font-black mb-1">
                         Display Name
                       </label>
                       <input
@@ -267,12 +267,12 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
                         value={nameInput}
                         onChange={(e) => setNameInput(e.target.value)}
                         placeholder="Full Name"
-                        className="w-full px-3 py-2 bg-stone-50 border border-[#C5A059]/40 rounded-xl text-xs text-stone-950 font-bold focus:outline-none focus:border-[#B8860B]"
+                        className="w-full px-3 py-2 bg-neutral-50 border border-[rgba(0,0,0,0.08)]/40 rounded-xl text-xs text-neutral-950 font-bold focus:outline-none focus:border-[#0f172a]"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[11px] text-stone-900 font-black mb-1">
+                      <label className="block text-[11px] text-neutral-900 font-black mb-1">
                         Email Address
                       </label>
                       <input
@@ -280,7 +280,7 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
                         value={emailInput}
                         onChange={(e) => setEmailInput(e.target.value)}
                         placeholder="user@anything.local"
-                        className="w-full px-3 py-2 bg-stone-50 border border-[#C5A059]/40 rounded-xl text-xs text-stone-950 font-bold focus:outline-none focus:border-[#B8860B] font-mono"
+                        className="w-full px-3 py-2 bg-neutral-50 border border-[rgba(0,0,0,0.08)]/40 rounded-xl text-xs text-neutral-950 font-bold focus:outline-none focus:border-[#0f172a] font-mono"
                       />
                     </div>
 
@@ -291,7 +291,7 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
                           sounds.playTap();
                           setIsEditingProfile(false);
                         }}
-                        className="px-3 py-1.5 rounded-lg text-xs font-bold glass-pill hover:bg-stone-200 text-stone-700"
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold glass-pill hover:bg-neutral-200 text-neutral-700"
                       >
                         Cancel
                       </button>
@@ -306,16 +306,16 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
                   </form>
                 ) : (
                   <div className="space-y-2 pt-1 text-xs">
-                    <div className="flex justify-between py-1.5 border-b border-[#C5A059]/25">
-                      <span className="text-stone-900 font-extrabold">Username:</span>
-                      <span className="font-mono text-[#785005] font-black text-sm">@{currentUser.username || 'creator'}</span>
+                    <div className="flex justify-between py-1.5 border-b border-[rgba(0,0,0,0.08)]/25">
+                      <span className="text-neutral-900 font-extrabold">Username:</span>
+                      <span className="font-mono text-[#1e293b] font-black text-sm">@{currentUser.username || 'creator'}</span>
                     </div>
-                    <div className="flex justify-between py-1.5 border-b border-[#C5A059]/25">
-                      <span className="text-stone-900 font-extrabold">Email:</span>
-                      <span className="font-mono text-stone-950 font-black">{currentUser.email}</span>
+                    <div className="flex justify-between py-1.5 border-b border-[rgba(0,0,0,0.08)]/25">
+                      <span className="text-neutral-900 font-extrabold">Email:</span>
+                      <span className="font-mono text-neutral-950 font-black">{currentUser.email}</span>
                     </div>
                     <div className="flex justify-between py-1.5">
-                      <span className="text-stone-900 font-extrabold">SSO Universal Session:</span>
+                      <span className="text-neutral-900 font-extrabold">SSO Universal Session:</span>
                       <span className="font-mono text-emerald-950 font-black bg-emerald-200 px-2 py-0.5 rounded border border-emerald-400">
                         anything_ecosystem_session_v1
                       </span>
@@ -325,15 +325,15 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
               </div>
 
               {/* One-Time QR Login & One Tap Desktop Node Sync Card */}
-              <div className="rounded-2xl p-4 border border-[#C5A059]/40 bg-gradient-to-r from-amber-50/80 via-white to-amber-50/40 space-y-3 shadow-xs">
+              <div className="rounded-2xl p-4 border border-[rgba(0,0,0,0.08)]/40 bg-gradient-to-r from-neutral-50/80 via-white to-neutral-50 space-y-3 shadow-xs">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-xl bg-gradient-to-br from-[#D4AF37] to-[#8A6614] text-white">
+                    <div className="p-2 rounded-xl bg-gradient-to-br from-[#0f172a] to-[#334155] text-white">
                       <QrCode className="w-4 h-4" />
                     </div>
                     <div>
-                      <h4 className="font-black text-stone-950 text-xs">One-Time QR Login & Node Sync</h4>
-                      <p className="text-[11px] text-stone-600 font-medium">Sync with One Tap desktop app for 1-tap renders</p>
+                      <h4 className="font-black text-neutral-950 text-xs">One-Time QR Login & Node Sync</h4>
+                      <p className="text-[11px] text-neutral-600 font-medium">Sync with One Tap desktop app for 1-tap renders</p>
                     </div>
                   </div>
 
@@ -342,13 +342,13 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
                   </span>
                 </div>
 
-                <div className="p-3 rounded-xl bg-white border border-[#C5A059]/30 text-[11px] text-stone-900 space-y-1 font-mono shadow-xs">
+                <div className="p-3 rounded-xl bg-white border border-[rgba(0,0,0,0.08)]/30 text-[11px] text-neutral-900 space-y-1 font-mono shadow-xs">
                   <div className="flex justify-between">
-                    <span className="text-stone-800 font-sans font-bold">Active Workstation:</span>
-                    <span className="font-black text-stone-950">Studio-PC-01 (Port 5253)</span>
+                    <span className="text-neutral-800 font-sans font-bold">Active Workstation:</span>
+                    <span className="font-black text-neutral-950">Studio-PC-01 (Port 5253)</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-stone-800 font-sans font-bold">Ecosystem State:</span>
+                    <span className="text-neutral-800 font-sans font-bold">Ecosystem State:</span>
                     <span className="text-emerald-800 font-black">Synchronized with Anything Session</span>
                   </div>
                 </div>
@@ -367,26 +367,26 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
                   <span>Open QR Scanner / View App Pairing</span>
                 </button>
               </div>
-              <div className="rounded-2xl p-4 border border-[#C5A059]/30 bg-white/95 space-y-2 shadow-xs">
-                <h4 className="font-black text-stone-950 text-sm flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 text-[#8A6614]" />
+              <div className="rounded-2xl p-4 border border-[rgba(0,0,0,0.08)]/30 bg-white/95 space-y-2 shadow-xs">
+                <h4 className="font-black text-neutral-950 text-sm flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-[#334155]" />
                   Automated Retention Cleanups
                 </h4>
-                <div className="space-y-2 text-stone-950 text-xs">
-                  <div className="flex justify-between py-1 border-b border-[#C5A059]/20">
-                    <span className="text-stone-800 font-bold">Notifications:</span>
-                    <span className="font-mono text-stone-950 font-black">Pruned after 30 days</span>
+                <div className="space-y-2 text-neutral-950 text-xs">
+                  <div className="flex justify-between py-1 border-b border-[rgba(0,0,0,0.08)]/20">
+                    <span className="text-neutral-800 font-bold">Notifications:</span>
+                    <span className="font-mono text-neutral-950 font-black">Pruned after 30 days</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-[#C5A059]/20">
-                    <span className="text-stone-800 font-bold">Terminal Render Commands:</span>
-                    <span className="font-mono text-stone-950 font-black">Deleted after 7 days</span>
+                  <div className="flex justify-between py-1 border-b border-[rgba(0,0,0,0.08)]/20">
+                    <span className="text-neutral-800 font-bold">Terminal Render Commands:</span>
+                    <span className="font-mono text-neutral-950 font-black">Deleted after 7 days</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-[#C5A059]/20">
-                    <span className="text-stone-800 font-bold">Completed Work:</span>
-                    <span className="font-mono text-stone-950 font-black">Purged after 90 days</span>
+                  <div className="flex justify-between py-1 border-b border-[rgba(0,0,0,0.08)]/20">
+                    <span className="text-neutral-800 font-bold">Completed Work:</span>
+                    <span className="font-mono text-neutral-950 font-black">Purged after 90 days</span>
                   </div>
                   <div className="flex justify-between py-1">
-                    <span className="text-stone-800 font-bold">Account Identity:</span>
+                    <span className="text-neutral-800 font-bold">Account Identity:</span>
                     <span className="font-black text-emerald-950 bg-emerald-200 px-2 py-0.5 rounded border border-emerald-400">
                       Protected (Never auto-deleted)
                     </span>
@@ -397,7 +397,7 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
                   <button
                     type="button"
                     onClick={handleRunCleanup}
-                    className="w-full mt-2 py-2 rounded-xl text-xs font-bold glass-pill hover:bg-stone-100 text-stone-900 flex items-center justify-center gap-1.5 cursor-pointer border border-[#C5A059]/40 shadow-xs"
+                    className="w-full mt-2 py-2 rounded-xl text-xs font-bold glass-pill hover:bg-neutral-100 text-neutral-900 flex items-center justify-center gap-1.5 cursor-pointer border border-[rgba(0,0,0,0.08)]/40 shadow-xs"
                   >
                     <Trash2 className="w-3.5 h-3.5 text-rose-600" />
                     <span>Test Retention Sweep Now</span>
@@ -412,13 +412,13 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
               </div>
 
               {/* Supabase Schema Blueprint Trigger */}
-              <div className="rounded-2xl p-4 border border-[#C5A059]/30 bg-white/95 flex items-center justify-between shadow-xs">
+              <div className="rounded-2xl p-4 border border-[rgba(0,0,0,0.08)]/30 bg-white/95 flex items-center justify-between shadow-xs">
                 <div>
-                  <h4 className="font-black text-stone-950 flex items-center gap-1.5">
-                    <Database className="w-4 h-4 text-[#8A6614]" />
+                  <h4 className="font-black text-neutral-950 flex items-center gap-1.5">
+                    <Database className="w-4 h-4 text-[#334155]" />
                     Supabase Schema Blueprint
                   </h4>
-                  <p className="text-[11px] text-stone-600 font-semibold mt-0.5">
+                  <p className="text-[11px] text-neutral-600 font-semibold mt-0.5">
                     View DDL schema, tables, and RLS definitions
                   </p>
                 </div>
@@ -428,9 +428,9 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
                     sounds.playTap();
                     onOpenDbInspector();
                   }}
-                  className="px-3.5 py-2 rounded-xl text-xs font-black glass-pill hover:bg-stone-100 text-stone-900 flex items-center gap-1.5 cursor-pointer border border-[#C5A059]/40 shadow-xs"
+                  className="px-3.5 py-2 rounded-xl text-xs font-black glass-pill hover:bg-neutral-100 text-neutral-900 flex items-center gap-1.5 cursor-pointer border border-[rgba(0,0,0,0.08)]/40 shadow-xs"
                 >
-                  <Code2 className="w-3.5 h-3.5 text-[#8A6614]" />
+                  <Code2 className="w-3.5 h-3.5 text-[#334155]" />
                   <span>Inspect</span>
                 </button>
               </div>
@@ -443,13 +443,13 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
               {/* Search & Add User Row */}
               <div className="flex items-center gap-2">
                 <div className="relative flex-1">
-                  <Search className="w-4 h-4 text-stone-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Search className="w-4 h-4 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={userSearch}
                     onChange={(e) => setUserSearch(e.target.value)}
                     placeholder="Search by name, handle, or email..."
-                    className="w-full pl-9 pr-3 py-2 bg-white border border-[#C5A059]/35 rounded-xl text-xs text-stone-950 font-bold focus:outline-none focus:border-[#B8860B]"
+                    className="w-full pl-9 pr-3 py-2 bg-white border border-[rgba(0,0,0,0.08)]/35 rounded-xl text-xs text-neutral-950 font-bold focus:outline-none focus:border-[#0f172a]"
                   />
                 </div>
 
@@ -468,56 +468,56 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
 
               {/* Add User Form Drawer */}
               {showAddUser && (
-                <form onSubmit={handleCreateUser} className="p-4 rounded-2xl bg-amber-50/80 border border-[#C5A059]/40 space-y-3 shadow-xs animate-fadeIn">
+                <form onSubmit={handleCreateUser} className="p-4 rounded-2xl bg-neutral-50/80 border border-[rgba(0,0,0,0.08)]/40 space-y-3 shadow-xs animate-fadeIn">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-black text-stone-950 text-xs flex items-center gap-1.5">
-                      <UserPlus className="w-4 h-4 text-[#8A6614]" />
+                    <h4 className="font-black text-neutral-950 text-xs flex items-center gap-1.5">
+                      <UserPlus className="w-4 h-4 text-[#334155]" />
                       Enroll Team Member into Ecosystem
                     </h4>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div>
-                      <label className="block text-[11px] font-bold text-stone-700 mb-1">Full Name</label>
+                      <label className="block text-[11px] font-bold text-neutral-700 mb-1">Full Name</label>
                       <input
                         type="text"
                         required
                         value={newUserName}
                         onChange={(e) => setNewUserName(e.target.value)}
                         placeholder="e.g. Tariq Editor"
-                        className="w-full px-3 py-1.5 bg-white border border-[#C5A059]/30 rounded-xl text-xs text-stone-950 font-bold focus:outline-none focus:border-[#B8860B]"
+                        className="w-full px-3 py-1.5 bg-white border border-[rgba(0,0,0,0.08)]/30 rounded-xl text-xs text-neutral-950 font-bold focus:outline-none focus:border-[#0f172a]"
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-bold text-stone-700 mb-1">@Username</label>
+                      <label className="block text-[11px] font-bold text-neutral-700 mb-1">@Username</label>
                       <input
                         type="text"
                         required
                         value={newUserUsername}
                         onChange={(e) => setNewUserUsername(e.target.value)}
                         placeholder="e.g. tariq_cuts"
-                        className="w-full px-3 py-1.5 bg-white border border-[#C5A059]/30 rounded-xl text-xs text-stone-950 font-bold font-mono focus:outline-none focus:border-[#B8860B]"
+                        className="w-full px-3 py-1.5 bg-white border border-[rgba(0,0,0,0.08)]/30 rounded-xl text-xs text-neutral-950 font-bold font-mono focus:outline-none focus:border-[#0f172a]"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div>
-                      <label className="block text-[11px] font-bold text-stone-700 mb-1">Email Address</label>
+                      <label className="block text-[11px] font-bold text-neutral-700 mb-1">Email Address</label>
                       <input
                         type="email"
                         value={newUserEmail}
                         onChange={(e) => setNewUserEmail(e.target.value)}
                         placeholder="tariq@anything.local"
-                        className="w-full px-3 py-1.5 bg-white border border-[#C5A059]/30 rounded-xl text-xs text-stone-950 font-bold font-mono focus:outline-none focus:border-[#B8860B]"
+                        className="w-full px-3 py-1.5 bg-white border border-[rgba(0,0,0,0.08)]/30 rounded-xl text-xs text-neutral-950 font-bold font-mono focus:outline-none focus:border-[#0f172a]"
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-bold text-stone-700 mb-1">Role Permission</label>
+                      <label className="block text-[11px] font-bold text-neutral-700 mb-1">Role Permission</label>
                       <select
                         value={newUserRole}
                         onChange={(e) => setNewUserRole(e.target.value)}
-                        className="w-full px-3 py-1.5 bg-white border border-[#C5A059]/30 rounded-xl text-xs text-stone-950 font-bold focus:outline-none focus:border-[#B8860B]"
+                        className="w-full px-3 py-1.5 bg-white border border-[rgba(0,0,0,0.08)]/30 rounded-xl text-xs text-neutral-950 font-bold focus:outline-none focus:border-[#0f172a]"
                       >
                         <option value="member">Member / Video Editor</option>
                         <option value="admin">Admin / Lead Director</option>
@@ -547,58 +547,58 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
                       key={user.id}
                       className={`p-3.5 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                         isCurrent
-                          ? 'bg-amber-100/70 border-[#B8860B] ring-1 ring-[#B8860B]/40 shadow-xs'
-                          : 'bg-white/95 border-[#C5A059]/30 hover:border-[#B8860B]/60 shadow-xs'
+                          ? 'bg-neutral-100/70 border-[#0f172a] ring-1 ring-[#0f172a]/40 shadow-xs'
+                          : 'bg-white/95 border-[rgba(0,0,0,0.08)]/30 hover:border-[#0f172a]/60 shadow-xs'
                       }`}
                     >
                       <div className="flex items-center gap-3">
                         <img
                           src={user.avatar}
                           alt={user.name}
-                          className="w-10 h-10 rounded-xl object-cover border border-[#C5A059]/40 shadow-xs"
+                          className="w-10 h-10 rounded-xl object-cover border border-[rgba(0,0,0,0.08)]/40 shadow-xs"
                         />
                         <div>
                           <div className="flex items-center gap-2">
-                            <h4 className="text-xs font-black text-stone-950">
+                            <h4 className="text-xs font-black text-neutral-950">
                               {user.name}
                             </h4>
-                            <span className={`text-[10px] font-black uppercase px-2 py-0.2 rounded-full border ${
+                            <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border ${
                               user.role === 'admin'
-                                ? 'bg-amber-200 text-stone-950 border-amber-400'
-                                : 'bg-stone-100 text-stone-800 border-stone-300'
+                                ? 'bg-neutral-950 text-white border-neutral-900'
+                                : 'bg-neutral-100 text-neutral-800 border-neutral-200'
                             }`}>
                               {user.role}
                             </span>
                           </div>
                           <div className="flex items-center gap-2 mt-0.5">
-                            <span className="font-mono text-[#785005] font-black text-[11px]">
+                            <span className="font-mono text-[#1e293b] font-black text-[11px]">
                               @{user.username || 'creator'}
                             </span>
-                            <span className="text-stone-400">•</span>
-                            <span className="font-mono text-stone-600 text-[11px] truncate max-w-[150px]">
+                            <span className="text-neutral-400">•</span>
+                            <span className="font-mono text-neutral-600 text-[11px] truncate max-w-[150px]">
                               {user.email}
                             </span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#C5A059]/15">
-                        <span className="text-[11px] font-extrabold px-2.5 py-1 rounded-lg bg-stone-100 text-stone-900 border border-stone-200">
+                      <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-[rgba(0,0,0,0.08)]/15">
+                        <span className="text-[11px] font-extrabold px-2.5 py-1 rounded-lg bg-neutral-100 text-neutral-900 border border-stone-200">
                           {assignedCount} Assigned
                         </span>
 
                         {isCurrent ? (
-                          <span className="text-[11px] font-black px-2.5 py-1 rounded-xl bg-amber-200 text-stone-950 border border-amber-400 flex items-center gap-1">
-                            <UserCheck className="w-3.5 h-3.5 text-[#8A6614]" />
+                          <span className="text-[11px] font-black px-2.5 py-1 rounded-xl bg-amber-200 text-neutral-950 border border-neutral-300 flex items-center gap-1">
+                            <UserCheck className="w-3.5 h-3.5 text-[#334155]" />
                             <span>Active</span>
                           </span>
                         ) : (
                           <button
                             type="button"
                             onClick={() => switchUser(user.id)}
-                            className="px-3 py-1 rounded-xl text-xs font-black glass-pill hover:bg-stone-200 text-stone-900 flex items-center gap-1 cursor-pointer border border-[#C5A059]/40 shadow-xs"
+                            className="px-3 py-1 rounded-xl text-xs font-black glass-pill hover:bg-neutral-200 text-neutral-900 flex items-center gap-1 cursor-pointer border border-[rgba(0,0,0,0.08)]/40 shadow-xs"
                           >
-                            <ArrowRightLeft className="w-3 h-3 text-[#8A6614]" />
+                            <ArrowRightLeft className="w-3 h-3 text-[#334155]" />
                             <span>Switch Identity</span>
                           </button>
                         )}
@@ -612,14 +612,14 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-[#C5A059]/25 bg-amber-50/70 flex items-center justify-end">
+        <div className="p-4 border-t border-[rgba(0,0,0,0.08)]/25 bg-neutral-50/80 flex items-center justify-end">
           <button
             type="button"
             onClick={() => {
               sounds.playTap();
               onClose();
             }}
-            className="px-6 py-2.5 rounded-xl text-xs font-black bg-stone-900 text-amber-200 hover:bg-black transition-all border border-stone-800 shadow-md cursor-pointer flex items-center gap-1.5"
+            className="px-6 py-2.5 rounded-xl text-xs font-black bg-neutral-950 text-amber-200 hover:bg-black transition-all border border-stone-800 shadow-md cursor-pointer flex items-center gap-1.5"
           >
             <span>Done</span>
           </button>

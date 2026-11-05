@@ -48,22 +48,22 @@ export default function RenderActionModal({ item, isOpen, onClose, onRenderStart
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-900/40 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-neutral-950/40 backdrop-blur-md animate-fadeIn">
       <div 
-        className="glass-panel w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl border border-[#C5A059]/40 shadow-2xl flex flex-col overflow-hidden text-left bg-[#FAF8F5]/95"
+        className="glass-panel w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl border border-[rgba(0,0,0,0.08)]/40 shadow-2xl flex flex-col overflow-hidden text-left bg-[#F5F5F7]/95"
         role="dialog"
       >
         {/* Header */}
-        <div className="p-5 border-b border-[#C5A059]/20 flex items-start justify-between gap-3 bg-gradient-to-r from-amber-100/60 to-transparent">
+        <div className="p-5 border-b border-[rgba(0,0,0,0.08)]/20 flex items-start justify-between gap-3 bg-gradient-to-r from-neutral-100/80 to-transparent">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-amber-500/20 border border-amber-400 text-amber-900">
-              <Play className="w-5 h-5 fill-current text-[#B8860B]" />
+            <div className="p-2.5 rounded-2xl bg-neutral-500/20 border border-neutral-300 text-neutral-900">
+              <Play className="w-5 h-5 fill-current text-[#0f172a]" />
             </div>
             <div>
-              <h2 className="text-base font-extrabold text-stone-900">
+              <h2 className="text-base font-extrabold text-neutral-900">
                 One Tap Remote Render
               </h2>
-              <p className="text-xs text-[#8B6508] font-mono truncate max-w-[240px] font-bold">
+              <p className="text-xs text-[#1e293b] font-mono truncate max-w-[240px] font-bold">
                 {item.display_label}
               </p>
             </div>
@@ -74,7 +74,7 @@ export default function RenderActionModal({ item, isOpen, onClose, onRenderStart
               sounds.playTap();
               onClose();
             }}
-            className="p-1.5 rounded-xl text-stone-400 hover:text-stone-800 hover:bg-stone-200/50 transition-colors"
+            className="p-1.5 rounded-xl text-neutral-400 hover:text-neutral-800 hover:bg-neutral-200/50 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -92,7 +92,7 @@ export default function RenderActionModal({ item, isOpen, onClose, onRenderStart
               <span className={`w-2 h-2 rounded-full ${bridge.is_online ? 'bg-emerald-600 animate-pulse' : 'bg-rose-600'}`} />
               <div>
                 <span className="font-bold block">{bridge.label}</span>
-                <span className="text-[11px] text-stone-500">{bridge.app_version}</span>
+                <span className="text-[11px] text-neutral-500">{bridge.app_version}</span>
               </div>
             </div>
             <span className="font-bold">
@@ -116,11 +116,11 @@ export default function RenderActionModal({ item, isOpen, onClose, onRenderStart
           {/* Preflight Checks Section */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#8B6508] flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-[#B8860B]" />
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#1e293b] flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-[#0f172a]" />
                 Preflight Verification Gates
               </h4>
-              <span className="text-[11px] font-mono text-stone-600 font-bold">
+              <span className="text-[11px] font-mono text-neutral-600 font-bold">
                 {preflightChecks.filter(c => c.passed).length}/{preflightChecks.length} Passed
               </span>
             </div>
@@ -131,7 +131,7 @@ export default function RenderActionModal({ item, isOpen, onClose, onRenderStart
                   key={check.id}
                   className={`p-3 rounded-xl border flex items-start gap-3 text-xs ${
                     check.passed
-                      ? 'bg-white/80 border-[#C5A059]/20 text-stone-800'
+                      ? 'bg-white/80 border-[rgba(0,0,0,0.08)]/20 text-neutral-800'
                       : 'bg-rose-50 border-rose-300 text-rose-900'
                   }`}
                 >
@@ -141,8 +141,8 @@ export default function RenderActionModal({ item, isOpen, onClose, onRenderStart
                     <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                   )}
                   <div className="flex-1 min-w-0">
-                    <div className="font-bold text-stone-900">{check.name}</div>
-                    <div className="text-[11px] text-stone-500 font-mono mt-0.5 truncate">{check.detail}</div>
+                    <div className="font-bold text-neutral-900">{check.name}</div>
+                    <div className="text-[11px] text-neutral-500 font-mono mt-0.5 truncate">{check.detail}</div>
                   </div>
                 </div>
               ))}
@@ -150,20 +150,20 @@ export default function RenderActionModal({ item, isOpen, onClose, onRenderStart
           </div>
 
           {/* Command Specs & Safety Statement */}
-          <div className="glass-panel-subtle rounded-2xl p-3.5 border border-[#C5A059]/25 text-xs space-y-2 text-stone-700 bg-amber-50/40">
+          <div className="glass-panel-subtle rounded-2xl p-3.5 border border-[rgba(0,0,0,0.08)]/25 text-xs space-y-2 text-neutral-700 bg-neutral-50/80">
             <div className="flex items-center justify-between">
-              <span className="text-stone-500">Requester:</span>
-              <span className="font-bold text-stone-900">{currentUser.name} (@{currentUser.username})</span>
+              <span className="text-neutral-500">Requester:</span>
+              <span className="font-bold text-neutral-900">{currentUser.name} (@{currentUser.username})</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-stone-500">Target Resolution:</span>
-              <span className="font-mono text-[#8B6508] font-bold">4K UHD 59.94fps Master</span>
+              <span className="text-neutral-500">Target Resolution:</span>
+              <span className="font-mono text-[#1e293b] font-bold">4K UHD 59.94fps Master</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-stone-500">Hardware Encoder:</span>
-              <span className="font-mono text-stone-800 font-semibold">NVENC H.264 Acceleration</span>
+              <span className="text-neutral-500">Hardware Encoder:</span>
+              <span className="font-mono text-neutral-800 font-semibold">NVENC H.264 Acceleration</span>
             </div>
-            <div className="pt-2 border-t border-[#C5A059]/15 text-[11px] text-stone-600 leading-relaxed">
+            <div className="pt-2 border-t border-[rgba(0,0,0,0.08)]/15 text-[11px] text-neutral-600 leading-relaxed">
               🔒 <em>Idempotency guarantee:</em> A unique command token is generated. Exactly one local render process will execute. Output checksum will be verified before status advances to Rendered.
             </div>
           </div>
@@ -177,7 +177,7 @@ export default function RenderActionModal({ item, isOpen, onClose, onRenderStart
         </div>
 
         {/* Modal Action Buttons */}
-        <div className="p-4 border-t border-[#C5A059]/20 bg-stone-100/70 flex items-center justify-end gap-3">
+        <div className="p-4 border-t border-[rgba(0,0,0,0.08)]/20 bg-neutral-100/70 flex items-center justify-end gap-3">
           <button
             type="button"
             disabled={isSubmitting}
@@ -185,7 +185,7 @@ export default function RenderActionModal({ item, isOpen, onClose, onRenderStart
               sounds.playTap();
               onClose();
             }}
-            className="px-4 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white text-stone-700"
+            className="px-4 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white text-neutral-700"
           >
             Cancel
           </button>

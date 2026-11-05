@@ -21,6 +21,7 @@ import NewProductionModal from './components/dashboard/NewProductionModal';
 import QRScannerModal from './components/auth/QRScannerModal';
 import UserManagementView from './components/users/UserManagementView';
 import SafarHubView from './components/safar/SafarHubView';
+import ProductionDashboardTemplate from './components/template/ProductionDashboardTemplate';
 import LoginModal from './components/auth/LoginModal';
 import ScrollToTop from './components/common/ScrollToTop';
 import { sounds } from './lib/sound';
@@ -136,128 +137,18 @@ export default function App() {
         <main className="flex-1 p-4 sm:p-8 pb-32 sm:pb-16 overflow-x-hidden">
           {/* VIEW 1: OVERVIEW & PIPELINE DASHBOARD */}
           {currentView === 'overview' && (
-            <div className="space-y-8 animate-fadeIn">
-              {/* Bespoke Islamic Golden Production Command Center */}
-              <div className="glass-panel rounded-3xl p-6 sm:p-8 border-2 border-[#C5A059]/45 relative overflow-hidden bg-gradient-to-br from-amber-100/90 via-[#FAF8F5] to-amber-50/60 shadow-lg text-left">
-                {/* Background Arabesque Watermark */}
-                <div className="absolute -right-12 -top-12 w-80 h-80 rounded-full bg-gradient-to-bl from-amber-300/25 via-[#D4AF37]/10 to-transparent blur-2xl pointer-events-none" />
-
-                <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-6">
-                  <div className="max-w-2xl">
-                    <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-black glass-pill text-[#785005] border border-amber-400 bg-white shadow-xs mb-3">
-                      <Sparkles className="w-3.5 h-3.5 text-[#B8860B]" />
-                      <span>AnyShare • Islamic Golden Command Center</span>
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    </div>
-
-                    <h2 className="text-2xl sm:text-3xl font-black text-stone-950 tracking-tight leading-tight font-serif">
-                      Real-Time Safar Productions & One Tap Bridge
-                    </h2>
-
-                    <p className="text-xs sm:text-sm text-stone-700 leading-relaxed font-semibold mt-2">
-                      Deterministic multi-track workflow orchestrator. Trigger 4K hardware renders directly from your mobile device to workstation <strong className="text-stone-950 font-black">Studio-PC-01</strong> with live telemetry sync over Supabase Cloud Nexus.
-                    </p>
-                  </div>
-
-                  {/* Live Hardware Node Status Card */}
-                  <div className="p-4 rounded-2xl bg-white border border-[#C5A059]/40 shadow-sm shrink-0 min-w-[260px] space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-stone-500 font-black">
-                        Hardware Node Status
-                      </span>
-                      <span className="flex items-center gap-1.5 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-950 border border-emerald-300">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
-                        ONLINE (PORT 5253)
-                      </span>
-                    </div>
-
-                    <div className="text-xs font-mono space-y-1 text-stone-800">
-                      <div className="flex justify-between">
-                        <span className="text-stone-500 font-sans">Node:</span>
-                        <span className="font-bold text-stone-950">Studio-PC-01</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-stone-500 font-sans">GPU Accelerator:</span>
-                        <span className="text-amber-800 font-bold">RTX 4090 (24GB VRAM)</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-stone-500 font-sans">Cloud Nexus:</span>
-                        <span className="text-emerald-700 font-bold">WebSockets Active</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 4 Quick Stat Metric Tiles */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-[#C5A059]/25 mb-6">
-                  <div className="p-3.5 rounded-2xl bg-white/90 border border-[#C5A059]/30 shadow-xs">
-                    <span className="text-[11px] font-bold text-stone-600 block">Total Safar Sessions</span>
-                    <span className="text-2xl font-black text-stone-950 font-serif">{items.length} Productions</span>
-                  </div>
-
-                  <div className="p-3.5 rounded-2xl bg-white/90 border border-[#C5A059]/30 shadow-xs">
-                    <span className="text-[11px] font-bold text-stone-600 block">Ready for 1-Tap Render</span>
-                    <span className="text-2xl font-black text-[#785005] font-serif">
-                      {items.filter(i => i.status === 'ready_to_render').length} Queued
-                    </span>
-                  </div>
-
-                  <div className="p-3.5 rounded-2xl bg-white/90 border border-[#C5A059]/30 shadow-xs">
-                    <span className="text-[11px] font-bold text-stone-600 block">Active GPU Encoding</span>
-                    <span className="text-2xl font-black text-amber-600 font-serif">
-                      {renderingCount} Active
-                    </span>
-                  </div>
-
-                  <div className="p-3.5 rounded-2xl bg-white/90 border border-[#C5A059]/30 shadow-xs">
-                    <span className="text-[11px] font-bold text-stone-600 block">Active Creator</span>
-                    <span className="text-base font-black text-stone-950 font-mono truncate block">
-                      @{currentUser.username || 'creator'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      sounds.playTap();
-                      setIsNewProductionOpen(true);
-                    }}
-                    className="px-5 py-2.5 rounded-xl text-xs font-black glass-button-primary flex items-center gap-2 cursor-pointer shadow-md shadow-amber-900/15"
-                  >
-                    <FolderPlus className="w-4 h-4" />
-                    <span>+ New Production Session</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      sounds.playTap();
-                      setCurrentView('users');
-                    }}
-                    className="px-4 py-2.5 rounded-xl text-xs font-black glass-pill hover:bg-white text-stone-900 flex items-center gap-2 transition-colors cursor-pointer border border-[#C5A059]/40 shadow-xs"
-                  >
-                    <Activity className="w-4 h-4 text-[#8A6614]" />
-                    <span>View Team & User Data</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      sounds.playTap();
-                      setIsQRScannerOpen(true);
-                    }}
-                    className="px-4 py-2.5 rounded-xl text-xs font-black bg-stone-900 text-amber-200 hover:bg-black flex items-center gap-2 transition-colors cursor-pointer shadow-sm"
-                  >
-                    <Zap className="w-4 h-4 text-[#D4AF37]" />
-                    <span>Pair Desktop One Tap</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* 5-Step Streamlined Pipeline Pulse */}
+            <div className="space-y-8 animate-fadeIn overview-experience">
+              <ProductionDashboardTemplate
+                items={items}
+                currentUser={currentUser}
+                bridge={bridge}
+                isAdmin={isAdmin}
+                onNewProduction={() => setIsNewProductionOpen(true)}
+                onOpenTeam={() => setCurrentView('users')}
+                onPairDesktop={() => setIsQRScannerOpen(true)}
+                onScan={() => triggerBridgeScan()}
+              />
+              {/* Executive Production Stages */}
               <StageSummary
                 activeMilestone={activeMilestone}
                 onSelectMilestone={setActiveMilestone}
@@ -267,8 +158,8 @@ export default function App() {
               <div id="work-list-section" className="space-y-4">
                 <div className="flex items-center justify-between px-1">
                   <div>
-                    <h3 className="text-base font-black text-stone-950">Active Productions</h3>
-                    <p className="text-xs text-stone-600 font-semibold">
+                    <h3 className="text-base font-bold text-neutral-950">Active Productions</h3>
+                    <p className="text-xs text-neutral-500 font-medium">
                       Showing {filteredItems.length} of {items.length} items
                     </p>
                   </div>
@@ -282,7 +173,7 @@ export default function App() {
                           setActiveMilestone(null);
                           setActiveStage(null);
                         }}
-                        className="text-xs text-[#785005] hover:text-[#B8860B] cursor-pointer font-extrabold"
+                        className="text-xs text-neutral-600 hover:text-neutral-950 cursor-pointer font-bold"
                       >
                         Reset All Filters
                       </button>
@@ -294,9 +185,9 @@ export default function App() {
                         sounds.playTap();
                         setIsNewProductionOpen(true);
                       }}
-                      className="px-3 py-1.5 rounded-xl text-xs font-black glass-pill hover:bg-white text-[#785005] flex items-center gap-1.5 cursor-pointer border border-[#C5A059]/40 shadow-xs"
+                      className="px-3 py-1.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white text-neutral-800 flex items-center gap-1.5 cursor-pointer border border-black/[0.08] shadow-xs"
                     >
-                      <FolderPlus className="w-3.5 h-3.5 text-[#B8860B]" />
+                      <FolderPlus className="w-3.5 h-3.5 text-neutral-600" />
                       <span>+ Add Session</span>
                     </button>
                   </div>
@@ -333,11 +224,11 @@ export default function App() {
             <div className="space-y-6 animate-fadeIn">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-black text-stone-950 font-serif">
+                  <h2 className="text-xl sm:text-2xl font-bold text-neutral-950 font-sans">
                     {isAdmin ? 'All Production Work' : 'My Assigned Work'}
                   </h2>
-                  <p className="text-xs text-stone-600 font-semibold">
-                    Deterministic One Tap workflow lifecycle tracking
+                  <p className="text-xs text-neutral-500 font-medium">
+                    One Tap workflow lifecycle and rendering queue
                   </p>
                 </div>
 
@@ -347,7 +238,7 @@ export default function App() {
                     sounds.playTap();
                     setIsNewProductionOpen(true);
                   }}
-                  className="px-4 py-2 rounded-xl text-xs font-black glass-button-primary flex items-center gap-1.5 cursor-pointer shadow-md shadow-amber-900/15"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold glass-button-primary flex items-center gap-1.5 cursor-pointer shadow-xs"
                 >
                   <FolderPlus className="w-3.5 h-3.5" />
                   <span>+ New Production</span>
@@ -423,15 +314,15 @@ export default function App() {
         </main>
       </div>
 
-      {/* Floating Luxury HUD (reveals on scroll past hero) */}
+      {/* Floating Glass HUD (reveals on scroll past hero) */}
       {showScrollHUD && (
         <aside 
           aria-label="Workstation Status HUD"
-          className="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-40 px-4 py-2.5 rounded-2xl glass-panel border border-[#C5A059]/45 shadow-xl bg-white/95 backdrop-blur-2xl flex items-center gap-3 animate-fadeIn transition-all select-none"
+          className="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded-2xl glass-panel border border-black/[0.08] shadow-lg bg-white/90 backdrop-blur-2xl flex items-center gap-3 animate-fadeIn transition-all select-none"
         >
-          <div className="flex items-center gap-2 pr-2 border-r border-[#C5A059]/25">
-            <span className={`w-2 h-2 rounded-full ${bridge.is_online ? 'bg-emerald-600 animate-pulse' : 'bg-rose-500'}`} />
-            <span className="text-xs font-black text-stone-950 font-mono">
+          <div className="flex items-center gap-2 pr-2 border-r border-black/[0.06]">
+            <span className={`w-2 h-2 rounded-full ${bridge.is_online ? 'bg-emerald-500' : 'bg-neutral-400'}`} />
+            <span className="text-xs font-bold text-neutral-900 font-mono">
               {bridge.is_online ? 'Node Active' : 'Offline'}
             </span>
           </div>
@@ -445,13 +336,13 @@ export default function App() {
                 if (active) setMonitorItemId(active.id);
                 setIsRenderMonitorOpen(true);
               }}
-              className="flex items-center gap-1.5 text-xs font-black text-amber-950 bg-gradient-to-r from-amber-200 to-amber-300 hover:from-amber-300 hover:to-amber-400 px-3 py-1 rounded-xl border border-amber-500/50 shadow-sm animate-pulse cursor-pointer transition-all"
+              className="flex items-center gap-1.5 text-xs font-bold text-emerald-950 bg-emerald-100 hover:bg-emerald-200 px-3 py-1 rounded-xl border border-emerald-300 shadow-2xs cursor-pointer transition-all"
             >
-              <Cpu className="w-3.5 h-3.5 animate-spin text-[#8A6614]" />
+              <Cpu className="w-3.5 h-3.5 animate-spin text-emerald-700" />
               <span>{renderingCount} Rendering • Monitor</span>
             </button>
           ) : (
-            <span className="text-xs text-stone-700 font-semibold hidden sm:inline">
+            <span className="text-xs text-neutral-600 font-medium hidden sm:inline">
               {items.length} Productions Loaded
             </span>
           )}
@@ -463,7 +354,7 @@ export default function App() {
                 sounds.playTap();
                 setIsNewProductionOpen(true);
               }}
-              className="px-3 py-1 rounded-xl text-xs font-black glass-button-primary shadow-xs cursor-pointer"
+              className="px-3 py-1 rounded-xl text-xs font-semibold glass-button-primary shadow-xs cursor-pointer"
             >
               + New
             </button>
@@ -473,10 +364,10 @@ export default function App() {
                 sounds.playTap();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="p-1.5 rounded-xl glass-pill hover:bg-white text-stone-800 hover:text-stone-950 border border-[#C5A059]/35 cursor-pointer"
+              className="p-1.5 rounded-xl glass-pill hover:bg-white text-neutral-700 hover:text-neutral-950 border border-black/[0.08] cursor-pointer"
               title="Scroll to top"
             >
-              <ArrowUp className="w-3.5 h-3.5 text-[#8A6614]" />
+              <ArrowUp className="w-3.5 h-3.5 text-neutral-600" />
             </button>
           </div>
         </aside>
@@ -532,12 +423,12 @@ export default function App() {
       />
 
       {isNotificationsOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-900/40 backdrop-blur-md animate-fadeIn">
-          <div className="glass-panel w-full sm:max-w-2xl max-h-[85vh] rounded-t-3xl sm:rounded-3xl border border-[#C5A059]/40 shadow-2xl p-6 overflow-y-auto bg-[#FAF8F5]/95">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-md animate-fadeIn">
+          <div className="glass-panel w-full sm:max-w-2xl max-h-[85vh] rounded-t-3xl sm:rounded-3xl border border-black/[0.08] shadow-2xl p-6 overflow-y-auto bg-white/95">
             <div className="flex justify-end mb-2">
               <button
                 onClick={() => setIsNotificationsOpen(false)}
-                className="text-stone-600 hover:text-stone-900 text-xs px-3 py-1 rounded-lg glass-pill cursor-pointer border border-[#C5A059]/30"
+                className="text-neutral-600 hover:text-neutral-950 text-xs px-3 py-1 rounded-lg glass-pill cursor-pointer border border-black/[0.08]"
               >
                 Close
               </button>

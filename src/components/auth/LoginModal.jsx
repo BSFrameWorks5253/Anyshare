@@ -68,22 +68,22 @@ export default function LoginModal({ isOpen, onClose, onOpenQRScanner }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fadeIn text-left">
-      <div className="w-full max-w-md rounded-3xl border-2 border-[#C5A059] bg-[#FAF8F5] shadow-2xl overflow-hidden">
+      <div className="w-full max-w-md rounded-3xl border-2 border-[rgba(0,0,0,0.08)] bg-[#F5F5F7] shadow-2xl overflow-hidden">
         {/* Header with Islamic Golden Motif */}
-        <div className="p-5 border-b border-[#C5A059]/30 bg-gradient-to-r from-amber-100/90 via-yellow-50/70 to-white flex items-center justify-between">
+        <div className="p-5 border-b border-[rgba(0,0,0,0.08)]/30 bg-gradient-to-r from-neutral-100/80 via-neutral-50 to-white flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#D4AF37] to-[#8A6614] flex items-center justify-center text-white shadow-md">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#0f172a] to-[#334155] flex items-center justify-center text-white shadow-md">
               <LogIn className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-black text-stone-950 font-serif">Sign In to AnyShare</h3>
-              <p className="text-[11px] text-stone-600 font-semibold">Anything Creative Ecosystem Authentication</p>
+              <h3 className="text-base font-black text-neutral-950 font-sans">Sign In to AnyShare</h3>
+              <p className="text-[11px] text-neutral-600 font-semibold">Anything Creative Ecosystem Authentication</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl text-stone-400 hover:text-stone-950 hover:bg-stone-200/50 cursor-pointer"
+            className="p-1.5 rounded-xl text-neutral-400 hover:text-neutral-950 hover:bg-neutral-200/50 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -101,11 +101,11 @@ export default function LoginModal({ isOpen, onClose, onOpenQRScanner }) {
               {/* Method 1: Log in with Username */}
               <form onSubmit={handleLoginSubmit} className="space-y-3">
                 <div>
-                  <label className="block text-xs font-black text-stone-900 mb-1">
+                  <label className="block text-xs font-black text-neutral-900 mb-1">
                     Enter Your Anything Ecosystem Username
                   </label>
                   <div className="relative">
-                    <AtSign className="w-4 h-4 text-stone-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <AtSign className="w-4 h-4 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2" />
                     <input
                       type="text"
                       required
@@ -113,16 +113,16 @@ export default function LoginModal({ isOpen, onClose, onOpenQRScanner }) {
                       value={inputUsername}
                       onChange={(e) => setInputUsername(e.target.value)}
                       placeholder="e.g. burhanuddin, admin, or creator"
-                      className="w-full pl-9 pr-3 py-2.5 bg-white border border-[#C5A059]/40 rounded-xl text-xs text-stone-950 font-black font-mono focus:outline-none focus:border-[#B8860B] shadow-xs"
+                      className="w-full pl-9 pr-3 py-2.5 bg-white border border-[rgba(0,0,0,0.08)]/40 rounded-xl text-xs text-neutral-950 font-black font-mono focus:outline-none focus:border-[#0f172a] shadow-xs"
                     />
                   </div>
-                  <p className="text-[11px] text-stone-600 font-medium mt-1">
+                  <p className="text-[11px] text-neutral-600 font-medium mt-1">
                     Use the username given by the Anything app or your custom chosen handle.
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-800 mb-1">
+                  <label className="block text-xs font-bold text-neutral-800 mb-1">
                     Display Name (Optional)
                   </label>
                   <input
@@ -130,7 +130,7 @@ export default function LoginModal({ isOpen, onClose, onOpenQRScanner }) {
                     value={inputDisplayName}
                     onChange={(e) => setInputDisplayName(e.target.value)}
                     placeholder="e.g. Master Architect"
-                    className="w-full px-3 py-2 bg-white border border-[#C5A059]/30 rounded-xl text-xs text-stone-950 font-bold focus:outline-none focus:border-[#B8860B]"
+                    className="w-full px-3 py-2 bg-white border border-[rgba(0,0,0,0.08)]/30 rounded-xl text-xs text-neutral-950 font-bold focus:outline-none focus:border-[#0f172a]"
                   />
                 </div>
 
@@ -146,7 +146,7 @@ export default function LoginModal({ isOpen, onClose, onOpenQRScanner }) {
               {/* Divider */}
               <div className="flex items-center gap-3">
                 <div className="flex-1 h-px bg-stone-300" />
-                <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500">Or 1-Tap QR Sync</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Or 1-Tap QR Sync</span>
                 <div className="flex-1 h-px bg-stone-300" />
               </div>
 
@@ -157,15 +157,15 @@ export default function LoginModal({ isOpen, onClose, onOpenQRScanner }) {
                   onClose();
                   if (onOpenQRScanner) onOpenQRScanner();
                 }}
-                className="w-full py-2.5 rounded-xl text-xs font-black bg-stone-900 text-amber-200 hover:bg-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                className="w-full py-2.5 rounded-xl text-xs font-black bg-neutral-950 text-amber-200 hover:bg-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
               >
-                <QrCode className="w-4 h-4 text-[#D4AF37]" />
+                <QrCode className="w-4 h-4 text-[#0f172a]" />
                 <span>Scan Desktop QR Code with Camera</span>
               </button>
 
               {/* Quick Select from Enrolled Profiles */}
               <div className="pt-2 border-t border-stone-200">
-                <span className="text-[10px] font-black uppercase tracking-wider text-stone-500 block mb-2">
+                <span className="text-[10px] font-black uppercase tracking-wider text-neutral-500 block mb-2">
                   Quick Switch Active Profiles
                 </span>
                 <div className="flex flex-wrap gap-1.5">
@@ -176,12 +176,12 @@ export default function LoginModal({ isOpen, onClose, onOpenQRScanner }) {
                       onClick={() => handleQuickSwitch(u.id)}
                       className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors cursor-pointer flex items-center gap-1 ${
                         u.id === currentUser.id
-                          ? 'bg-amber-200 text-stone-950 border-amber-400 font-black'
-                          : 'bg-white text-stone-700 hover:bg-stone-100 border-stone-300'
+                          ? 'bg-amber-200 text-neutral-950 border-neutral-300 font-black'
+                          : 'bg-white text-neutral-700 hover:bg-neutral-100 border-stone-300'
                       }`}
                     >
-                      <span className="text-[#8A6614] font-mono">@{u.username}</span>
-                      <span className="text-[9px] text-stone-500">({u.role})</span>
+                      <span className="text-[#334155] font-mono">@{u.username}</span>
+                      <span className="text-[9px] text-neutral-500">({u.role})</span>
                     </button>
                   ))}
                 </div>

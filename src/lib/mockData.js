@@ -10,8 +10,8 @@ export const PIPELINE_MILESTONES = [
     stepNumber: '01',
     icon: 'FileEdit',
     statuses: ['pending_edit_1', 'edit_1', 'pending_edit_2', 'edit_2', 'ready_to_render'],
-    color: 'amber',
-    badgeClass: 'bg-amber-100 text-stone-950 font-black border border-amber-400'
+    color: 'neutral',
+    badgeClass: 'bg-neutral-100 text-neutral-950 font-bold border border-neutral-300'
   },
   {
     key: 'rendering',
@@ -21,8 +21,8 @@ export const PIPELINE_MILESTONES = [
     stepNumber: '02',
     icon: 'Cpu',
     statuses: ['render_requested', 'checking', 'rendering'],
-    color: 'gold',
-    badgeClass: 'bg-gradient-to-r from-amber-300 to-yellow-400 text-stone-950 font-black border border-amber-500 shadow-sm'
+    color: 'emerald',
+    badgeClass: 'bg-neutral-950 text-white font-bold border border-neutral-800 shadow-2xs'
   },
   {
     key: 'delivered',
@@ -32,8 +32,8 @@ export const PIPELINE_MILESTONES = [
     stepNumber: '03',
     icon: 'Sparkles',
     statuses: ['rendered', 'correction_needed', 'pending_upload', 'uploaded', 'given_to_jamey', 'done', 'cancelled'],
-    color: 'emerald',
-    badgeClass: 'bg-emerald-200 text-emerald-950 font-black border border-emerald-500'
+    color: 'slate',
+    badgeClass: 'bg-neutral-100 text-neutral-800 font-bold border border-neutral-300'
   }
 ];
 
@@ -45,101 +45,101 @@ export const STAGE_CONFIG = {
   pending_edit_1: {
     label: 'Pending Edit 1',
     shortLabel: 'Pending E1',
-    color: 'amber',
-    border: 'border-amber-400',
-    bg: 'bg-amber-100',
-    text: 'text-amber-950 font-black',
-    dot: 'bg-amber-600',
+    color: 'slate',
+    border: 'border-neutral-300',
+    bg: 'bg-neutral-100',
+    text: 'text-neutral-900 font-bold',
+    dot: 'bg-neutral-500',
     icon: 'Clock'
   },
   edit_1: {
     label: 'Edit 1',
     shortLabel: 'Edit 1',
     color: 'sky',
-    border: 'border-sky-400',
-    bg: 'bg-sky-100',
-    text: 'text-sky-950 font-black',
+    border: 'border-sky-300',
+    bg: 'bg-sky-50',
+    text: 'text-sky-950 font-bold',
     dot: 'bg-sky-600',
     icon: 'FileEdit'
   },
   pending_edit_2: {
     label: 'Pending Edit 2',
     shortLabel: 'Pending E2',
-    color: 'amber',
-    border: 'border-amber-400',
-    bg: 'bg-amber-100',
-    text: 'text-amber-950 font-black',
-    dot: 'bg-amber-600',
+    color: 'slate',
+    border: 'border-neutral-300',
+    bg: 'bg-neutral-100',
+    text: 'text-neutral-900 font-bold',
+    dot: 'bg-neutral-500',
     icon: 'Layers'
   },
   edit_2: {
     label: 'Edit 2',
     shortLabel: 'Edit 2',
     color: 'cyan',
-    border: 'border-cyan-400',
-    bg: 'bg-cyan-100',
-    text: 'text-cyan-950 font-black',
+    border: 'border-cyan-300',
+    bg: 'bg-cyan-50',
+    text: 'text-cyan-950 font-bold',
     dot: 'bg-cyan-600',
     icon: 'Sliders'
   },
   ready_to_render: {
     label: 'Ready to Render',
     shortLabel: 'Ready',
-    color: 'gold',
-    border: 'border-amber-400',
-    bg: 'bg-amber-200',
-    text: 'text-stone-950 font-black',
-    dot: 'bg-amber-600',
+    color: 'neutral',
+    border: 'border-neutral-900',
+    bg: 'bg-neutral-900',
+    text: 'text-white font-bold',
+    dot: 'bg-emerald-400',
     icon: 'Zap'
   },
   render_requested: {
     label: 'Render Requested',
     shortLabel: 'Requested',
-    color: 'gold',
-    border: 'border-amber-400',
-    bg: 'bg-amber-200',
-    text: 'text-stone-950 font-black',
-    dot: 'bg-amber-600',
+    color: 'neutral',
+    border: 'border-neutral-300',
+    bg: 'bg-neutral-100',
+    text: 'text-neutral-900 font-bold',
+    dot: 'bg-neutral-600',
     icon: 'Send'
   },
   checking: {
     label: 'Checking Preflight',
     shortLabel: 'Checking',
-    color: 'amber',
-    border: 'border-amber-400',
-    bg: 'bg-amber-100',
-    text: 'text-stone-950 font-black',
-    dot: 'bg-amber-600 animate-pulse',
+    color: 'neutral',
+    border: 'border-neutral-300',
+    bg: 'bg-neutral-100',
+    text: 'text-neutral-900 font-bold',
+    dot: 'bg-neutral-600 animate-pulse',
     icon: 'ShieldAlert'
   },
   rendering: {
     label: 'Rendering',
     shortLabel: 'Rendering',
-    color: 'gold',
-    border: 'border-amber-500',
-    bg: 'bg-gradient-to-r from-amber-300 to-yellow-300',
-    text: 'text-stone-950 font-black',
-    dot: 'bg-amber-700 animate-ping',
+    color: 'emerald',
+    border: 'border-emerald-300',
+    bg: 'bg-emerald-50',
+    text: 'text-emerald-950 font-bold',
+    dot: 'bg-emerald-600 animate-pulse',
     icon: 'Cpu'
   },
   rendered: {
     label: 'Rendered',
     shortLabel: 'Rendered',
     color: 'emerald',
-    border: 'border-emerald-400',
-    bg: 'bg-emerald-100',
-    text: 'text-emerald-950 font-black',
+    border: 'border-emerald-300',
+    bg: 'bg-emerald-50',
+    text: 'text-emerald-950 font-bold',
     dot: 'bg-emerald-600',
     icon: 'CheckCircle2'
   },
   pending_upload: {
     label: 'Pending Upload',
     shortLabel: 'To Upload',
-    color: 'amber',
-    border: 'border-amber-400',
-    bg: 'bg-amber-100',
-    text: 'text-amber-950 font-black',
-    dot: 'bg-amber-600',
+    color: 'slate',
+    border: 'border-neutral-300',
+    bg: 'bg-neutral-100',
+    text: 'text-neutral-900 font-bold',
+    dot: 'bg-neutral-500',
     icon: 'UploadCloud'
   },
   uploaded: {
@@ -197,9 +197,9 @@ export const STAGE_CONFIG = {
     shortLabel: 'Cancelled',
     color: 'stone',
     border: 'border-stone-400',
-    bg: 'bg-stone-200',
-    text: 'text-stone-900 font-black',
-    dot: 'bg-stone-500',
+    bg: 'bg-neutral-200',
+    text: 'text-neutral-900 font-black',
+    dot: 'bg-neutral-500',
     icon: 'Ban'
   }
 };

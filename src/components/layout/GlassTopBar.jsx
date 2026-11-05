@@ -5,16 +5,13 @@ import UserAvatarWithReflection from '../common/UserAvatarWithReflection';
 import { sounds } from '../../lib/sound';
 import {
   Bell,
-  User,
-  Shield,
-  Layers,
-  Sparkles,
-  RefreshCw,
   Zap,
   AtSign,
   QrCode,
   Smartphone,
-  CalendarDays
+  CalendarDays,
+  Users,
+  Briefcase
 } from 'lucide-react';
 
 export default function GlassTopBar({
@@ -33,53 +30,46 @@ export default function GlassTopBar({
   ).length;
 
   return (
-    <header className="sticky top-0 z-30 w-full glass-panel border-b border-[#C5A059]/35 px-4 sm:px-8 py-3 transition-all backdrop-blur-2xl bg-white/90 shadow-sm">
+    <header className="sticky top-0 z-30 w-full border-b border-black/[0.06] px-4 sm:px-8 py-2.5 transition-all backdrop-blur-2xl bg-white/80 shadow-xs">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-        {/* Brand / Logo with Islamic Khatam Star Crest */}
+        {/* Brand / Logo */}
         <div 
           onClick={() => {
             sounds.playTap();
             onNavigate('overview');
           }}
-          className="flex items-center gap-3 cursor-pointer group shrink-0"
+          className="flex items-center gap-2.5 cursor-pointer group shrink-0"
         >
-          {/* Islamic Golden AnyShare Monogram with animated Khatam star */}
-          <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#D4AF37] via-[#F7E7A9] to-[#8A6614] p-0.5 shadow-md shadow-amber-900/15 group-hover:scale-105 transition-transform flex items-center justify-center">
-            <div className="w-full h-full bg-[#FAF8F5] rounded-[14px] flex items-center justify-center relative overflow-hidden border border-[#D4AF37]/40">
-              {/* Islamic 8-pointed star rotating watermark */}
-              <svg className="absolute inset-0 w-full h-full p-1 opacity-25 animate-khatam-spin text-[#8A6614]" viewBox="0 0 100 100" fill="currentColor">
-                <rect x="25" y="25" width="50" height="50" transform="rotate(0 50 50)" />
-                <rect x="25" y="25" width="50" height="50" transform="rotate(45 50 50)" />
-              </svg>
-              <Zap className="w-4 h-4 text-[#8A6614] fill-[#D4AF37] relative z-10" />
-            </div>
+          {/* Apple-style Obsidian Mark */}
+          <div className="w-9 h-9 rounded-xl bg-neutral-950 flex items-center justify-center text-white shadow-xs group-hover:scale-105 transition-transform">
+            <Zap className="w-4 h-4 fill-white" />
           </div>
 
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-base font-black tracking-tight text-stone-950 group-hover:text-[#8A6614] transition-colors font-serif">
+              <h1 className="text-base font-bold tracking-tight text-neutral-950 font-sans">
                 AnyShare
               </h1>
-              <span className="hidden sm:inline-block text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-100 text-stone-950 border border-amber-300 font-extrabold">
+              <span className="hidden sm:inline-block text-[10px] font-mono px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600 border border-neutral-200/80 font-semibold">
                 One Tap Nexus
               </span>
             </div>
-            <p className="text-[11px] text-stone-600 font-medium hidden sm:block">
-              One Tap production status & remote render bridge
+            <p className="text-[11px] text-neutral-500 font-medium hidden sm:block">
+              Workstation status & remote render bridge
             </p>
           </div>
         </div>
 
         {/* Center: Top Navigation Tabs + Bridge Health */}
         <div className="flex items-center gap-3">
-          <nav className="hidden lg:flex items-center gap-1 bg-amber-50/70 p-1 rounded-2xl border border-[#C5A059]/30 shadow-xs">
+          <nav className="hidden lg:flex items-center gap-1 bg-neutral-100/80 p-1 rounded-xl border border-black/[0.04]">
             <button
               type="button"
               onClick={() => { sounds.playTap(); onNavigate('overview'); }}
-              className={`px-3 py-1 rounded-xl text-xs font-black transition-all cursor-pointer ${
+              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 currentView === 'overview'
-                  ? 'bg-stone-900 text-amber-200 shadow-xs'
-                  : 'text-stone-700 hover:text-stone-950 hover:bg-white/80'
+                  ? 'bg-white text-neutral-950 shadow-xs font-bold'
+                  : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/60'
               }`}
             >
               Pipeline
@@ -87,40 +77,40 @@ export default function GlassTopBar({
             <button
               type="button"
               onClick={() => { sounds.playTap(); onNavigate('work'); }}
-              className={`px-3 py-1 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 currentView === 'work'
-                  ? 'bg-stone-900 text-amber-200 shadow-xs'
-                  : 'text-stone-700 hover:text-stone-950 hover:bg-white/80'
+                  ? 'bg-white text-neutral-950 shadow-xs font-bold'
+                  : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/60'
               }`}
             >
               <span>Productions</span>
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-200 text-stone-950">
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-neutral-200 text-neutral-800 font-bold">
                 {items.length}
               </span>
             </button>
             <button
               type="button"
               onClick={() => { sounds.playTap(); onNavigate('safar'); }}
-              className={`px-3 py-1 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 currentView === 'safar'
-                  ? 'bg-stone-900 text-amber-200 shadow-xs'
-                  : 'text-stone-700 hover:text-stone-950 hover:bg-white/80'
+                  ? 'bg-white text-neutral-950 shadow-xs font-bold'
+                  : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/60'
               }`}
             >
-              <CalendarDays className="w-3.5 h-3.5 text-[#B8860B]" />
+              <CalendarDays className="w-3.5 h-3.5 text-neutral-600" />
               <span>Safar Hub</span>
             </button>
             <button
               type="button"
               onClick={() => { sounds.playTap(); onNavigate('users'); }}
-              className={`px-3 py-1 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 currentView === 'users'
-                  ? 'bg-stone-900 text-amber-200 shadow-xs'
-                  : 'text-stone-700 hover:text-stone-950 hover:bg-white/80'
+                  ? 'bg-white text-neutral-950 shadow-xs font-bold'
+                  : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/60'
               }`}
             >
-              <span>Team & Users</span>
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-200 text-stone-950 font-black">
+              <span>Team</span>
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-neutral-200 text-neutral-800 font-bold">
                 {users.length}
               </span>
             </button>
@@ -130,7 +120,7 @@ export default function GlassTopBar({
         </div>
 
         {/* Right side controls */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-2.5">
           {/* Active Username / Sign In Button */}
           <button
             type="button"
@@ -142,13 +132,13 @@ export default function GlassTopBar({
                 onOpenAccount();
               }
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black apple-liquid-glass-pill hover:bg-white text-stone-950 transition-colors cursor-pointer border border-[#C5A059]/40 shadow-xs"
-            title="Log In with Username or Switch Ecosystem Account"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white text-neutral-800 transition-colors cursor-pointer border border-black/[0.08] shadow-xs"
+            title="Log In or Switch Ecosystem Account"
           >
-            <AtSign className="w-3.5 h-3.5 text-[#8A6614]" />
-            <span className="font-mono text-[#785005] font-black">@{currentUser.username || 'creator'}</span>
-            <span className={`hidden sm:inline-block text-[9px] uppercase font-black px-1.5 py-0.5 rounded ${
-              isAdmin ? 'bg-amber-200 text-stone-950 border border-amber-400' : 'bg-stone-200 text-stone-900'
+            <AtSign className="w-3.5 h-3.5 text-neutral-500" />
+            <span className="font-mono text-neutral-900 font-bold">@{currentUser.username || 'creator'}</span>
+            <span className={`hidden sm:inline-block text-[9px] uppercase font-bold px-1.5 py-0.5 rounded ${
+              isAdmin ? 'bg-neutral-900 text-white' : 'bg-neutral-200 text-neutral-700'
             }`}>
               {isAdmin ? 'Admin' : 'Member'}
             </span>
@@ -161,11 +151,11 @@ export default function GlassTopBar({
               sounds.playTap();
               onOpenQRScanner();
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-gradient-to-r from-amber-100 to-amber-200 hover:from-amber-200 hover:to-amber-300 text-stone-950 transition-colors cursor-pointer border border-[#C5A059]/50 shadow-xs"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white text-neutral-800 transition-colors cursor-pointer border border-black/[0.08] shadow-xs"
             title="Scan One Tap App QR Code to Log In & Sync Workstation"
           >
-            <QrCode className="w-3.5 h-3.5 text-[#8A6614]" />
-            <span className="hidden sm:inline">QR Login</span>
+            <QrCode className="w-3.5 h-3.5 text-neutral-700" />
+            <span className="hidden sm:inline font-medium">QR Login</span>
           </button>
 
           {/* Install PWA Button (when installable) */}
@@ -176,11 +166,11 @@ export default function GlassTopBar({
                 sounds.playTap();
                 installPWA();
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-stone-900 text-[#FAF8F5] hover:bg-stone-800 transition-colors cursor-pointer border border-[#C5A059]/60 shadow-xs animate-bounce"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-neutral-950 text-white hover:bg-neutral-800 transition-colors cursor-pointer shadow-xs"
               title="Install AnyShare to Home Screen"
             >
-              <Smartphone className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <span className="hidden sm:inline">Install App</span>
+              <Smartphone className="w-3.5 h-3.5 text-neutral-200" />
+              <span className="hidden sm:inline">Install</span>
             </button>
           )}
 
@@ -191,25 +181,25 @@ export default function GlassTopBar({
               sounds.playTap();
               onOpenNotifications();
             }}
-            className="relative p-2.5 rounded-xl apple-liquid-glass-pill hover:bg-white text-stone-800 hover:text-stone-950 transition-colors cursor-pointer border border-[#C5A059]/40 shadow-xs"
+            className="relative p-2 rounded-xl glass-pill hover:bg-white text-neutral-700 hover:text-neutral-950 transition-colors cursor-pointer border border-black/[0.08] shadow-xs"
             aria-label="Notifications"
           >
-            <Bell className="w-4 h-4 text-[#8A6614]" />
+            <Bell className="w-4 h-4 text-neutral-700" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-600 text-white text-[10px] font-black flex items-center justify-center shadow-xs">
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center shadow-xs">
                 {unreadCount}
               </span>
             )}
           </button>
 
-          {/* Account Profile Trigger with Apple Liquid Glass DP Light Reflection */}
+          {/* Account Profile Trigger with Apple Liquid Glass DP Light Reflection ONLY */}
           <button
             type="button"
             onClick={() => {
               sounds.playTap();
               onOpenAccount();
             }}
-            className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-2xl apple-liquid-glass-pill hover:bg-white transition-all cursor-pointer border border-[#C5A059]/40 shadow-xs"
+            className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-full glass-pill hover:bg-white transition-all cursor-pointer border border-black/[0.08] shadow-xs"
             title="Open Account Profile & Settings"
           >
             <UserAvatarWithReflection
@@ -217,7 +207,7 @@ export default function GlassTopBar({
               alt={currentUser.name}
               size="sm"
             />
-            <span className="text-xs font-bold text-stone-950 hidden md:inline truncate max-w-[90px]">
+            <span className="text-xs font-semibold text-neutral-900 hidden md:inline truncate max-w-[90px]">
               {currentUser.name.split(' ')[0]}
             </span>
           </button>

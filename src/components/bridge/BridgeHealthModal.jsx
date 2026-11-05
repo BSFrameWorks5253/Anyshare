@@ -21,13 +21,13 @@ export default function BridgeHealthModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-900/40 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-neutral-950/40 backdrop-blur-md animate-fadeIn">
       <div 
-        className="glass-panel w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl border border-[#C5A059]/30 shadow-2xl flex flex-col overflow-hidden text-left bg-white/95"
+        className="glass-panel w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl border border-[rgba(0,0,0,0.08)]/30 shadow-2xl flex flex-col overflow-hidden text-left bg-white/95"
         role="dialog"
       >
         {/* Header */}
-        <div className="p-5 border-b border-[#C5A059]/20 flex items-start justify-between gap-3 bg-gradient-to-r from-amber-50/60 to-white/60">
+        <div className="p-5 border-b border-[rgba(0,0,0,0.08)]/20 flex items-start justify-between gap-3 bg-gradient-to-r from-neutral-50/80 to-white/60">
           <div className="flex items-center gap-3">
             <div className={`p-2.5 rounded-2xl border ${
               bridge.is_online
@@ -37,10 +37,10 @@ export default function BridgeHealthModal({ isOpen, onClose }) {
               <Cpu className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-stone-900">
+              <h2 className="text-base font-bold text-neutral-900">
                 One Tap Node Telemetry
               </h2>
-              <p className="text-xs text-[#997328] font-mono font-medium">
+              <p className="text-xs text-[#334155] font-mono font-medium">
                 {bridge.label}
               </p>
             </div>
@@ -51,7 +51,7 @@ export default function BridgeHealthModal({ isOpen, onClose }) {
               sounds.playTap();
               onClose();
             }}
-            className="p-1.5 rounded-xl text-stone-400 hover:text-stone-800 hover:bg-[#C5A059]/10 transition-colors"
+            className="p-1.5 rounded-xl text-neutral-400 hover:text-neutral-800 hover:bg-[rgba(0,0,0,0.08)]/10 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -71,7 +71,7 @@ export default function BridgeHealthModal({ isOpen, onClose }) {
                 <h4 className={`text-sm font-bold ${bridge.is_online ? 'text-emerald-800' : 'text-rose-800'}`}>
                   {bridge.is_online ? 'Bridge Connected & Listening' : 'Bridge Offline / Standby'}
                 </h4>
-                <p className="text-xs text-stone-600">
+                <p className="text-xs text-neutral-600">
                   {bridge.is_online ? 'Claims render commands via outbound SSL' : 'Render requests will wait until bridge re-establishes'}
                 </p>
               </div>
@@ -92,55 +92,55 @@ export default function BridgeHealthModal({ isOpen, onClose }) {
           </div>
 
           {/* Machine Specs & Metadata */}
-          <div className="bg-amber-50/40 rounded-2xl p-4 border border-[#C5A059]/20 space-y-2.5 text-xs text-stone-700">
+          <div className="bg-neutral-50/80 rounded-2xl p-4 border border-[rgba(0,0,0,0.08)]/20 space-y-2.5 text-xs text-neutral-700">
             <div className="flex items-center justify-between">
-              <span className="text-stone-500">One Tap App Version:</span>
-              <span className="font-mono text-stone-900 font-semibold">{bridge.app_version}</span>
+              <span className="text-neutral-500">One Tap App Version:</span>
+              <span className="font-mono text-neutral-900 font-semibold">{bridge.app_version}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-stone-500">Workstation Hardware:</span>
-              <span className="font-mono text-[#997328] font-semibold truncate max-w-[220px]" title={bridge.os}>
+              <span className="text-neutral-500">Workstation Hardware:</span>
+              <span className="font-mono text-[#334155] font-semibold truncate max-w-[220px]" title={bridge.os}>
                 {bridge.os}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-stone-500">High-Speed NVMe Free:</span>
+              <span className="text-neutral-500">High-Speed NVMe Free:</span>
               <span className="font-mono text-emerald-700 font-semibold">
                 {bridge.workstation_storage_free_gb} GB Available
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-stone-500">Last Live Heartbeat:</span>
-              <span className="font-mono text-stone-800">
+              <span className="text-neutral-500">Last Live Heartbeat:</span>
+              <span className="font-mono text-neutral-800">
                 {bridge.last_heartbeat_at ? new Date(bridge.last_heartbeat_at).toLocaleTimeString() : 'Never'}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-stone-500">Last Folder Scan:</span>
-              <span className="font-mono text-stone-800">
+              <span className="text-neutral-500">Last Folder Scan:</span>
+              <span className="font-mono text-neutral-800">
                 {bridge.last_scan_at ? new Date(bridge.last_scan_at).toLocaleTimeString() : 'Never'}
               </span>
             </div>
           </div>
 
           {/* Bridge Security Guarantee */}
-          <div className="p-3.5 rounded-2xl bg-amber-50/60 border border-[#C5A059]/25 text-xs text-stone-700 space-y-1">
-            <div className="font-bold flex items-center gap-1.5 text-[#997328]">
-              <ShieldCheck className="w-4 h-4 text-[#D4AF37]" />
+          <div className="p-3.5 rounded-2xl bg-neutral-50/80 border border-[rgba(0,0,0,0.08)]/25 text-xs text-neutral-700 space-y-1">
+            <div className="font-bold flex items-center gap-1.5 text-[#334155]">
+              <ShieldCheck className="w-4 h-4 text-[#0f172a]" />
               Security Architecture
             </div>
-            <p className="text-[11px] text-stone-600 leading-relaxed">
+            <p className="text-[11px] text-neutral-600 leading-relaxed">
               The One Tap Bridge initiates outward polling to Supabase. No local ports or desktop services are exposed to the public internet. No raw media is transmitted.
             </p>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-[#C5A059]/20 bg-amber-50/40 flex items-center justify-between">
+        <div className="p-4 border-t border-[rgba(0,0,0,0.08)]/20 bg-neutral-50/80 flex items-center justify-between">
           <button
             type="button"
             onClick={() => triggerBridgeScan()}
-            className="px-4 py-2 rounded-xl text-xs font-semibold glass-pill hover:bg-[#C5A059]/15 text-[#997328] flex items-center gap-1.5 cursor-pointer"
+            className="px-4 py-2 rounded-xl text-xs font-semibold glass-pill hover:bg-[rgba(0,0,0,0.08)]/15 text-[#334155] flex items-center gap-1.5 cursor-pointer"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>Force Folder Rescan</span>
@@ -152,7 +152,7 @@ export default function BridgeHealthModal({ isOpen, onClose }) {
               sounds.playTap();
               onClose();
             }}
-            className="px-4 py-2 rounded-xl text-xs font-semibold glass-pill hover:bg-stone-200 text-stone-700"
+            className="px-4 py-2 rounded-xl text-xs font-semibold glass-pill hover:bg-neutral-200 text-neutral-700"
           >
             Close
           </button>

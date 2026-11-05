@@ -78,27 +78,27 @@ export default function LiveRenderMonitorModal({ isOpen, onClose, itemId }) {
   const strokeDashoffset = circumference - (percent / 100) * circumference;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-900/60 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-neutral-950/60 backdrop-blur-md animate-fadeIn">
       <div 
-        className="glass-panel w-full sm:max-w-2xl max-h-[92vh] sm:rounded-3xl rounded-t-3xl border border-[#C5A059]/40 shadow-2xl flex flex-col overflow-hidden text-left bg-[#FAF8F5]/98 text-stone-900"
+        className="glass-panel w-full sm:max-w-2xl max-h-[92vh] sm:rounded-3xl rounded-t-3xl border border-[rgba(0,0,0,0.08)]/40 shadow-2xl flex flex-col overflow-hidden text-left bg-[#F5F5F7]/98 text-neutral-900"
         role="dialog"
       >
         {/* Header */}
-        <div className="p-5 border-b border-[#C5A059]/25 flex items-start justify-between gap-3 bg-gradient-to-r from-amber-100/70 via-stone-50/50 to-transparent shrink-0">
+        <div className="p-5 border-b border-[rgba(0,0,0,0.08)]/25 flex items-start justify-between gap-3 bg-gradient-to-r from-neutral-100/80 via-stone-50/50 to-transparent shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-gradient-to-br from-[#D4AF37] to-[#8A6614] text-white shadow-md">
+            <div className="p-2.5 rounded-2xl bg-gradient-to-br from-[#0f172a] to-[#334155] text-white shadow-md">
               <Cpu className="w-5 h-5 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-500/20 text-[#8B6508] border border-amber-500/30">
+                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-neutral-500/20 text-[#1e293b] border border-amber-500/30">
                   {isDone ? 'Render Complete' : isVerifying ? 'Verifying Output' : 'GPU Encoding Active'}
                 </span>
-                <span className="text-xs font-mono font-bold text-stone-600">
+                <span className="text-xs font-mono font-bold text-neutral-600">
                   Node: {bridge.label || 'Studio-PC-01'}
                 </span>
               </div>
-              <h2 className="text-base font-black text-stone-950 truncate max-w-sm mt-0.5">
+              <h2 className="text-base font-black text-neutral-950 truncate max-w-sm mt-0.5">
                 {job.displayLabel || item?.display_label || 'Active Master Render'}
               </h2>
             </div>
@@ -111,7 +111,7 @@ export default function LiveRenderMonitorModal({ isOpen, onClose, itemId }) {
                 onClose();
               }}
               title="Minimize to Floating HUD"
-              className="p-2 rounded-xl text-stone-500 hover:text-stone-900 hover:bg-stone-200/60 transition-colors"
+              className="p-2 rounded-xl text-neutral-500 hover:text-neutral-900 hover:bg-neutral-200/60 transition-colors"
             >
               <Minimize2 className="w-4 h-4" />
             </button>
@@ -120,7 +120,7 @@ export default function LiveRenderMonitorModal({ isOpen, onClose, itemId }) {
                 sounds.playTap();
                 onClose();
               }}
-              className="p-2 rounded-xl text-stone-500 hover:text-stone-900 hover:bg-stone-200/60 transition-colors"
+              className="p-2 rounded-xl text-neutral-500 hover:text-neutral-900 hover:bg-neutral-200/60 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -130,9 +130,9 @@ export default function LiveRenderMonitorModal({ isOpen, onClose, itemId }) {
         {/* Scrollable Body */}
         <div className="p-5 overflow-y-auto space-y-5 flex-1">
           {/* Main Visualizer: Radial Progress Gauge + High-Density Telemetry */}
-          <div className="p-5 rounded-3xl bg-white border border-[#C5A059]/30 shadow-sm relative overflow-hidden flex flex-col md:flex-row items-center gap-6">
+          <div className="p-5 rounded-3xl bg-white border border-[rgba(0,0,0,0.08)]/30 shadow-sm relative overflow-hidden flex flex-col md:flex-row items-center gap-6">
             {/* Islamic Star watermark */}
-            <div className="absolute -right-10 -bottom-10 w-44 h-44 opacity-5 pointer-events-none text-[#B8860B]">
+            <div className="absolute -right-10 -bottom-10 w-44 h-44 opacity-5 pointer-events-none text-[#0f172a]">
               <svg viewBox="0 0 100 100" fill="currentColor">
                 <polygon points="50 0, 62 38, 100 50, 62 62, 50 100, 38 62, 0 50, 38 38" />
               </svg>
@@ -154,7 +154,7 @@ export default function LiveRenderMonitorModal({ isOpen, onClose, itemId }) {
                   cx="72"
                   cy="72"
                   r={radius}
-                  className="transition-all duration-500 ease-out text-[#D4AF37]"
+                  className="transition-all duration-500 ease-out text-[#0f172a]"
                   strokeWidth="10"
                   strokeDasharray={circumference}
                   strokeDashoffset={strokeDashoffset}
@@ -165,17 +165,17 @@ export default function LiveRenderMonitorModal({ isOpen, onClose, itemId }) {
                 <defs>
                   <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="#FAF0BE" />
-                    <stop offset="50%" stopColor="#D4AF37" />
-                    <stop offset="100%" stopColor="#8A6614" />
+                    <stop offset="50%" stopColor="#0f172a" />
+                    <stop offset="100%" stopColor="#334155" />
                   </linearGradient>
                 </defs>
               </svg>
 
               <div className="absolute flex flex-col items-center justify-center text-center">
-                <span className="text-2xl font-black text-stone-950 tracking-tight font-mono">
+                <span className="text-2xl font-black text-neutral-950 tracking-tight font-mono">
                   {percent}%
                 </span>
-                <span className="text-[10px] font-bold uppercase text-[#8B6508] tracking-wider">
+                <span className="text-[10px] font-bold uppercase text-[#1e293b] tracking-wider">
                   {isDone ? 'Verified' : isVerifying ? 'Checksum' : 'NVENC'}
                 </span>
               </div>
@@ -183,55 +183,55 @@ export default function LiveRenderMonitorModal({ isOpen, onClose, itemId }) {
 
             {/* Telemetry Grid */}
             <div className="grid grid-cols-2 gap-3 w-full">
-              <div className="p-3 rounded-2xl bg-[#FAF8F5] border border-[#C5A059]/20">
-                <div className="text-[10px] uppercase font-bold text-stone-500 flex items-center gap-1">
-                  <Activity className="w-3 h-3 text-[#B8860B]" />
+              <div className="p-3 rounded-2xl bg-[#F5F5F7] border border-[rgba(0,0,0,0.08)]/20">
+                <div className="text-[10px] uppercase font-bold text-neutral-500 flex items-center gap-1">
+                  <Activity className="w-3 h-3 text-[#0f172a]" />
                   Encoding Framerate
                 </div>
-                <div className="text-base font-black text-stone-950 font-mono mt-0.5">
+                <div className="text-base font-black text-neutral-950 font-mono mt-0.5">
                   {isDone ? '0.0 fps' : `${job.fps || '59.94'} fps`}
                 </div>
-                <div className="text-[10px] text-stone-500">4K Master Profile</div>
+                <div className="text-[10px] text-neutral-500">4K Master Profile</div>
               </div>
 
-              <div className="p-3 rounded-2xl bg-[#FAF8F5] border border-[#C5A059]/20">
-                <div className="text-[10px] uppercase font-bold text-stone-500 flex items-center gap-1">
-                  <Zap className="w-3 h-3 text-[#B8860B]" />
+              <div className="p-3 rounded-2xl bg-[#F5F5F7] border border-[rgba(0,0,0,0.08)]/20">
+                <div className="text-[10px] uppercase font-bold text-neutral-500 flex items-center gap-1">
+                  <Zap className="w-3 h-3 text-[#0f172a]" />
                   Render Speed
                 </div>
-                <div className="text-base font-black text-stone-950 font-mono mt-0.5">
+                <div className="text-base font-black text-neutral-950 font-mono mt-0.5">
                   {isDone ? 'Done' : `${job.speed || '2.8x'}`}
                 </div>
-                <div className="text-[10px] text-stone-500">Realtime Hardware Multiplier</div>
+                <div className="text-[10px] text-neutral-500">Realtime Hardware Multiplier</div>
               </div>
 
-              <div className="p-3 rounded-2xl bg-[#FAF8F5] border border-[#C5A059]/20">
-                <div className="text-[10px] uppercase font-bold text-stone-500 flex items-center gap-1">
-                  <Clock className="w-3 h-3 text-[#B8860B]" />
+              <div className="p-3 rounded-2xl bg-[#F5F5F7] border border-[rgba(0,0,0,0.08)]/20">
+                <div className="text-[10px] uppercase font-bold text-neutral-500 flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-[#0f172a]" />
                   Time Remaining
                 </div>
-                <div className="text-base font-black text-stone-950 font-mono mt-0.5">
+                <div className="text-base font-black text-neutral-950 font-mono mt-0.5">
                   {isDone ? '00:00' : job.eta || '00:45'}
                 </div>
-                <div className="text-[10px] text-stone-500">Auto-calculated ETA</div>
+                <div className="text-[10px] text-neutral-500">Auto-calculated ETA</div>
               </div>
 
-              <div className="p-3 rounded-2xl bg-[#FAF8F5] border border-[#C5A059]/20">
-                <div className="text-[10px] uppercase font-bold text-stone-500 flex items-center gap-1">
-                  <HardDrive className="w-3 h-3 text-[#B8860B]" />
+              <div className="p-3 rounded-2xl bg-[#F5F5F7] border border-[rgba(0,0,0,0.08)]/20">
+                <div className="text-[10px] uppercase font-bold text-neutral-500 flex items-center gap-1">
+                  <HardDrive className="w-3 h-3 text-[#0f172a]" />
                   Scratch NVMe Free
                 </div>
-                <div className="text-base font-black text-stone-950 font-mono mt-0.5">
+                <div className="text-base font-black text-neutral-950 font-mono mt-0.5">
                   {bridge.workstation_storage_free_gb || '482.4'} GB
                 </div>
-                <div className="text-[10px] text-stone-500">High-speed IO buffer</div>
+                <div className="text-[10px] text-neutral-500">High-speed IO buffer</div>
               </div>
             </div>
           </div>
 
           {/* Verification Badge on Done */}
           {isDone && (
-            <div className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-400 text-stone-900 space-y-2 animate-fadeIn">
+            <div className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-400 text-neutral-900 space-y-2 animate-fadeIn">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
@@ -244,10 +244,10 @@ export default function LiveRenderMonitorModal({ isOpen, onClose, itemId }) {
                 </span>
               </div>
 
-              <div className="p-3 rounded-xl bg-white/90 border border-emerald-300 font-mono text-xs text-stone-900 flex items-center justify-between gap-3">
+              <div className="p-3 rounded-xl bg-white/90 border border-emerald-300 font-mono text-xs text-neutral-900 flex items-center justify-between gap-3">
                 <div className="truncate">
-                  <span className="text-stone-500 font-sans block text-[10px]">Verified Output:</span>
-                  <span className="font-bold text-stone-950">
+                  <span className="text-neutral-500 font-sans block text-[10px]">Verified Output:</span>
+                  <span className="font-bold text-neutral-950">
                     {job.renderedFile || item?.evidence_summary?.rendered_file || `05_Outputs/${job.externalKey}_4K.mp4`}
                   </span>
                 </div>
@@ -265,14 +265,14 @@ export default function LiveRenderMonitorModal({ isOpen, onClose, itemId }) {
 
           {/* Live Workstation Console Terminal */}
           <div className="rounded-2xl border border-stone-800 bg-[#0F172A] text-emerald-400 p-4 font-mono text-xs shadow-inner">
-            <div className="flex items-center justify-between pb-2 mb-3 border-b border-stone-800 text-[11px] text-stone-400">
+            <div className="flex items-center justify-between pb-2 mb-3 border-b border-stone-800 text-[11px] text-neutral-400">
               <div className="flex items-center gap-2">
-                <Terminal className="w-3.5 h-3.5 text-[#D4AF37]" />
+                <Terminal className="w-3.5 h-3.5 text-[#0f172a]" />
                 <span className="font-bold text-stone-300">One Tap Workstation Node Terminal</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-stone-400">Live Stream</span>
+                <span className="text-neutral-400">Live Stream</span>
               </div>
             </div>
 
@@ -283,21 +283,21 @@ export default function LiveRenderMonitorModal({ isOpen, onClose, itemId }) {
               {job.logs && job.logs.length > 0 ? (
                 job.logs.map((line, idx) => (
                   <div key={idx} className="flex items-start gap-2">
-                    <span className="text-[#8B6508] select-none">&gt;</span>
+                    <span className="text-[#1e293b] select-none">&gt;</span>
                     <span className={line.includes('Error') ? 'text-rose-400 font-bold' : line.includes('Verified') || line.includes('complete') ? 'text-emerald-400 font-bold' : 'text-stone-300'}>
                       {line}
                     </span>
                   </div>
                 ))
               ) : (
-                <div className="text-stone-500 italic">Awaiting workstation encoder frame stream...</div>
+                <div className="text-neutral-500 italic">Awaiting workstation encoder frame stream...</div>
               )}
             </div>
           </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 border-t border-[#C5A059]/25 bg-stone-100/80 flex items-center justify-between gap-3 shrink-0">
+        <div className="p-4 border-t border-[rgba(0,0,0,0.08)]/25 bg-neutral-100/80 flex items-center justify-between gap-3 shrink-0">
           <div>
             {!isDone ? (
               <button
@@ -324,7 +324,7 @@ export default function LiveRenderMonitorModal({ isOpen, onClose, itemId }) {
                 sounds.playTap();
                 onClose();
               }}
-              className="px-5 py-2.5 rounded-xl text-xs font-bold glass-pill hover:bg-white text-stone-900 border border-[#C5A059]/40 cursor-pointer"
+              className="px-5 py-2.5 rounded-xl text-xs font-bold glass-pill hover:bg-white text-neutral-900 border border-[rgba(0,0,0,0.08)]/40 cursor-pointer"
             >
               {isDone ? 'Close Monitor' : 'Minimize to HUD'}
             </button>

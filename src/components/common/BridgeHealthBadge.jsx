@@ -20,7 +20,7 @@ export default function BridgeHealthBadge({ onClick, showDetail = false }) {
     <button
       onClick={onClick}
       type="button"
-      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold glass-pill transition-all cursor-pointer hover:border-amber-400 text-stone-800 bg-white/80 border border-[#C5A059]/30"
+      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold glass-pill transition-all cursor-pointer hover:border-neutral-300 text-neutral-800 bg-white/80 border border-[rgba(0,0,0,0.08)]/30"
       title={`Bridge: ${bridge.label} (${bridge.is_online ? 'Connected' : 'Offline'})`}
     >
       <span className="relative flex h-2 w-2">
@@ -43,7 +43,7 @@ export default function BridgeHealthBadge({ onClick, showDetail = false }) {
       </span>
 
       {showDetail && (
-        <span className="text-[10px] text-stone-500 border-l border-amber-300 pl-1.5 hidden sm:inline font-mono">
+        <span className="text-[10px] text-neutral-500 border-l border-neutral-300 pl-1.5 hidden sm:inline font-mono">
           Scan: {timeAgo(bridge.last_scan_at)}
         </span>
       )}
