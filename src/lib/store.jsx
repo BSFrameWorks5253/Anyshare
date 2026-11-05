@@ -90,6 +90,7 @@ export function AppProvider({ children }) {
   const [pushEnabled, setPushEnabled] = useState(false);
   const [activeRenderJob, setActiveRenderJob] = useState(null);
   const renderIntervalRef = useRef(null);
+  const nexusChannelRef = useRef(null);
 
   // Auto-probe One Tap Workstation Bridge on port 5253
   useEffect(() => {
@@ -175,7 +176,66 @@ export function AppProvider({ children }) {
 
     fetchCloudData();
 
-    // 2. Setup Realtime Listener Channel
+    // 2. Setup Realtime Broadcast Nexus (Zero-Latency WebSockets between Phone and Desktop)
+    const nexus = supabase.channel('anyshare_realtime_nexus')
+      .on('broadcast', { event: 'pairing_created' }, payload => {
+        if (!isSubscribed) return;
+        setBridge(prev => ({
+          ...prev,
+          is_online: true,
+          label: payload.payload?.workstation?.label || prev.label,
+          last_heartbeat_at: new Date().toISOString()
+        }));
+      })
+      .on('broadcast', { event: 'pairing_confirmed' }, payload => {
+        if (!isSubscribed) return;
+        setBridge(prev => ({
+          ...prev,
+          is_online: true,
+          label: payload.payload?.workstation?.label || prev.label,
+          last_heartbeat_at: new Date().toISOString()
+        }));
+      })
+      .on('broadcast', { event: 'render_telemetry' }, payload => {
+        if (!isSubscribed) return;
+        const data = payload.payload;
+        if (data?.itemId) {
+          setActiveRenderJob(prev => prev && prev.itemId === data.itemId ? {
+            ...prev,
+            percent: data.percent || prev.percent,
+            speed: data.speed || prev.speed,
+            fps: data.fps || prev.fps,
+            logs: [...(prev.logs || []), `[Desktop Node] ${data.stage || 'Rendering'}`]
+          } : prev);
+
+          setItems(prev => prev.map(i => i.id === data.itemId ? {
+            ...i,
+            status: 'rendering',
+            evidence_summary: {
+              ...i.evidence_summary,
+              render_progress: data.percent
+            }
+          } : i));
+        }
+      })
+      .on('broadcast', { event: 'render_completed' }, payload => {
+        if (!isSubscribed) return;
+        const data = payload.payload;
+        if (data?.itemId) {
+          setItems(prev => prev.map(i => i.id === data.itemId ? {
+            ...i,
+            status: 'rendered',
+            done_at: new Date().toISOString()
+          } : i));
+          setActiveRenderJob(null);
+          sounds.playSuccess();
+        }
+      })
+      .subscribe();
+
+    nexusChannelRef.current = nexus;
+
+    // 3. Setup Table Changes Listener (If tables exist)
     const channel = supabase.channel('anyshare_realtime_hub')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'anyshare_items' }, payload => {
         if (!isSubscribed) return;
@@ -204,6 +264,7 @@ export function AppProvider({ children }) {
     return () => {
       isSubscribed = false;
       supabase.removeChannel(channel);
+      if (nexus) supabase.removeChannel(nexus);
     };
   }, []);
 
@@ -563,7 +624,30 @@ export function AppProvider({ children }) {
       // Local port 5253 not listening yet or remote client connection
     }
 
-    // 2. Dispatch to Vercel Serverless Render Dispatcher in background
+    // 2. Broadcast Render Command over Supabase Realtime Nexus (Delivered to Desktop Node globally in <50ms)
+    try {
+      if (nexusChannelRef.current) {
+        nexusChannelRef.current.send({
+          type: 'broadcast',
+          event: 'render_command',
+          payload: {
+            commandId,
+            itemId,
+            externalKey: item.external_key,
+            displayLabel: item.display_label,
+            requestedBy: currentUser.username || 'creator',
+            targetPreset: 'Match Source - High Bitrate (4K H.264)',
+            priority: 'rush',
+            idempotencyKey,
+            timestamp: Date.now()
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('[Realtime Nexus] Render command broadcast failed:', e);
+    }
+
+    // 3. Dispatch to Vercel Serverless Render Dispatcher in background
     try {
       fetch('/api/render-command', {
         method: 'POST',

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import QRCode from 'qrcode';
 import { useApp } from '../../lib/store';
+import { supabase } from '../../lib/supabase';
 import { sounds } from '../../lib/sound';
 import confetti from 'canvas-confetti';
 import {
@@ -238,10 +239,32 @@ export default function QRScannerModal({ isOpen, onClose }) {
       consumedTokens.push(token);
       localStorage.setItem('anyshare_consumed_tokens_v1', JSON.stringify(consumedTokens.slice(-100)));
 
-      // 3. Authenticate current user in website state
+      // 3. Broadcast claim on Supabase Realtime Cloud Nexus (Instantly notifies Desktop Node)
+      try {
+        const nexus = supabase.channel('anyshare_realtime_nexus');
+        nexus.subscribe((status) => {
+          if (status === 'SUBSCRIBED') {
+            nexus.send({
+              type: 'broadcast',
+              event: 'pairing_claim',
+              payload: {
+                token,
+                username: user.username,
+                user,
+                workstation,
+                claimedAt: new Date().toISOString()
+              }
+            });
+          }
+        });
+      } catch (e) {
+        console.warn('[Realtime Nexus] Broadcast claim failed:', e);
+      }
+
+      // 4. Authenticate current user in website state
       updateEcosystemUser(user);
 
-      // 4. Bind workstation node in bridge state
+      // 5. Bind workstation node in bridge state
       if (setBridge) {
         setBridge(prev => ({
           ...prev,
