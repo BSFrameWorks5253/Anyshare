@@ -18,6 +18,7 @@ import BridgeHealthModal from './components/bridge/BridgeHealthModal';
 import AccountModal from './components/account/AccountModal';
 import DatabaseInspectorModal from './components/account/DatabaseInspectorModal';
 import NewProductionModal from './components/dashboard/NewProductionModal';
+import QRScannerModal from './components/auth/QRScannerModal';
 import ScrollToTop from './components/common/ScrollToTop';
 import { sounds } from './lib/sound';
 import {
@@ -61,6 +62,7 @@ export default function App() {
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isBridgeOpen, setIsBridgeOpen] = useState(false);
   const [isDbInspectorOpen, setIsDbInspectorOpen] = useState(false);
+  const [isQRScannerOpen, setIsQRScannerOpen] = useState(false);
 
   // Scroll listener for Floating Luxury HUD
   useEffect(() => {
@@ -110,6 +112,7 @@ export default function App() {
         onOpenNotifications={() => setIsNotificationsOpen(true)}
         onOpenAccount={() => setIsAccountOpen(true)}
         onOpenBridge={() => setIsBridgeOpen(true)}
+        onOpenQRScanner={() => setIsQRScannerOpen(true)}
       />
 
       {/* Main Content Layout with Desktop Sidebar Rail */}
@@ -121,6 +124,7 @@ export default function App() {
           onOpenAccount={() => setIsAccountOpen(true)}
           onOpenBridge={() => setIsBridgeOpen(true)}
           onOpenDbInspector={() => setIsDbInspectorOpen(true)}
+          onOpenQRScanner={() => setIsQRScannerOpen(true)}
         />
 
         {/* Dynamic Main View Area */}
@@ -381,6 +385,7 @@ export default function App() {
         onNavigate={setCurrentView}
         onOpenNotifications={() => setIsNotificationsOpen(true)}
         onOpenAccount={() => setIsAccountOpen(true)}
+        onOpenQRScanner={() => setIsQRScannerOpen(true)}
       />
 
       <ScrollToTop />
@@ -457,11 +462,20 @@ export default function App() {
           setIsAccountOpen(false);
           setIsDbInspectorOpen(true);
         }}
+        onOpenQRScanner={() => {
+          setIsAccountOpen(false);
+          setIsQRScannerOpen(true);
+        }}
       />
 
       <DatabaseInspectorModal
         isOpen={isDbInspectorOpen}
         onClose={() => setIsDbInspectorOpen(false)}
+      />
+
+      <QRScannerModal
+        isOpen={isQRScannerOpen}
+        onClose={() => setIsQRScannerOpen(false)}
       />
     </GlassShell>
   );

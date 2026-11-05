@@ -10,13 +10,15 @@ import {
   Sparkles,
   RefreshCw,
   Zap,
-  AtSign
+  AtSign,
+  QrCode
 } from 'lucide-react';
 
 export default function GlassTopBar({
   onOpenNotifications,
   onOpenAccount,
   onOpenBridge,
+  onOpenQRScanner,
   currentView,
   onNavigate
 }) {
@@ -88,6 +90,20 @@ export default function GlassTopBar({
             }`}>
               {isAdmin ? 'Admin' : 'Member'}
             </span>
+          </button>
+
+          {/* QR Login & Sync Button */}
+          <button
+            type="button"
+            onClick={() => {
+              sounds.playTap();
+              onOpenQRScanner();
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-gradient-to-r from-amber-100 to-amber-200 hover:from-amber-200 hover:to-amber-300 text-stone-950 transition-colors cursor-pointer border border-[#C5A059]/50 shadow-xs"
+            title="Scan One Tap App QR Code to Log In & Sync Workstation"
+          >
+            <QrCode className="w-3.5 h-3.5 text-[#8A6614]" />
+            <span className="hidden sm:inline">QR Login</span>
           </button>
 
           {/* Notifications Button */}

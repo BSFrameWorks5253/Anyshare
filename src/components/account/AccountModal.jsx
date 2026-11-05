@@ -22,10 +22,11 @@ import {
   ArrowRightLeft,
   Mail,
   ShieldCheck,
-  Search
+  Search,
+  QrCode
 } from 'lucide-react';
 
-export default function AccountModal({ isOpen, onClose, onOpenDbInspector }) {
+export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpenQRScanner }) {
   const {
     currentUser,
     users,
@@ -322,7 +323,49 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector }) {
                 )}
               </div>
 
-              {/* Automated Retention Cleanups Policy (High Contrast) */}
+              {/* One-Time QR Login & One Tap Desktop Node Sync Card */}
+              <div className="rounded-2xl p-4 border border-[#C5A059]/40 bg-gradient-to-r from-amber-50/80 via-white to-amber-50/40 space-y-3 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 rounded-xl bg-gradient-to-br from-[#D4AF37] to-[#8A6614] text-white">
+                      <QrCode className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="font-black text-stone-950 text-xs">One-Time QR Login & Node Sync</h4>
+                      <p className="text-[11px] text-stone-600 font-medium">Sync with One Tap desktop app for 1-tap renders</p>
+                    </div>
+                  </div>
+
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-950 border border-emerald-300 font-black">
+                    SYNC READY
+                  </span>
+                </div>
+
+                <div className="p-3 rounded-xl bg-white border border-[#C5A059]/20 text-[11px] text-stone-800 space-y-1 font-mono">
+                  <div className="flex justify-between">
+                    <span className="text-stone-500 font-sans">Active Workstation:</span>
+                    <span className="font-bold text-stone-900">Studio-PC-01 (Port 5253)</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-stone-500 font-sans">Ecosystem State:</span>
+                    <span className="text-emerald-700 font-bold">Synchronized with Anything Session</span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    sounds.playTap();
+                    if (onOpenQRScanner) {
+                      onOpenQRScanner();
+                    }
+                  }}
+                  className="w-full py-2.5 rounded-xl text-xs font-black glass-button-primary shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <QrCode className="w-3.5 h-3.5" />
+                  <span>Open QR Scanner / View App Pairing</span>
+                </button>
+              </div>
               <div className="rounded-2xl p-4 border border-[#C5A059]/30 bg-white/95 space-y-2 shadow-xs">
                 <h4 className="font-black text-stone-950 text-sm flex items-center gap-1.5">
                   <Clock className="w-4 h-4 text-[#8A6614]" />

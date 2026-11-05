@@ -9,7 +9,8 @@ import {
   Cpu,
   Database,
   User,
-  ExternalLink
+  ExternalLink,
+  QrCode
 } from 'lucide-react';
 
 export default function GlassNav({
@@ -18,7 +19,8 @@ export default function GlassNav({
   onOpenNotifications,
   onOpenAccount,
   onOpenBridge,
-  onOpenDbInspector
+  onOpenDbInspector,
+  onOpenQRScanner
 }) {
   const { notifications, currentUser, isAdmin, items, bridge } = useApp();
 
@@ -97,6 +99,21 @@ export default function GlassNav({
         <div className="text-[10px] font-bold uppercase tracking-wider text-stone-500 px-3 mb-2">
           Systems & Hardware
         </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            sounds.playTap();
+            if (onOpenQRScanner) onOpenQRScanner();
+          }}
+          className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-[#8A6614] bg-amber-100/70 hover:bg-amber-100 border border-amber-300 transition-all cursor-pointer shadow-xs"
+        >
+          <div className="flex items-center gap-3">
+            <QrCode className="w-4 h-4 text-[#8A6614]" />
+            <span>QR Login & Sync</span>
+          </div>
+          <span className="text-[9px] uppercase font-mono px-1.5 py-0.5 rounded bg-white text-stone-900 border border-amber-300 font-black">SCAN</span>
+        </button>
 
         <button
           type="button"

@@ -6,14 +6,16 @@ import {
   Briefcase,
   ShieldAlert,
   Bell,
-  User
+  User,
+  QrCode
 } from 'lucide-react';
 
 export default function MobileBottomNav({
   currentView,
   onNavigate,
   onOpenNotifications,
-  onOpenAccount
+  onOpenAccount,
+  onOpenQRScanner
 }) {
   const { notifications, currentUser, isAdmin, items } = useApp();
 
@@ -58,6 +60,20 @@ export default function MobileBottomNav({
         >
           <Briefcase className="w-5 h-5 mb-0.5" />
           <span className="text-[10px]">{isAdmin ? 'Work' : 'My Work'}</span>
+        </button>
+
+        {/* Center: Quick QR Scan Button */}
+        <button
+          type="button"
+          onClick={() => {
+            sounds.playTap();
+            if (onOpenQRScanner) onOpenQRScanner();
+          }}
+          className="flex flex-col items-center justify-center -mt-3.5 p-2 px-3 rounded-2xl bg-gradient-to-tr from-[#D4AF37] to-[#8A6614] text-white shadow-md border-2 border-white cursor-pointer active:scale-95 transition-transform"
+          title="Scan One Tap App QR"
+        >
+          <QrCode className="w-5 h-5" />
+          <span className="text-[8px] font-black uppercase tracking-wider mt-0.5">Scan</span>
         </button>
 
         {/* 3. Corrections */}
