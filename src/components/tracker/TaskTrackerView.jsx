@@ -22,7 +22,12 @@ import {
   CheckCheck,
   UploadCloud,
   FileCheck2,
-  ExternalLink
+  ExternalLink,
+  FolderSearch,
+  Trash2,
+  X,
+  PlusCircle,
+  FolderGit2
 } from 'lucide-react';
 
 const STAGE_KEYS = [
@@ -39,6 +44,9 @@ export default function TaskTrackerView() {
     safarCampaigns,
     isAdmin,
     bridge,
+    triggerBridgeScan,
+    detectSafarFromPath,
+    clearMockDataAndRescan,
     toggleSafarDone,
     markTaskStatus,
     markAllSafarDatesStatus,
@@ -48,9 +56,18 @@ export default function TaskTrackerView() {
 
   const [activeTab, setActiveTab] = useState('active'); // 'active' | 'archived' | 'all'
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDrive, setSelectedDrive] = useState('all'); // 'all' | 'F:\' | 'E:\' | 'D:\'
+  const [selectedDrive, setSelectedDrive] = useState('all');
+  const [isDetectModalOpen, setIsDetectModalOpen] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+
+  // Folder detection modal inputs
+  const [detectFolderInput, setDetectFolderInput] = useState('F:\\Safar_1448_Colombo');
+  const [detectSafarName, setDetectSafarName] = useState('Safar 1448 — Colombo');
+  const [detectCity, setDetectCity] = useState('Colombo');
+  const [detectDaysCount, setDetectDaysCount] = useState(10);
+  const [detectDriveRoot, setDetectDriveRoot] = useState('F:\\');
+
   const [expandedSafarIds, setExpandedSafarIds] = useState(() => {
-    // Expand active Safars by default
     const set = new Set();
     safarCampaigns.forEach(c => {
       if (!c.is_archived && !c.is_safar_done) set.add(c.id);
@@ -69,6 +86,13 @@ export default function TaskTrackerView() {
       }
       return next;
     });
+  };
+
+  // Trigger workstation scan with feedback
+  const handleScanWorkstation = async () => {
+    setIsScanning(true);
+    await triggerBridgeScan();
+    setTimeout(() => setIsScanning(false), 800);
   };
 
   // Extract unique drive roots
@@ -93,7 +117,7 @@ export default function TaskTrackerView() {
     };
 
     safarCampaigns.forEach(c => {
-      c.dates.forEach(d => {
+      (c.dates || []).forEach(d => {
         totalDays++;
         if (stageCounts[d.status] !== undefined) {
           stageCounts[d.status]++;
@@ -120,23 +144,20 @@ export default function TaskTrackerView() {
     return safarCampaigns.filter(safar => {
       const isDoneOrArchived = safar.is_archived || safar.is_safar_done;
 
-      // Tab filter
       if (activeTab === 'active' && isDoneOrArchived) return false;
       if (activeTab === 'archived' && !isDoneOrArchived) return false;
 
-      // Drive filter
       if (selectedDrive !== 'all' && safar.driveRoot !== selectedDrive) {
         return false;
       }
 
-      // Search query
       if (searchQuery.trim().length > 0) {
         const q = searchQuery.toLowerCase();
         const matchesName = (safar.safarName || safar.name || '').toLowerCase().includes(q);
         const matchesCity = (safar.city || '').toLowerCase().includes(q);
         const matchesSerial = (safar.serialNumber || '').toLowerCase().includes(q);
         const matchesDrive = (safar.driveRoot || '').toLowerCase().includes(q);
-        const matchesDate = safar.dates.some(d =>
+        const matchesDate = (safar.dates || []).some(d =>
           (d.dateFolder || '').toLowerCase().includes(q) ||
           (d.dateLabel || '').toLowerCase().includes(q) ||
           (d.title || '').toLowerCase().includes(q)
@@ -150,16 +171,30 @@ export default function TaskTrackerView() {
     });
   }, [safarCampaigns, activeTab, selectedDrive, searchQuery]);
 
+  // Submit detected folder path
+  const handleDetectSubmit = (e) => {
+    e.preventDefault();
+    if (!detectFolderInput) return;
+    detectSafarFromPath({
+      folderPath: detectFolderInput,
+      safarName: detectSafarName,
+      city: detectCity,
+      totalDays: detectDaysCount,
+      driveRoot: detectDriveRoot
+    });
+    setIsDetectModalOpen(false);
+  };
+
   return (
-    <div className="space-y-6 animate-fadeIn pb-12">
+    <div className="space-y-6 animate-fadeIn pb-16">
       {/* 1. Header Banner & Realtime Status */}
-      <div className="glass-panel rounded-3xl p-6 border border-black/[0.08] bg-white/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="glass-panel rounded-3xl p-6 border border-slate-200/80 bg-white/90 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5 mb-1.5">
-            <div className="w-8 h-8 rounded-xl bg-neutral-950 text-white flex items-center justify-center shadow-xs">
+            <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs">
               <Layers className="w-4 h-4 fill-white" />
             </div>
-            <h2 className="text-xl font-black text-neutral-950 tracking-tight">
+            <h2 className="text-xl font-bold text-slate-900 tracking-tight">
               Task Tracker & Workstation Companion
             </h2>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold flex items-center gap-1">
@@ -167,12 +202,51 @@ export default function TaskTrackerView() {
               Nexus Live
             </span>
           </div>
-          <p className="text-xs text-neutral-600 font-medium max-w-2xl">
-            Real-time delivery progress paired with One Tap workstations. Batch render completions auto-transition tasks to Upload Pending.
+          <p className="text-xs text-slate-600 font-medium max-w-2xl">
+            Live delivery tracker synced directly with One Tap workstations. Batch render completions auto-advance tasks to Upload Pending.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
+          {/* Workstation Detection Trigger */}
+          <button
+            type="button"
+            disabled={isScanning}
+            onClick={handleScanWorkstation}
+            className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2 cursor-pointer shadow-xs transition-all disabled:opacity-60"
+            title="Scan One Tap desktop node for Safar projects & render queues"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isScanning ? 'animate-spin' : ''}`} />
+            <span>{isScanning ? 'Scanning Drives...' : 'Scan One Tap Drives'}</span>
+          </button>
+
+          {/* Detect Custom Folder / Drive */}
+          <button
+            type="button"
+            onClick={() => {
+              sounds.playTap();
+              setIsDetectModalOpen(true);
+            }}
+            className="px-3 py-1.5 rounded-xl text-xs font-semibold glass-pill hover:bg-slate-100 text-slate-800 flex items-center gap-1.5 cursor-pointer border border-slate-200 shadow-xs"
+            title="Register a Safar campaign directory from workstation"
+          >
+            <FolderSearch className="w-3.5 h-3.5 text-indigo-600" />
+            <span>Detect Folder</span>
+          </button>
+
+          {/* Clear Mock Data */}
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={clearMockDataAndRescan}
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold glass-pill hover:bg-rose-50 text-slate-600 hover:text-rose-700 flex items-center gap-1.5 cursor-pointer border border-slate-200 shadow-xs"
+              title="Purge cached mock data and refresh workstation detection"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Clear Mock</span>
+            </button>
+          )}
+
           {desktopPermission !== 'granted' && (
             <button
               type="button"
@@ -180,18 +254,18 @@ export default function TaskTrackerView() {
                 sounds.playTap();
                 requestDesktopNotificationPermission();
               }}
-              className="px-3 py-1.5 rounded-xl text-xs font-semibold glass-pill hover:bg-neutral-100 text-neutral-800 flex items-center gap-1.5 cursor-pointer border border-black/[0.08] shadow-xs"
-              title="Enable OS Desktop Sound & Banner Alerts"
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold glass-pill hover:bg-slate-100 text-slate-800 flex items-center gap-1.5 cursor-pointer border border-slate-200 shadow-xs"
+              title="Enable Desktop Audio & Popup Alerts"
             >
-              <Bell className="w-3.5 h-3.5 text-neutral-600" />
+              <Bell className="w-3.5 h-3.5 text-slate-600" />
               <span>Enable Alerts</span>
             </button>
           )}
 
-          <div className="px-3 py-1.5 rounded-xl text-xs font-bold bg-neutral-100 text-neutral-800 border border-black/[0.06] flex items-center gap-2">
-            <Cpu className="w-3.5 h-3.5 text-neutral-600" />
+          <div className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200/80 flex items-center gap-2">
+            <Cpu className="w-3.5 h-3.5 text-slate-600" />
             <span>{bridge.label?.split(' (')[0] || 'Studio-PC-01'}</span>
-            <span className={`w-2 h-2 rounded-full ${bridge.is_online ? 'bg-emerald-500' : 'bg-neutral-400'}`} />
+            <span className={`w-2 h-2 rounded-full ${bridge.is_online ? 'bg-emerald-500' : 'bg-slate-400'}`} />
           </div>
         </div>
       </div>
@@ -204,19 +278,19 @@ export default function TaskTrackerView() {
           return (
             <div
               key={stageKey}
-              className="glass-panel p-3.5 rounded-2xl border border-black/[0.06] bg-white/70 shadow-xs flex flex-col justify-between"
+              className="glass-panel p-3.5 rounded-2xl border border-slate-200/80 bg-white/80 shadow-xs flex flex-col justify-between"
             >
               <div className="flex items-center justify-between gap-1 mb-1.5">
-                <span className="text-[11px] font-bold text-neutral-500 truncate">
+                <span className="text-[11px] font-bold text-slate-500 truncate">
                   {cfg.shortLabel}
                 </span>
                 <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
               </div>
               <div className="flex items-baseline justify-between">
-                <span className="text-xl font-black text-neutral-950 font-mono">
+                <span className="text-xl font-bold text-slate-900 font-mono">
                   {count}
                 </span>
-                <span className="text-[10px] font-semibold text-neutral-400">
+                <span className="text-[10px] font-semibold text-slate-400">
                   {metrics.totalDays > 0 ? `${Math.round((count / metrics.totalDays) * 100)}%` : '0%'}
                 </span>
               </div>
@@ -226,17 +300,17 @@ export default function TaskTrackerView() {
       </div>
 
       {/* Workstation Overall Delivery Progress Bar */}
-      <div className="glass-panel p-4 rounded-2xl border border-black/[0.06] bg-white/80 shadow-xs">
-        <div className="flex items-center justify-between text-xs font-semibold text-neutral-700 mb-2">
+      <div className="glass-panel p-4 rounded-2xl border border-slate-200/80 bg-white/85 shadow-xs">
+        <div className="flex items-center justify-between text-xs font-semibold text-slate-700 mb-2">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-neutral-950">Workstation Delivery Progress</span>
-            <span className="text-neutral-400">({metrics.completedDeliverables} of {metrics.totalDays} Days 100% Submitted)</span>
+            <span className="font-bold text-slate-900">Workstation Delivery Progress</span>
+            <span className="text-slate-400">({metrics.completedDeliverables} of {metrics.totalDays} Days Submitted)</span>
           </div>
-          <span className="font-mono font-black text-neutral-950">{metrics.progressPercent}%</span>
+          <span className="font-mono font-bold text-indigo-600">{metrics.progressPercent}%</span>
         </div>
-        <div className="w-full h-2.5 bg-neutral-100 rounded-full overflow-hidden border border-black/[0.04]">
+        <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200/60">
           <div
-            className="h-full bg-neutral-950 transition-all duration-500 ease-out rounded-full"
+            className="h-full bg-indigo-600 transition-all duration-500 ease-out rounded-full"
             style={{ width: `${metrics.progressPercent}%` }}
           />
         </div>
@@ -245,36 +319,36 @@ export default function TaskTrackerView() {
       {/* 3. Filters & Lifecycle Tabs */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         {/* Segmented Control Tabs: Active, Archived, All */}
-        <div className="flex items-center gap-1 bg-neutral-100/90 p-1 rounded-2xl border border-black/[0.06] self-start">
+        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-2xl border border-slate-200/80 self-start">
           <button
             type="button"
             onClick={() => { sounds.playTap(); setActiveTab('active'); }}
             className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'active'
-                ? 'bg-neutral-950 text-white shadow-xs'
-                : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/60'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
             }`}
           >
-            Active Safars
+            Active Safars ({safarCampaigns.filter(c => !c.is_archived && !c.is_safar_done).length})
           </button>
           <button
             type="button"
             onClick={() => { sounds.playTap(); setActiveTab('archived'); }}
             className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'archived'
-                ? 'bg-neutral-950 text-white shadow-xs'
-                : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/60'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
             }`}
           >
-            Archived / Done
+            Archived / Done ({safarCampaigns.filter(c => c.is_archived || c.is_safar_done).length})
           </button>
           <button
             type="button"
             onClick={() => { sounds.playTap(); setActiveTab('all'); }}
             className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'all'
-                ? 'bg-neutral-950 text-white shadow-xs'
-                : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/60'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
             }`}
           >
             All Safars ({safarCampaigns.length})
@@ -291,41 +365,97 @@ export default function TaskTrackerView() {
                 sounds.playTap();
                 setSelectedDrive(e.target.value);
               }}
-              className="appearance-none pl-8 pr-8 py-1.5 rounded-xl text-xs font-semibold bg-white border border-black/[0.08] text-neutral-800 focus:outline-none focus:ring-1 focus:ring-neutral-900 cursor-pointer shadow-2xs"
+              className="appearance-none pl-8 pr-8 py-1.5 rounded-xl text-xs font-semibold bg-white border border-slate-200 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-600 cursor-pointer shadow-xs"
             >
               <option value="all">All Drives</option>
               {driveRoots.map(dr => (
                 <option key={dr} value={dr}>{dr}</option>
               ))}
             </select>
-            <HardDrive className="w-3.5 h-3.5 text-neutral-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <ChevronDown className="w-3.5 h-3.5 text-neutral-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <HardDrive className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Search Box */}
           <div className="relative flex-1 sm:w-64">
-            <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search Safar, date, serial..."
-              className="w-full pl-8 pr-3 py-1.5 rounded-xl text-xs bg-white border border-black/[0.08] text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-1 focus:ring-neutral-900 shadow-2xs"
+              className="w-full pl-8 pr-3 py-1.5 rounded-xl text-xs bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-600 shadow-xs"
             />
           </div>
         </div>
       </div>
 
-      {/* 4. Safar Cards & Stepper Rows */}
-      {filteredSafars.length === 0 ? (
-        <div className="glass-panel rounded-3xl p-12 text-center border border-black/[0.06] bg-white/70">
-          <Layers className="w-8 h-8 text-neutral-400 mx-auto mb-3" />
-          <h3 className="text-base font-bold text-neutral-950 mb-1">No Safars Found</h3>
-          <p className="text-xs text-neutral-500 max-w-sm mx-auto">
+      {/* 4. Safar Cards & Stepper Rows OR One Tap Detection Empty Slate */}
+      {safarCampaigns.length === 0 ? (
+        <div className="glass-panel rounded-3xl p-10 sm:p-14 text-center border border-slate-200/80 bg-white/90 shadow-sm space-y-5 max-w-2xl mx-auto">
+          <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center mx-auto shadow-xs">
+            <Cpu className="w-7 h-7" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-slate-900 mb-1">
+              One Tap Auto-Detection Active
+            </h3>
+            <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
+              No mock data loaded. AnyShare detects Safar campaigns, daily deliverables, and render exports directly from One Tap on your PC.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-left text-xs space-y-2 max-w-md mx-auto">
+            <div className="flex items-center justify-between text-slate-700">
+              <span className="font-semibold">Workstation Node:</span>
+              <span className="font-mono font-bold text-slate-900">{bridge.label?.split(' (')[0] || 'Studio-PC-01'}</span>
+            </div>
+            <div className="flex items-center justify-between text-slate-700">
+              <span className="font-semibold">Bridge Port:</span>
+              <span className="font-mono text-indigo-600 font-bold">http://127.0.0.1:5253</span>
+            </div>
+            <div className="flex items-center justify-between text-slate-700">
+              <span className="font-semibold">Realtime Nexus:</span>
+              <span className="font-bold text-emerald-600 flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                Listening
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <button
+              type="button"
+              disabled={isScanning}
+              onClick={handleScanWorkstation}
+              className="px-5 py-2.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2 cursor-pointer shadow-sm transition-all"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isScanning ? 'animate-spin' : ''}`} />
+              <span>Scan One Tap Drives Now</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                sounds.playTap();
+                setIsDetectModalOpen(true);
+              }}
+              className="px-4 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-slate-100 text-slate-800 flex items-center gap-1.5 cursor-pointer border border-slate-200 shadow-xs"
+            >
+              <FolderGit2 className="w-3.5 h-3.5 text-slate-700" />
+              <span>Detect Drive Folder Path</span>
+            </button>
+          </div>
+        </div>
+      ) : filteredSafars.length === 0 ? (
+        <div className="glass-panel rounded-3xl p-12 text-center border border-slate-200/80 bg-white/70">
+          <Layers className="w-8 h-8 text-slate-400 mx-auto mb-3" />
+          <h3 className="text-base font-bold text-slate-900 mb-1">No Matching Safars</h3>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto">
             {searchQuery
-              ? `No matching campaigns found for "${searchQuery}". Try adjusting your filters.`
+              ? `No campaigns match "${searchQuery}".`
               : activeTab === 'archived'
-              ? 'No archived Safars. When all dates of a Safar are completed, admins can mark it Done & Archived.'
+              ? 'No archived Safars. When all dates are done, admins can archive them.'
               : 'No active Safar campaigns.'}
           </p>
         </div>
@@ -335,56 +465,54 @@ export default function TaskTrackerView() {
             const isExpanded = expandedSafarIds.has(safar.id);
             const isDoneOrArchived = safar.is_archived || safar.is_safar_done;
 
-            // Deliverables stats for this Safar
-            const total = safar.dates.length;
-            const submittedCount = safar.dates.filter(d => d.status === 'submitted').length;
-            const uploadedCount = safar.dates.filter(d => d.status === 'uploaded' || d.status === 'submitted').length;
+            const total = (safar.dates || []).length;
+            const submittedCount = (safar.dates || []).filter(d => d.status === 'submitted').length;
             const safarPercent = total > 0 ? Math.round((submittedCount / total) * 100) : 0;
 
             return (
               <div
                 key={safar.id}
-                className="glass-panel rounded-3xl border border-black/[0.08] bg-white/85 shadow-sm overflow-hidden transition-all"
+                className="glass-panel rounded-3xl border border-slate-200/80 bg-white/90 shadow-xs overflow-hidden transition-all"
               >
                 {/* Safar Header Bar */}
-                <div className="p-5 sm:p-6 border-b border-black/[0.06]">
+                <div className="p-5 sm:p-6 border-b border-slate-200/60">
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     {/* Left: Safar Title, Badges & Drive */}
                     <div className="space-y-2">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-lg font-black text-neutral-950 tracking-tight">
+                        <h3 className="text-lg font-bold text-slate-900 tracking-tight">
                           {safar.safarName || safar.name}
                         </h3>
                         {safar.city && (
-                          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-neutral-100 text-neutral-800 border border-neutral-200">
+                          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-800 border border-slate-200">
                             {safar.city}
                           </span>
                         )}
                         {safar.serialNumber && (
-                          <span className="px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-neutral-100 text-neutral-700 border border-neutral-200">
+                          <span className="px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200">
                             {safar.serialNumber}
                           </span>
                         )}
                         {safar.driveRoot && (
-                          <span className="px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-neutral-950 text-white flex items-center gap-1">
-                            <HardDrive className="w-3 h-3 text-neutral-300" />
+                          <span className="px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-slate-900 text-white flex items-center gap-1">
+                            <HardDrive className="w-3 h-3 text-slate-300" />
                             {safar.driveRoot}
                           </span>
                         )}
                         {isDoneOrArchived && (
-                          <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-100 text-emerald-950 border border-emerald-300 flex items-center gap-1">
+                          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-950 border border-emerald-300 flex items-center gap-1">
                             <CheckCheck className="w-3.5 h-3.5 text-emerald-700" />
                             100% Done & Archived
                           </span>
                         )}
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-500 font-medium">
-                        <span>{safar.venue || 'Central Complex'}</span>
+                      <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 font-medium">
+                        <span>{safar.venue || 'Main Complex'}</span>
                         <span>•</span>
                         <span className="font-mono">{safar.baseDirectory || 'Root Drive'}</span>
                         <span>•</span>
-                        <span className="font-bold text-neutral-800">
+                        <span className="font-bold text-slate-800">
                           {submittedCount} of {total} Days Delivered ({safarPercent}%)
                         </span>
                       </div>
@@ -394,7 +522,6 @@ export default function TaskTrackerView() {
                     <div className="flex flex-wrap items-center gap-2">
                       {isAdmin && (
                         <div className="flex items-center gap-1.5">
-                          {/* Mark Done & Archive / Restore */}
                           <button
                             type="button"
                             onClick={() => {
@@ -406,15 +533,14 @@ export default function TaskTrackerView() {
                             }}
                             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-xs ${
                               isDoneOrArchived
-                                ? 'bg-neutral-100 text-neutral-800 hover:bg-neutral-200 border border-neutral-300'
-                                : 'bg-neutral-950 text-white hover:bg-neutral-800'
+                                ? 'bg-slate-100 text-slate-800 hover:bg-slate-200 border border-slate-300'
+                                : 'bg-slate-900 text-white hover:bg-slate-800'
                             }`}
                           >
                             <Archive className="w-3.5 h-3.5" />
                             <span>{isDoneOrArchived ? 'Restore to Active' : 'Mark Safar Done & Archive'}</span>
                           </button>
 
-                          {/* Bulk Actions */}
                           {!isDoneOrArchived && (
                             <>
                               <button
@@ -425,7 +551,7 @@ export default function TaskTrackerView() {
                                     status: 'uploaded'
                                   });
                                 }}
-                                className="px-2.5 py-1.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white text-neutral-800 cursor-pointer border border-black/[0.08] shadow-xs"
+                                className="px-2.5 py-1.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white text-slate-800 cursor-pointer border border-slate-200 shadow-xs"
                                 title="Mark all days as uploaded to Vault"
                               >
                                 Mark All Uploaded
@@ -438,7 +564,7 @@ export default function TaskTrackerView() {
                                     status: 'submitted'
                                   });
                                 }}
-                                className="px-2.5 py-1.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white text-neutral-800 cursor-pointer border border-black/[0.08] shadow-xs"
+                                className="px-2.5 py-1.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white text-slate-800 cursor-pointer border border-slate-200 shadow-xs"
                                 title="Mark all days as submitted to AlJamea"
                               >
                                 Mark All Submitted
@@ -448,11 +574,10 @@ export default function TaskTrackerView() {
                         </div>
                       )}
 
-                      {/* Expand / Collapse Button */}
                       <button
                         type="button"
                         onClick={() => toggleExpand(safar.id)}
-                        className="p-1.5 rounded-xl glass-pill hover:bg-white text-neutral-700 cursor-pointer border border-black/[0.08] shadow-xs"
+                        className="p-1.5 rounded-xl glass-pill hover:bg-white text-slate-700 cursor-pointer border border-slate-200 shadow-xs"
                         aria-label={isExpanded ? 'Collapse dates' : 'Expand dates'}
                       >
                         {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -460,10 +585,9 @@ export default function TaskTrackerView() {
                     </div>
                   </div>
 
-                  {/* Safar Sub-progress Bar */}
-                  <div className="w-full h-1.5 bg-neutral-100 rounded-full overflow-hidden mt-4 border border-black/[0.04]">
+                  <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-4 border border-slate-200/60">
                     <div
-                      className="h-full bg-neutral-950 transition-all duration-300 rounded-full"
+                      className="h-full bg-indigo-600 transition-all duration-300 rounded-full"
                       style={{ width: `${safarPercent}%` }}
                     />
                   </div>
@@ -471,13 +595,13 @@ export default function TaskTrackerView() {
 
                 {/* Expanded Date Deliverables Table & 6-Stage Stepper */}
                 {isExpanded && (
-                  <div className="p-4 sm:p-6 space-y-3 bg-neutral-50/50">
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 px-1 mb-2">
-                      Daily Video Deliverables ({safar.dates.length} Days)
+                  <div className="p-4 sm:p-6 space-y-3 bg-slate-50/60">
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 px-1 mb-2">
+                      Daily Video Deliverables ({(safar.dates || []).length} Days)
                     </div>
 
                     <div className="space-y-3">
-                      {safar.dates.map((dateItem) => (
+                      {(safar.dates || []).map((dateItem) => (
                         <DateDeliverableRow
                           key={dateItem.id}
                           safarName={safar.safarName || safar.name}
@@ -500,6 +624,130 @@ export default function TaskTrackerView() {
           })}
         </div>
       )}
+
+      {/* 5. Workstation Directory Detection Modal */}
+      {isDetectModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-md animate-fadeIn text-left">
+          <div className="glass-panel w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600">
+                  <FolderSearch className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">
+                    Detect Safar Workstation Folder
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Auto-discovers date folders and registers with One Tap
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsDetectModalOpen(false)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleDetectSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-800 mb-1">
+                  Workstation Directory Path (on PC)
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={detectFolderInput}
+                  onChange={(e) => setDetectFolderInput(e.target.value)}
+                  placeholder="e.g. F:\Safar_1448_Colombo or E:\AlJamea_Vault\Mumbai"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-600 shadow-xs"
+                />
+                <p className="text-[11px] text-slate-500 mt-1">
+                  One Tap will parse folder structure and index daily video outputs.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-1">
+                    Safar Title
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={detectSafarName}
+                    onChange={(e) => setDetectSafarName(e.target.value)}
+                    placeholder="e.g. Safar 1448 — Colombo"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-1">
+                    City / Venue
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={detectCity}
+                    onChange={(e) => setDetectCity(e.target.value)}
+                    placeholder="e.g. Colombo"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-1">
+                    Total Event Days
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="30"
+                    value={detectDaysCount}
+                    onChange={(e) => setDetectDaysCount(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-1">
+                    Drive Root Letter
+                  </label>
+                  <input
+                    type="text"
+                    value={detectDriveRoot}
+                    onChange={(e) => setDetectDriveRoot(e.target.value.toUpperCase())}
+                    placeholder="e.g. F:\"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setIsDetectModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold glass-pill hover:bg-slate-100 text-slate-700 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer shadow-xs transition-colors"
+                >
+                  Register & Detect Deliverables
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -510,19 +758,19 @@ function DateDeliverableRow({ safarName, dateItem, isAdmin, onMarkStatus }) {
   const currentConfig = TRACKER_STAGE_CONFIG[dateItem.status] || TRACKER_STAGE_CONFIG.editing_pending;
 
   return (
-    <div className="p-4 rounded-2xl bg-white border border-black/[0.06] shadow-xs flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+    <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex flex-col xl:flex-row xl:items-center justify-between gap-4">
       {/* Date Item Details */}
       <div className="space-y-1 min-w-[220px]">
         <div className="flex items-center gap-2">
-          <span className="font-mono text-xs font-bold text-neutral-950 px-2 py-0.5 rounded bg-neutral-100 border border-neutral-200/80">
+          <span className="font-mono text-xs font-bold text-slate-900 px-2 py-0.5 rounded bg-slate-100 border border-slate-200">
             {dateItem.dateFolder || dateItem.dateLabel}
           </span>
-          <span className="text-xs font-bold text-neutral-900 truncate">
+          <span className="text-xs font-bold text-slate-900 truncate">
             {dateItem.title}
           </span>
         </div>
 
-        <div className="flex items-center gap-2 text-[11px] text-neutral-500">
+        <div className="flex items-center gap-2 text-[11px] text-slate-500">
           <span>{dateItem.hijriDate}</span>
           <span>•</span>
           <span className="font-mono">{dateItem.file_size_gb || 40} GB Master</span>
@@ -539,9 +787,9 @@ function DateDeliverableRow({ safarName, dateItem, isAdmin, onMarkStatus }) {
       <div className="flex-1 max-w-2xl py-2">
         <div className="relative flex items-center justify-between">
           {/* Track Line */}
-          <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 h-0.5 bg-neutral-200 z-0" />
+          <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 h-0.5 bg-slate-200 z-0" />
           <div
-            className="absolute top-1/2 left-0 -translate-y-1/2 h-0.5 bg-neutral-950 transition-all duration-300 z-0"
+            className="absolute top-1/2 left-0 -translate-y-1/2 h-0.5 bg-indigo-600 transition-all duration-300 z-0"
             style={{
               width: `${(Math.max(0, currentStageIndex) / (STAGE_KEYS.length - 1)) * 100}%`
             }}
@@ -570,10 +818,10 @@ function DateDeliverableRow({ safarName, dateItem, isAdmin, onMarkStatus }) {
                 <div
                   className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold font-mono transition-all ${
                     isCurrent
-                      ? 'bg-neutral-950 text-white ring-4 ring-neutral-200 scale-110 shadow-xs'
+                      ? 'bg-indigo-600 text-white ring-4 ring-indigo-100 scale-110 shadow-xs'
                       : isCompleted
-                      ? 'bg-neutral-800 text-white'
-                      : 'bg-white border-2 border-neutral-300 text-neutral-400 group-hover:border-neutral-500'
+                      ? 'bg-slate-900 text-white'
+                      : 'bg-white border-2 border-slate-300 text-slate-400 group-hover:border-slate-500'
                   }`}
                 >
                   {isCompleted ? (
@@ -587,10 +835,10 @@ function DateDeliverableRow({ safarName, dateItem, isAdmin, onMarkStatus }) {
                 <span
                   className={`text-[9px] font-bold mt-1.5 truncate max-w-[65px] text-center ${
                     isCurrent
-                      ? 'text-neutral-950 font-extrabold'
+                      ? 'text-indigo-600 font-extrabold'
                       : isCompleted
-                      ? 'text-neutral-700'
-                      : 'text-neutral-400'
+                      ? 'text-slate-700'
+                      : 'text-slate-400'
                   }`}
                 >
                   {cfg.shortLabel}
@@ -608,7 +856,7 @@ function DateDeliverableRow({ safarName, dateItem, isAdmin, onMarkStatus }) {
             <button
               type="button"
               onClick={() => onMarkStatus('upload_pending')}
-              className="px-2 py-1 rounded-lg text-[11px] font-bold bg-neutral-100 hover:bg-neutral-200 text-neutral-800 border border-neutral-200 cursor-pointer shadow-2xs"
+              className="px-2 py-1 rounded-lg text-[11px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 cursor-pointer shadow-2xs"
               title="Workstation render complete, awaiting NAS upload"
             >
               Upload Pending
@@ -630,7 +878,7 @@ function DateDeliverableRow({ safarName, dateItem, isAdmin, onMarkStatus }) {
             <button
               type="button"
               onClick={() => onMarkStatus('submitted')}
-              className="px-2 py-1 rounded-lg text-[11px] font-bold bg-neutral-950 hover:bg-neutral-800 text-white cursor-pointer shadow-2xs"
+              className="px-2 py-1 rounded-lg text-[11px] font-bold bg-slate-900 hover:bg-slate-800 text-white cursor-pointer shadow-2xs"
               title="Official sign-off & deliver to AlJamea"
             >
               Mark Submitted

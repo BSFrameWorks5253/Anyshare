@@ -184,7 +184,7 @@ export default function DatabaseInspectorModal({ isOpen, onClose }) {
             </button>
           </div>
 
-          <pre className="p-4 rounded-2xl bg-neutral-950 border border-[rgba(0,0,0,0.08)]/30 text-[11px] font-mono text-amber-100/90 overflow-x-auto max-h-[420px] leading-relaxed select-all shadow-inner">
+          <pre className="p-4 rounded-2xl bg-neutral-950 border border-[rgba(0,0,0,0.08)]/30 text-[11px] font-mono text-emerald-300/90 overflow-x-auto max-h-[420px] leading-relaxed select-all shadow-inner">
             {SCHEMA_SQL}
           </pre>
         </div>

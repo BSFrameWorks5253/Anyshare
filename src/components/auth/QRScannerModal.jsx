@@ -395,7 +395,7 @@ export default function QRScannerModal({ isOpen, onClose }) {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-neutral-500/20 text-[#1e293b] border border-amber-500/30">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-800 border border-neutral-200">
                   One-Time QR Login & Sync
                 </span>
                 <span className="text-xs font-mono font-bold text-neutral-600">
@@ -578,7 +578,7 @@ export default function QRScannerModal({ isOpen, onClose }) {
                       className="absolute top-3 right-3 z-20 p-2 rounded-xl bg-black/60 text-white hover:bg-black/90 border border-white/20 transition-all cursor-pointer"
                       title="Switch Camera (Front/Rear)"
                     >
-                      <FlipHorizontal className="w-4 h-4 text-amber-300" />
+                      <FlipHorizontal className="w-4 h-4 text-white" />
                     </button>
 
                     {/* HTML5 QR Container */}

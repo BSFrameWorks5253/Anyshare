@@ -69,10 +69,10 @@ export default function LoginModal({ isOpen, onClose, onOpenQRScanner }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fadeIn text-left">
       <div className="w-full max-w-md rounded-3xl border-2 border-[rgba(0,0,0,0.08)] bg-[#F5F5F7] shadow-2xl overflow-hidden">
-        {/* Header with Islamic Golden Motif */}
+        {/* Header with Clean Studio Styling */}
         <div className="p-5 border-b border-[rgba(0,0,0,0.08)]/30 bg-gradient-to-r from-neutral-100/80 via-neutral-50 to-white flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#0f172a] to-[#334155] flex items-center justify-center text-white shadow-md">
+            <div className="w-10 h-10 rounded-2xl bg-neutral-950 flex items-center justify-center text-white shadow-md">
               <LogIn className="w-5 h-5" />
             </div>
             <div>
@@ -157,9 +157,9 @@ export default function LoginModal({ isOpen, onClose, onOpenQRScanner }) {
                   onClose();
                   if (onOpenQRScanner) onOpenQRScanner();
                 }}
-                className="w-full py-2.5 rounded-xl text-xs font-black bg-neutral-950 text-amber-200 hover:bg-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                className="w-full py-2.5 rounded-xl text-xs font-bold bg-neutral-950 text-white hover:bg-neutral-800 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
               >
-                <QrCode className="w-4 h-4 text-[#0f172a]" />
+                <QrCode className="w-4 h-4 text-white" />
                 <span>Scan Desktop QR Code with Camera</span>
               </button>
 
@@ -176,11 +176,11 @@ export default function LoginModal({ isOpen, onClose, onOpenQRScanner }) {
                       onClick={() => handleQuickSwitch(u.id)}
                       className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors cursor-pointer flex items-center gap-1 ${
                         u.id === currentUser.id
-                          ? 'bg-amber-200 text-neutral-950 border-neutral-300 font-black'
+                          ? 'bg-indigo-50 text-indigo-900 border-indigo-200 font-bold'
                           : 'bg-white text-neutral-700 hover:bg-neutral-100 border-stone-300'
                       }`}
                     >
-                      <span className="text-[#334155] font-mono">@{u.username}</span>
+                      <span className="text-neutral-900 font-mono">@{u.username}</span>
                       <span className="text-[9px] text-neutral-500">({u.role})</span>
                     </button>
                   ))}

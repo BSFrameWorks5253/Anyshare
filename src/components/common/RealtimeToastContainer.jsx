@@ -48,7 +48,7 @@ function ToastItem({ toast, onDismiss, onNavigateToTracker }) {
       case 'success':
         return <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />;
       case 'warning':
-        return <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />;
+        return <AlertTriangle className="w-5 h-5 text-indigo-600 shrink-0" />;
       default:
         return <Cpu className="w-5 h-5 text-neutral-800 shrink-0" />;
     }

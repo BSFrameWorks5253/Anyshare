@@ -28,6 +28,9 @@ export default function SafarHubView() {
   const {
     currentUser,
     isAdmin,
+    bridge,
+    triggerBridgeScan,
+    detectSafarFromPath,
     safarCampaigns,
     safarRequests,
     markSafarDateUploaded,
@@ -40,6 +43,7 @@ export default function SafarHubView() {
     safarCampaigns[0]?.id || ''
   );
   const [filterStatus, setFilterStatus] = useState('all'); // 'all' | 'uploaded' | 'pending'
+  const [isScanning, setIsScanning] = useState(false);
   
   // Modals state
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -63,8 +67,46 @@ export default function SafarHubView() {
 
   if (!activeCampaign) {
     return (
-      <div className="p-8 text-center text-slate-800">
-        <p>No Safar campaigns found. Please create one.</p>
+      <div className="glass-panel rounded-3xl p-10 sm:p-14 text-center border border-slate-200/80 bg-white/90 shadow-sm space-y-5 max-w-2xl mx-auto my-8">
+        <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center mx-auto shadow-xs">
+          <CalendarDays className="w-7 h-7" />
+        </div>
+        <div>
+          <h3 className="text-lg font-bold text-slate-900 mb-1">
+            No Safar Campaigns Loaded
+          </h3>
+          <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
+            Connect to your One Tap workstation to automatically detect active Safar project directories, or create a campaign manually.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+          <button
+            type="button"
+            disabled={isScanning}
+            onClick={async () => {
+              setIsScanning(true);
+              await triggerBridgeScan();
+              setTimeout(() => setIsScanning(false), 800);
+            }}
+            className="px-5 py-2.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2 cursor-pointer shadow-sm transition-all"
+          >
+            <Server className={`w-3.5 h-3.5 ${isScanning ? 'animate-spin' : ''}`} />
+            <span>{isScanning ? 'Scanning Workstation...' : 'Detect from One Tap Workstation'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              sounds.playTap();
+              setShowCreateModal(true);
+            }}
+            className="px-4 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-slate-100 text-slate-800 flex items-center gap-1.5 cursor-pointer border border-slate-200 shadow-xs"
+          >
+            <FolderPlus className="w-3.5 h-3.5 text-slate-700" />
+            <span>+ Create Safar Campaign</span>
+          </button>
+        </div>
       </div>
     );
   }

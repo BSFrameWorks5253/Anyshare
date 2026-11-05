@@ -21,7 +21,7 @@ export default function ConfirmDialog({
       return 'bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-900/30 border border-rose-500/40';
     }
     if (confirmVariant === 'warning') {
-      return 'bg-amber-600 hover:bg-neutral-500 text-white shadow-lg shadow-amber-900/30 border border-amber-500/40';
+      return 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-950/30 border border-indigo-500/40';
     }
     return 'glass-button-primary text-white';
   };

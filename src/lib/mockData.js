@@ -1,4 +1,4 @@
-// AnyShare Ecosystem Data & Stage Models (Islamic Golden & White Edition)
+// AnyShare Studio Models & Realtime Pipeline Configurations
 
 // 3 Unified Executive Pipeline Milestones (Streamlined from 14 micro-stages for clean executive clarity)
 export const PIPELINE_MILESTONES = [
@@ -531,9 +531,9 @@ export const TRACKER_STAGE_CONFIG = {
     label: 'Editing Pending',
     shortLabel: 'Pending',
     stepNumber: 1,
-    color: 'amber',
-    badge: 'bg-neutral-100 text-neutral-800 border-neutral-300',
-    dot: 'bg-amber-500',
+    color: 'slate',
+    badge: 'bg-slate-100 text-slate-800 border-slate-300',
+    dot: 'bg-slate-500',
     description: 'Raw media ingested, awaiting edit assembly'
   },
   editing: {

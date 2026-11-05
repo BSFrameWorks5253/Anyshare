@@ -198,7 +198,7 @@ export default function RenderActionModal({ item, isOpen, onClose, onRenderStart
           >
             {isSubmitting ? (
               <>
-                <span className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-amber-950 border-t-transparent" />
+                <span className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-white border-t-transparent" />
                 <span>Transmitting Command...</span>
               </>
             ) : (

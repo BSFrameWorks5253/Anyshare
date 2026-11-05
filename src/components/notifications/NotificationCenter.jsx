@@ -78,7 +78,7 @@ export default function NotificationCenter({ onSelectItem, onNavigateToTracker }
               Notifications Inbox
             </h2>
             {unreadCount > 0 && (
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-200 text-neutral-950 border border-neutral-300">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-neutral-900 text-white">
                 {unreadCount} unread
               </span>
             )}
@@ -119,7 +119,7 @@ export default function NotificationCenter({ onSelectItem, onNavigateToTracker }
             }}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold shrink-0 transition-all cursor-pointer capitalize ${
               filterKind === k
-                ? 'bg-neutral-950 text-[#F5E6C8] shadow-sm'
+                ? 'bg-neutral-950 text-white shadow-sm'
                 : 'bg-white/80 border border-[rgba(0,0,0,0.08)]/25 text-neutral-700 hover:text-neutral-950 hover:bg-white'
             }`}
           >

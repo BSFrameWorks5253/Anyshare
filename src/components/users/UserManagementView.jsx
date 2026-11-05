@@ -124,7 +124,7 @@ export default function UserManagementView({ onSelectUserForFilter, onNavigateTo
                 sounds.playTap();
                 setShowAddModal(true);
               }}
-              className="px-5 py-2.5 rounded-xl text-xs font-black glass-button-primary flex items-center gap-2 cursor-pointer shadow-md shadow-amber-900/15"
+              className="px-5 py-2.5 rounded-xl text-xs font-bold glass-button-primary flex items-center gap-2 cursor-pointer shadow-md shadow-indigo-950/10"
             >
               <UserPlus className="w-4 h-4" />
               <span>+ Enroll Team Member</span>
@@ -168,7 +168,7 @@ export default function UserManagementView({ onSelectUserForFilter, onNavigateTo
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-lg font-black text-neutral-950">{currentUser.name}</h3>
-                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-200 text-neutral-950 border border-neutral-300">
+                <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-neutral-900 text-white">
                   {currentUser.role}
                 </span>
                 <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-200 text-emerald-950 border border-emerald-400">
@@ -380,7 +380,7 @@ export default function UserManagementView({ onSelectUserForFilter, onNavigateTo
                         sounds.playTap();
                         switchUser(user.id);
                       }}
-                      className="px-3 py-1.5 rounded-xl text-[11px] font-black bg-neutral-950 text-amber-200 hover:bg-black flex items-center gap-1 cursor-pointer shadow-xs"
+                      className="px-3 py-1.5 rounded-xl text-[11px] font-bold bg-neutral-950 text-white hover:bg-neutral-800 flex items-center gap-1 cursor-pointer shadow-xs"
                     >
                       <ArrowRightLeft className="w-3 h-3" />
                       <span>Switch</span>

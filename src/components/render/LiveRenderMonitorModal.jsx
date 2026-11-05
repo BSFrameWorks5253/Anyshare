@@ -91,7 +91,7 @@ export default function LiveRenderMonitorModal({ isOpen, onClose, itemId }) {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-neutral-500/20 text-[#1e293b] border border-amber-500/30">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200">
                   {isDone ? 'Render Complete' : isVerifying ? 'Verifying Output' : 'GPU Encoding Active'}
                 </span>
                 <span className="text-xs font-mono font-bold text-neutral-600">
@@ -159,14 +159,14 @@ export default function LiveRenderMonitorModal({ isOpen, onClose, itemId }) {
                   strokeDasharray={circumference}
                   strokeDashoffset={strokeDashoffset}
                   strokeLinecap="round"
-                  stroke="url(#goldGradient)"
+                  stroke="url(#studioGradient)"
                   fill="transparent"
                 />
                 <defs>
-                  <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#FAF0BE" />
-                    <stop offset="50%" stopColor="#0f172a" />
-                    <stop offset="100%" stopColor="#334155" />
+                  <linearGradient id="studioGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#4F46E5" />
+                    <stop offset="50%" stopColor="#3B82F6" />
+                    <stop offset="100%" stopColor="#0F172A" />
                   </linearGradient>
                 </defs>
               </svg>

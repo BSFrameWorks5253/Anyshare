@@ -51,16 +51,18 @@ export function AppProvider({ children }) {
 
   const isAdmin = currentUser.role === 'admin';
 
-  // 2. Real workflow items & production pipeline
+  // 2. Real workflow items & production pipeline (starts clean, detected dynamically from One Tap)
   const [items, setItems] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.ITEMS);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && !parsed.some(i => i.id?.startsWith('item_safar_1448_day_01'))) {
+          return parsed;
+        }
       }
     } catch (e) {}
-    return INITIAL_WORKFLOW_ITEMS;
+    return [];
   });
 
   const [events, setEvents] = useState(() => {
@@ -68,10 +70,12 @@ export function AppProvider({ children }) {
       const saved = localStorage.getItem(STORAGE_KEYS.EVENTS);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && !parsed.some(e => e.id?.startsWith('evt_01'))) {
+          return parsed;
+        }
       }
     } catch (e) {}
-    return INITIAL_EVENTS;
+    return [];
   });
 
   const [notifications, setNotifications] = useState(() => {
@@ -79,10 +83,12 @@ export function AppProvider({ children }) {
       const saved = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && !parsed.some(n => n.id?.startsWith('notif_01'))) {
+          return parsed;
+        }
       }
     } catch (e) {}
-    return INITIAL_NOTIFICATIONS;
+    return [];
   });
 
   const [users, setUsers] = useState(() => {
@@ -101,22 +107,33 @@ export function AppProvider({ children }) {
     return INITIAL_BRIDGE;
   });
 
-  // Safar Campaigns & Upload Matrix State
+  // Safar Campaigns & Upload Matrix State (starts clean, detected from One Tap node)
   const [safarCampaigns, setSafarCampaigns] = useState(() => {
     try {
       const saved = localStorage.getItem('anyshare_safar_campaigns_v1');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Automatically flush old hardcoded mock data so real workstation detection takes over
+        if (Array.isArray(parsed) && !parsed.some(c => c.id === 'safar_1448_colombo' || c.id === 'safar_1447_daressalaam')) {
+          return parsed;
+        }
+      }
     } catch (e) {}
-    return INITIAL_SAFAR_CAMPAIGNS;
+    return [];
   });
 
   // User Safar Creation & Upload Approval Requests
   const [safarRequests, setSafarRequests] = useState(() => {
     try {
       const saved = localStorage.getItem('anyshare_safar_requests_v1');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && !parsed.some(r => r.id === 'req_01')) {
+          return parsed;
+        }
+      }
     } catch (e) {}
-    return INITIAL_SAFAR_REQUESTS;
+    return [];
   });
 
   const [pushEnabled, setPushEnabled] = useState(false);
@@ -277,6 +294,19 @@ export function AppProvider({ children }) {
             prev.forEach(i => map.set(i.id, i));
             incoming.forEach(i => map.set(i.id, i));
             return Array.from(map.values());
+          });
+        }
+      })
+      .on('broadcast', { event: 'workstation_sync_safars' }, payload => {
+        if (!isSubscribed) return;
+        const incoming = payload.payload?.safars;
+        if (Array.isArray(incoming) && incoming.length > 0) {
+          setSafarCampaigns(incoming);
+          sounds.playChime();
+          addToast({
+            title: 'One Tap Safars Detected',
+            message: `Workstation node synced ${incoming.length} Safar campaign(s) into AnyShare.`,
+            type: 'success'
           });
         }
       })
@@ -797,23 +827,52 @@ export function AppProvider({ children }) {
     }
 
     // Global workstation scan
+    let detectedSafarsCount = 0;
+    let detectedTasksCount = 0;
+
+    // 1. Probe /api/tasks on local One Tap node
     try {
       const res = await fetch('http://127.0.0.1:5253/api/tasks', { method: 'GET', mode: 'cors' });
       if (res.ok) {
         const data = await res.json();
-        if (data?.tasks && Array.isArray(data.tasks) && data.tasks.length > 0) {
+        if (data?.tasks && Array.isArray(data.tasks)) {
           setItems(prev => {
             const map = new Map();
             prev.forEach(i => map.set(i.id, i));
             data.tasks.forEach(i => map.set(i.id, i));
             return Array.from(map.values());
           });
-          setBridge(prev => ({ ...prev, is_online: true, last_heartbeat_at: now }));
+          detectedTasksCount = data.tasks.length;
+        }
+        if (data?.safars && Array.isArray(data.safars) && data.safars.length > 0) {
+          setSafarCampaigns(data.safars);
+          detectedSafarsCount = data.safars.length;
+        }
+        setBridge(prev => ({
+          ...prev,
+          is_online: true,
+          label: data.label || prev.label,
+          workstation_storage_free_gb: data.storageFreeGB || prev.workstation_storage_free_gb,
+          last_heartbeat_at: now,
+          last_scan_at: now
+        }));
+      }
+    } catch (e) {}
+
+    // 2. Probe /api/safar on local One Tap node
+    try {
+      const resSafar = await fetch('http://127.0.0.1:5253/api/safar', { method: 'GET', mode: 'cors' });
+      if (resSafar.ok) {
+        const dataSafar = await resSafar.json();
+        if (dataSafar?.safars && Array.isArray(dataSafar.safars) && dataSafar.safars.length > 0) {
+          setSafarCampaigns(dataSafar.safars);
+          detectedSafarsCount = dataSafar.safars.length;
+          setBridge(prev => ({ ...prev, is_online: true, last_heartbeat_at: now, last_scan_at: now }));
         }
       }
     } catch (e) {}
 
-    // Broadcast scan request to any connected desktop nodes
+    // 3. Broadcast scan request over Supabase Realtime Nexus to connected desktop nodes
     try {
       if (nexusChannelRef.current) {
         nexusChannelRef.current.send({
@@ -824,13 +883,114 @@ export function AppProvider({ children }) {
       }
     } catch (e) {}
 
-    // Ensure items are populated
-    setItems(prev => {
-      if (prev && prev.length > 0) return prev;
-      return INITIAL_WORKFLOW_ITEMS;
+    if (detectedSafarsCount > 0 || detectedTasksCount > 0) {
+      addToast({
+        title: 'One Tap Workstation Synced',
+        message: `Detected ${detectedSafarsCount} Safars and ${detectedTasksCount} active productions from workstation node.`,
+        type: 'success'
+      });
+      sounds.playSuccess();
+    } else {
+      addToast({
+        title: 'One Tap Scan Dispatched',
+        message: 'Scan signal broadcast to One Tap nodes. Connect node on port 5253 or enter drive directory path.',
+        type: 'info'
+      });
+      sounds.playSuccess();
+    }
+  };
+
+  // Detect and register a Safar campaign directly from a workstation directory path
+  const detectSafarFromPath = ({ folderPath, safarName, city, hijriYear, totalDays = 10, driveRoot }) => {
+    sounds.playTap();
+    const cleanName = (safarName || folderPath.split(/[\\/]/).filter(Boolean).pop() || 'Detected Safar').replace(/[_]/g, ' ');
+    const cleanId = 'safar_' + Date.now();
+    const detectedDrive = driveRoot || (folderPath.match(/^[a-zA-Z]:/) ? folderPath.slice(0, 3).toUpperCase() : 'F:\\');
+    const daysCount = parseInt(totalDays, 10) || 10;
+    const year = hijriYear || '1448 H';
+
+    const dates = Array.from({ length: daysCount }, (_, i) => {
+      const dayNum = i + 1;
+      const formattedDay = dayNum < 10 ? `0${dayNum}` : `${dayNum}`;
+      return {
+        id: `${cleanId}_d${formattedDay}`,
+        dayNumber: dayNum,
+        dateLabel: `${year.replace(/[^0-9]/g, '') || '1448'}-02-${formattedDay}`,
+        dateFolder: `${year.replace(/[^0-9]/g, '') || '1448'}-02-${formattedDay}_Day_${formattedDay}`,
+        hijriDate: `${dayNum} Safar al-Muzaffar ${year}`,
+        title: `Majlis ${dayNum} — ${city || 'Event Discourse'}`,
+        assignedEditor: currentUser.username || 'admin',
+        status: 'editing_pending',
+        uploaded_at: null,
+        uploaded_by: null,
+        file_size_gb: 40.0,
+        server_path: null
+      };
+    });
+
+    const newDetectedCampaign = {
+      id: cleanId,
+      safarName: cleanName,
+      name: cleanName,
+      hijriYear: year,
+      city: city || 'Local Workstation Node',
+      serialNumber: `SN-${Date.now().toString().slice(-4)}`,
+      driveRoot: detectedDrive,
+      venue: 'Main Complex',
+      baseDirectory: folderPath,
+      serverDestination: `//aljamea-nas.local/Central_Vault/${cleanName.replace(/[^a-zA-Z0-9_]/g, '_')}`,
+      totalDays: daysCount,
+      is_archived: false,
+      is_safar_done: false,
+      detected_by: 'onetap_workstation',
+      detected_at: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+      created_by: currentUser.username || 'admin',
+      dates
+    };
+
+    setSafarCampaigns(prev => [newDetectedCampaign, ...prev]);
+
+    if (nexusChannelRef.current) {
+      nexusChannelRef.current.send({
+        type: 'broadcast',
+        event: 'safar_campaign_created',
+        payload: newDetectedCampaign
+      }).catch(() => {});
+    }
+
+    addToast({
+      title: 'Safar Detected & Registered',
+      message: `"${cleanName}" on drive ${detectedDrive} registered with ${daysCount} production dates.`,
+      type: 'success',
+      safarName: cleanName
     });
 
     sounds.playSuccess();
+    return { success: true, campaign: newDetectedCampaign };
+  };
+
+  // Clear all mock and local test data
+  const clearMockDataAndRescan = () => {
+    sounds.playTap();
+    localStorage.removeItem(STORAGE_KEYS.ITEMS);
+    localStorage.removeItem(STORAGE_KEYS.EVENTS);
+    localStorage.removeItem(STORAGE_KEYS.NOTIFICATIONS);
+    localStorage.removeItem('anyshare_safar_campaigns_v1');
+    localStorage.removeItem('anyshare_safar_requests_v1');
+    setItems([]);
+    setEvents([]);
+    setNotifications([]);
+    setSafarCampaigns([]);
+    setSafarRequests([]);
+
+    addToast({
+      title: 'Mock Data Cleared',
+      message: 'All mock and cached test data purged. Workstation auto-scanner active.',
+      type: 'info'
+    });
+
+    triggerBridgeScan();
   };
 
   // Notification helper
@@ -1765,7 +1925,9 @@ export function AppProvider({ children }) {
       reviewSafarRequest,
       toggleSafarDone,
       markTaskStatus,
-      markAllSafarDatesStatus
+      markAllSafarDatesStatus,
+      detectSafarFromPath,
+      clearMockDataAndRescan
     }}>
       {children}
     </AppContext.Provider>
