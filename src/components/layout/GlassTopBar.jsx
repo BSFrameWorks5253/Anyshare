@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../../lib/store';
 import BridgeHealthBadge from '../common/BridgeHealthBadge';
+import UserAvatarWithReflection from '../common/UserAvatarWithReflection';
 import { sounds } from '../../lib/sound';
 import {
   Bell,
@@ -12,7 +13,8 @@ import {
   Zap,
   AtSign,
   QrCode,
-  Smartphone
+  Smartphone,
+  CalendarDays
 } from 'lucide-react';
 
 export default function GlassTopBar({
@@ -98,6 +100,18 @@ export default function GlassTopBar({
             </button>
             <button
               type="button"
+              onClick={() => { sounds.playTap(); onNavigate('safar'); }}
+              className={`px-3 py-1 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
+                currentView === 'safar'
+                  ? 'bg-stone-900 text-amber-200 shadow-xs'
+                  : 'text-stone-700 hover:text-stone-950 hover:bg-white/80'
+              }`}
+            >
+              <CalendarDays className="w-3.5 h-3.5 text-[#B8860B]" />
+              <span>Safar Hub</span>
+            </button>
+            <button
+              type="button"
               onClick={() => { sounds.playTap(); onNavigate('users'); }}
               className={`px-3 py-1 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
                 currentView === 'users'
@@ -106,7 +120,7 @@ export default function GlassTopBar({
               }`}
             >
               <span>Team & Users</span>
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-200 text-stone-950">
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-200 text-stone-950 font-black">
                 {users.length}
               </span>
             </button>
@@ -128,7 +142,7 @@ export default function GlassTopBar({
                 onOpenAccount();
               }
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black glass-pill hover:bg-white text-stone-900 transition-colors cursor-pointer border border-[#C5A059]/40 shadow-xs"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black apple-liquid-glass-pill hover:bg-white text-stone-950 transition-colors cursor-pointer border border-[#C5A059]/40 shadow-xs"
             title="Log In with Username or Switch Ecosystem Account"
           >
             <AtSign className="w-3.5 h-3.5 text-[#8A6614]" />
@@ -177,7 +191,7 @@ export default function GlassTopBar({
               sounds.playTap();
               onOpenNotifications();
             }}
-            className="relative p-2.5 rounded-xl glass-pill hover:bg-white text-stone-800 hover:text-stone-950 transition-colors cursor-pointer border border-[#C5A059]/40 shadow-xs"
+            className="relative p-2.5 rounded-xl apple-liquid-glass-pill hover:bg-white text-stone-800 hover:text-stone-950 transition-colors cursor-pointer border border-[#C5A059]/40 shadow-xs"
             aria-label="Notifications"
           >
             <Bell className="w-4 h-4 text-[#8A6614]" />
@@ -188,21 +202,22 @@ export default function GlassTopBar({
             )}
           </button>
 
-          {/* Account Profile Trigger */}
+          {/* Account Profile Trigger with Apple Liquid Glass DP Light Reflection */}
           <button
             type="button"
             onClick={() => {
               sounds.playTap();
               onOpenAccount();
             }}
-            className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-xl glass-pill hover:bg-white transition-colors cursor-pointer border border-[#C5A059]/30"
+            className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-2xl apple-liquid-glass-pill hover:bg-white transition-all cursor-pointer border border-[#C5A059]/40 shadow-xs"
+            title="Open Account Profile & Settings"
           >
-            <img
-              src={currentUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'}
+            <UserAvatarWithReflection
+              src={currentUser.avatar}
               alt={currentUser.name}
-              className="w-6 h-6 rounded-lg object-cover border border-amber-400/40"
+              size="sm"
             />
-            <span className="text-xs font-semibold text-stone-800 hidden md:inline truncate max-w-[90px]">
+            <span className="text-xs font-bold text-stone-950 hidden md:inline truncate max-w-[90px]">
               {currentUser.name.split(' ')[0]}
             </span>
           </button>

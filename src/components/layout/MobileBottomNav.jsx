@@ -8,7 +8,8 @@ import {
   Bell,
   User,
   QrCode,
-  Users
+  Users,
+  CalendarDays
 } from 'lucide-react';
 
 export default function MobileBottomNav({
@@ -63,7 +64,24 @@ export default function MobileBottomNav({
           <span className="text-[10px]">{isAdmin ? 'Work' : 'My Work'}</span>
         </button>
 
-        {/* 2.5 Team & Users */}
+        {/* 2.5 Safar Hub */}
+        <button
+          type="button"
+          onClick={() => {
+            sounds.playTap();
+            onNavigate('safar');
+          }}
+          className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all cursor-pointer ${
+            currentView === 'safar'
+              ? 'text-[#B8860B] font-bold'
+              : 'text-stone-500 hover:text-stone-800 font-medium'
+          }`}
+        >
+          <CalendarDays className="w-5 h-5 mb-0.5" />
+          <span className="text-[10px]">Safar Hub</span>
+        </button>
+
+        {/* 2.6 Team & Users */}
         <button
           type="button"
           onClick={() => {

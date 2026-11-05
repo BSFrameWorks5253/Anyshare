@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../lib/store';
 import { sounds } from '../../lib/sound';
+import UserAvatarWithReflection from '../common/UserAvatarWithReflection';
 import {
   User,
   Users,
@@ -114,11 +115,11 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
       >
         {/* Header with High-Contrast Islamic Gold Styling */}
         <div className="p-5 border-b border-[#C5A059]/30 flex items-start justify-between gap-3 bg-gradient-to-r from-amber-100/90 via-yellow-50/70 to-white">
-          <div className="flex items-center gap-3.5">
-            <img
-              src={currentUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'}
+          <div className="flex items-center gap-4">
+            <UserAvatarWithReflection
+              src={currentUser.avatar}
               alt={currentUser.name}
-              className="w-13 h-13 rounded-2xl object-cover border-2 border-[#C5A059] shadow-md"
+              size="lg"
             />
             <div>
               <div className="flex items-center gap-2">

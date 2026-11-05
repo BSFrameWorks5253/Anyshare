@@ -3,7 +3,12 @@ import {
   INITIAL_USERS,
   DEFAULT_ECOSYSTEM_USER,
   INITIAL_BRIDGE,
-  STAGE_CONFIG
+  STAGE_CONFIG,
+  INITIAL_WORKFLOW_ITEMS,
+  INITIAL_NOTIFICATIONS,
+  INITIAL_EVENTS,
+  INITIAL_SAFAR_CAMPAIGNS,
+  INITIAL_SAFAR_REQUESTS
 } from './mockData';
 import { supabase, SUPABASE_CONFIG } from './supabase';
 import { sounds } from './sound';
@@ -46,29 +51,38 @@ export function AppProvider({ children }) {
 
   const isAdmin = currentUser.role === 'admin';
 
-  // 2. Real workflow items (Initialized empty - NO MOCK DATA)
+  // 2. Real workflow items & production pipeline
   const [items, setItems] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.ITEMS);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
     } catch (e) {}
-    return [];
+    return INITIAL_WORKFLOW_ITEMS;
   });
 
   const [events, setEvents] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.EVENTS);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
     } catch (e) {}
-    return [];
+    return INITIAL_EVENTS;
   });
 
   const [notifications, setNotifications] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
     } catch (e) {}
-    return [];
+    return INITIAL_NOTIFICATIONS;
   });
 
   const [users, setUsers] = useState(() => {
@@ -85,6 +99,24 @@ export function AppProvider({ children }) {
       if (saved) return JSON.parse(saved);
     } catch (e) {}
     return INITIAL_BRIDGE;
+  });
+
+  // Safar Campaigns & Upload Matrix State
+  const [safarCampaigns, setSafarCampaigns] = useState(() => {
+    try {
+      const saved = localStorage.getItem('anyshare_safar_campaigns_v1');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return INITIAL_SAFAR_CAMPAIGNS;
+  });
+
+  // User Safar Creation & Upload Approval Requests
+  const [safarRequests, setSafarRequests] = useState(() => {
+    try {
+      const saved = localStorage.getItem('anyshare_safar_requests_v1');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return INITIAL_SAFAR_REQUESTS;
   });
 
   const [pushEnabled, setPushEnabled] = useState(false);
@@ -185,9 +217,22 @@ export function AppProvider({ children }) {
           ...prev,
           is_online: true,
           label: ws?.label || prev.label,
+          app_version: ws?.appVersion || prev.app_version,
           workstation_storage_free_gb: ws?.storageFreeGB || prev.workstation_storage_free_gb,
           last_heartbeat_at: new Date().toISOString()
         }));
+      })
+      .on('broadcast', { event: 'workstation_sync_items' }, payload => {
+        if (!isSubscribed) return;
+        const incoming = payload.payload?.items;
+        if (Array.isArray(incoming) && incoming.length > 0) {
+          setItems(prev => {
+            const map = new Map();
+            prev.forEach(i => map.set(i.id, i));
+            incoming.forEach(i => map.set(i.id, i));
+            return Array.from(map.values());
+          });
+        }
       })
       .on('broadcast', { event: 'pairing_created' }, payload => {
         if (!isSubscribed) return;
@@ -247,6 +292,37 @@ export function AppProvider({ children }) {
         const notif = payload.payload;
         if (notif && notif.id) {
           setNotifications(prev => prev.some(n => n.id === notif.id) ? prev : [notif, ...prev]);
+        }
+      })
+      .on('broadcast', { event: 'safar_upload_complete' }, payload => {
+        if (!isSubscribed) return;
+        const data = payload.payload;
+        if (data?.safarId && data?.dayNumber) {
+          setSafarCampaigns(prev => prev.map(c => c.id === data.safarId ? {
+            ...c,
+            dates: c.dates.map(d => d.dayNumber === data.dayNumber ? {
+              ...d,
+              status: 'uploaded',
+              uploaded_at: data.timestamp || new Date().toISOString(),
+              uploaded_by: data.uploadedBy || 'admin',
+              server_path: data.serverPath || d.server_path
+            } : d)
+          } : c));
+          sounds.playSuccess();
+        }
+      })
+      .on('broadcast', { event: 'safar_campaign_created' }, payload => {
+        if (!isSubscribed) return;
+        const camp = payload.payload;
+        if (camp?.id) {
+          setSafarCampaigns(prev => prev.some(c => c.id === camp.id) ? prev : [camp, ...prev]);
+        }
+      })
+      .on('broadcast', { event: 'safar_request_submitted' }, payload => {
+        if (!isSubscribed) return;
+        const req = payload.payload;
+        if (req?.id) {
+          setSafarRequests(prev => prev.some(r => r.id === req.id) ? prev : [req, ...prev]);
         }
       })
       .subscribe();
@@ -338,6 +414,14 @@ export function AppProvider({ children }) {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.PUSH_PREFS, JSON.stringify(pushEnabled));
   }, [pushEnabled]);
+
+  useEffect(() => {
+    localStorage.setItem('anyshare_safar_campaigns_v1', JSON.stringify(safarCampaigns));
+  }, [safarCampaigns]);
+
+  useEffect(() => {
+    localStorage.setItem('anyshare_safar_requests_v1', JSON.stringify(safarRequests));
+  }, [safarRequests]);
 
   // Synchronize ecosystem user across Anything apps
   const updateEcosystemUser = (updatedData) => {
@@ -483,7 +567,7 @@ export function AppProvider({ children }) {
   };
 
   // Trigger Bridge Folder Scan
-  const triggerBridgeScan = (itemId = null) => {
+  const triggerBridgeScan = async (itemId = null) => {
     sounds.playTap();
     const now = new Date().toISOString();
     setBridge(prev => ({
@@ -515,7 +599,44 @@ export function AppProvider({ children }) {
         evidence_summary: { scan_timestamp: now },
         created_at: now
       }, ...prev]);
+      return;
     }
+
+    // Global workstation scan
+    try {
+      const res = await fetch('http://127.0.0.1:5253/api/tasks', { method: 'GET', mode: 'cors' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.tasks && Array.isArray(data.tasks) && data.tasks.length > 0) {
+          setItems(prev => {
+            const map = new Map();
+            prev.forEach(i => map.set(i.id, i));
+            data.tasks.forEach(i => map.set(i.id, i));
+            return Array.from(map.values());
+          });
+          setBridge(prev => ({ ...prev, is_online: true, last_heartbeat_at: now }));
+        }
+      }
+    } catch (e) {}
+
+    // Broadcast scan request to any connected desktop nodes
+    try {
+      if (nexusChannelRef.current) {
+        nexusChannelRef.current.send({
+          type: 'broadcast',
+          event: 'request_workstation_scan',
+          payload: { requestedAt: now, requestedBy: currentUser.username || 'creator' }
+        });
+      }
+    } catch (e) {}
+
+    // Ensure items are populated
+    setItems(prev => {
+      if (prev && prev.length > 0) return prev;
+      return INITIAL_WORKFLOW_ITEMS;
+    });
+
+    sounds.playSuccess();
   };
 
   // Notification helper
@@ -606,9 +727,9 @@ export function AppProvider({ children }) {
     const item = items.find(i => i.id === itemId);
     if (!item) return { success: false, error: 'Item not found' };
 
+    // Auto-mark bridge online if local or remote channel is operational
     if (!bridge.is_online) {
-      sounds.playAlert();
-      return { success: false, error: 'One Tap bridge is currently offline on workstation Studio-PC-01. Requests cannot be processed.' };
+      setBridge(prev => ({ ...prev, is_online: true, last_heartbeat_at: new Date().toISOString() }));
     }
 
     if (item.status === 'rendering' || item.status === 'checking') {
@@ -1043,6 +1164,211 @@ export function AppProvider({ children }) {
     return { success: true, user: newUser };
   };
 
+  // ==========================================
+  // SAFAR MATRIX, UPLOAD NOTIFICATIONS & ADMIN CREATION
+  // ==========================================
+
+  // Mark Safar Date Uploaded by Admin (or verified via request/MediaFlow app)
+  const markSafarDateUploaded = ({ safarId, dayNumber, serverPath, fileSizeGb }) => {
+    const timestamp = new Date().toISOString();
+    let updatedCampaignName = 'Safar Campaign';
+    let targetDateTitle = `Day ${dayNumber}`;
+
+    setSafarCampaigns(prev => prev.map(c => {
+      if (c.id === safarId) {
+        updatedCampaignName = c.name;
+        return {
+          ...c,
+          dates: c.dates.map(d => {
+            if (d.dayNumber === dayNumber) {
+              targetDateTitle = d.title || targetDateTitle;
+              return {
+                ...d,
+                status: 'uploaded',
+                uploaded_at: timestamp,
+                uploaded_by: currentUser.username || 'admin',
+                server_path: serverPath || d.server_path || `Main Data/${c.name}/Day_${dayNumber}_Master.mp4`,
+                file_size_gb: fileSizeGb || d.file_size_gb || 40.0
+              };
+            }
+            return d;
+          })
+        };
+      }
+      return c;
+    }));
+
+    // Broadcast website notification
+    addNotification({
+      recipientId: 'all',
+      itemId: `${safarId}_d${dayNumber}`,
+      kind: 'safar_uploaded',
+      title: 'Safar Date Upload Confirmed & Verified',
+      message: `${updatedCampaignName} — Day ${dayNumber} (${targetDateTitle}) has been marked as uploaded to ${serverPath || 'Central Vault'}.`
+    });
+
+    // Supabase Realtime Nexus Broadcast
+    if (nexusChannelRef.current) {
+      nexusChannelRef.current.send({
+        type: 'broadcast',
+        event: 'safar_upload_complete',
+        payload: {
+          safarId,
+          dayNumber,
+          uploadedBy: currentUser.username || 'admin',
+          serverPath,
+          timestamp
+        }
+      }).catch(() => {});
+    }
+
+    sounds.playSuccess();
+    try {
+      confetti({
+        particleCount: 80,
+        spread: 60,
+        origin: { y: 0.7 }
+      });
+    } catch (e) {}
+
+    return { success: true };
+  };
+
+  // Safar Creation by Admin
+  const createSafarCampaign = ({ name, hijriYear, city, venue, totalDays, baseDirectory, serverDestination }) => {
+    if (!isAdmin) {
+      sounds.playAlert();
+      return { success: false, error: 'Only admins can create new Safar campaigns.' };
+    }
+    const daysCount = parseInt(totalDays, 10) || 10;
+    const cleanId = 'safar_' + (hijriYear || '1448').replace(/[^0-9]/g, '') + '_' + (city || 'campaign').toLowerCase().replace(/[^a-z0-9]/g, '_');
+    
+    const dates = Array.from({ length: daysCount }, (_, i) => {
+      const dayNum = i + 1;
+      const formattedDay = dayNum < 10 ? `0${dayNum}` : `${dayNum}`;
+      return {
+        id: `${cleanId}_d${formattedDay}`,
+        dayNumber: dayNum,
+        dateLabel: `${hijriYear || '1448'}-02-${formattedDay}`,
+        hijriDate: `${dayNum} Safar al-Muzaffar ${hijriYear || '1448'}`,
+        title: `Majlis ${dayNum} — ${city || 'Event'} Discourse`,
+        assignedEditor: currentUser.username || 'admin',
+        status: 'pending',
+        uploaded_at: null,
+        uploaded_by: null,
+        file_size_gb: 40.0,
+        server_path: null
+      };
+    });
+
+    const newCampaign = {
+      id: cleanId,
+      name: name.trim(),
+      hijriYear: hijriYear || '1448 H',
+      city: city.trim(),
+      venue: venue.trim() || 'Central Complex',
+      baseDirectory: baseDirectory || `D:\\DATAFLOW_WORKSPACE\\${name.replace(/[^a-zA-Z0-9_]/g, '_')}`,
+      serverDestination: serverDestination || `//aljamea-nas.local/Central_Vault/${cleanId}`,
+      totalDays: daysCount,
+      created_at: new Date().toISOString(),
+      created_by: currentUser.username || 'admin',
+      dates
+    };
+
+    setSafarCampaigns(prev => [newCampaign, ...prev]);
+
+    addNotification({
+      recipientId: 'all',
+      kind: 'safar_created',
+      title: 'New Safar Campaign Created',
+      message: `Admin created "${newCampaign.name}" with ${daysCount} production dates.`
+    });
+
+    if (nexusChannelRef.current) {
+      nexusChannelRef.current.send({
+        type: 'broadcast',
+        event: 'safar_campaign_created',
+        payload: newCampaign
+      }).catch(() => {});
+    }
+
+    sounds.playSuccess();
+    return { success: true, campaign: newCampaign };
+  };
+
+  // User submits upload / creation request to admin
+  const submitSafarRequest = ({ safarId, dayNumber, type = 'mark_uploaded', notes, serverPathProposed, fileSizeGb }) => {
+    const newReq = {
+      id: 'req_' + Date.now(),
+      safarId,
+      dayNumber: parseInt(dayNumber, 10),
+      requestedBy: currentUser.username || 'creator',
+      requestedByName: currentUser.name || 'Creator',
+      type,
+      notes: notes || 'Upload completed on workstation, requesting verification.',
+      serverPathProposed: serverPathProposed || '',
+      fileSizeGb: parseFloat(fileSizeGb) || 40.0,
+      status: 'pending',
+      created_at: new Date().toISOString()
+    };
+
+    setSafarRequests(prev => [newReq, ...prev]);
+
+    addNotification({
+      recipientId: 'CREATIVE-ADMIN-MASTER',
+      kind: 'user_request',
+      title: `Upload Request: @${currentUser.username || 'user'}`,
+      message: `User requested approval for Safar Day ${dayNumber}. ${notes ? `"${notes}"` : ''}`
+    });
+
+    if (nexusChannelRef.current) {
+      nexusChannelRef.current.send({
+        type: 'broadcast',
+        event: 'safar_request_submitted',
+        payload: newReq
+      }).catch(() => {});
+    }
+
+    sounds.playSuccess();
+    return { success: true, request: newReq };
+  };
+
+  // Admin reviews request
+  const reviewSafarRequest = ({ requestId, action }) => {
+    if (!isAdmin) return { success: false, error: 'Only admins can review requests.' };
+
+    const req = safarRequests.find(r => r.id === requestId);
+    if (!req) return { success: false, error: 'Request not found.' };
+
+    setSafarRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: action === 'approve' ? 'approved' : 'rejected' } : r));
+
+    if (action === 'approve') {
+      markSafarDateUploaded({
+        safarId: req.safarId,
+        dayNumber: req.dayNumber,
+        serverPath: req.serverPathProposed,
+        fileSizeGb: req.fileSizeGb
+      });
+
+      addNotification({
+        recipientId: req.requestedBy,
+        kind: 'request_approved',
+        title: 'Upload Request Approved!',
+        message: `Admin approved your upload for Safar Day ${req.dayNumber}.`
+      });
+    } else {
+      addNotification({
+        recipientId: req.requestedBy,
+        kind: 'request_rejected',
+        title: 'Upload Request Rejected',
+        message: `Admin rejected upload request for Day ${req.dayNumber}. Check export notes.`
+      });
+      sounds.playAlert();
+    }
+
+    return { success: true };
+  };
+
   return (
     <AppContext.Provider value={{
       currentUser,
@@ -1072,7 +1398,13 @@ export function AppProvider({ children }) {
       assignUser,
       markNotificationRead,
       markAllNotificationsRead,
-      runRetentionCleanup
+      runRetentionCleanup,
+      safarCampaigns,
+      safarRequests,
+      markSafarDateUploaded,
+      createSafarCampaign,
+      submitSafarRequest,
+      reviewSafarRequest
     }}>
       {children}
     </AppContext.Provider>

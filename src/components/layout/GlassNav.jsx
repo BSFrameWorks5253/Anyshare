@@ -11,7 +11,8 @@ import {
   User,
   ExternalLink,
   QrCode,
-  Users
+  Users,
+  CalendarDays
 } from 'lucide-react';
 
 export default function GlassNav({
@@ -43,6 +44,13 @@ export default function GlassNav({
       label: isAdmin ? 'Production Queue' : 'My Assigned Work',
       icon: Briefcase,
       badge: items.length
+    },
+    {
+      id: 'safar',
+      label: 'Safar Hub & Uploads',
+      icon: CalendarDays,
+      badge: 'Matrix',
+      badgeColor: 'bg-emerald-100 text-emerald-950 border-emerald-300 font-black'
     },
     {
       id: 'users',

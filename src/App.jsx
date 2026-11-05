@@ -20,6 +20,7 @@ import DatabaseInspectorModal from './components/account/DatabaseInspectorModal'
 import NewProductionModal from './components/dashboard/NewProductionModal';
 import QRScannerModal from './components/auth/QRScannerModal';
 import UserManagementView from './components/users/UserManagementView';
+import SafarHubView from './components/safar/SafarHubView';
 import LoginModal from './components/auth/LoginModal';
 import ScrollToTop from './components/common/ScrollToTop';
 import { sounds } from './lib/sound';
@@ -383,6 +384,13 @@ export default function App() {
           )}
 
                     {/* VIEW: TEAM & USER INTELLIGENCE */}
+          {/* VIEW: SAFAR HUB & UPLOAD MATRIX */}
+          {currentView === 'safar' && (
+            <div className="animate-fadeIn">
+              <SafarHubView />
+            </div>
+          )}
+
           {currentView === 'users' && (
             <div className="animate-fadeIn">
               <UserManagementView

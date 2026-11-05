@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../lib/store';
 import { sounds } from '../../lib/sound';
+import UserAvatarWithReflection from '../common/UserAvatarWithReflection';
 import {
   Users,
   UserCheck,
@@ -158,11 +159,11 @@ export default function UserManagementView({ onSelectUserForFilter, onNavigateTo
       {/* Active User Card & Inline Quick Editor */}
       <div className="glass-panel rounded-3xl p-6 border-2 border-[#C5A059]/40 bg-white/95 shadow-sm space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#C5A059]/20 pb-4">
-          <div className="flex items-center gap-3.5">
-            <img
+          <div className="flex items-center gap-4">
+            <UserAvatarWithReflection
               src={currentUser.avatar}
               alt={currentUser.name}
-              className="w-14 h-14 rounded-2xl object-cover border-2 border-[#C5A059] shadow-md"
+              size="lg"
             />
             <div>
               <div className="flex items-center gap-2">

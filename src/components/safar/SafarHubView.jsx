@@ -1,0 +1,716 @@
+import React, { useState } from 'react';
+import { useApp } from '../../lib/store';
+import { sounds } from '../../lib/sound';
+import UserAvatarWithReflection from '../common/UserAvatarWithReflection';
+import {
+  CalendarDays,
+  CheckCircle2,
+  Clock,
+  Upload,
+  HardDrive,
+  FolderPlus,
+  Send,
+  Sparkles,
+  AlertCircle,
+  FileCheck,
+  Server,
+  Layers,
+  ArrowRight,
+  Shield,
+  User,
+  Check,
+  X,
+  ExternalLink,
+  ChevronDown
+} from 'lucide-react';
+
+export default function SafarHubView() {
+  const {
+    currentUser,
+    isAdmin,
+    safarCampaigns,
+    safarRequests,
+    markSafarDateUploaded,
+    createSafarCampaign,
+    submitSafarRequest,
+    reviewSafarRequest
+  } = useApp();
+
+  const [selectedCampaignId, setSelectedCampaignId] = useState(
+    safarCampaigns[0]?.id || ''
+  );
+  const [filterStatus, setFilterStatus] = useState('all'); // 'all' | 'uploaded' | 'pending'
+  
+  // Modals state
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [requestTargetDate, setRequestTargetDate] = useState(null);
+
+  // Form states for Admin Safar Creation
+  const [newName, setNewName] = useState('');
+  const [newHijri, setNewHijri] = useState('1448 H');
+  const [newCity, setNewCity] = useState('');
+  const [newVenue, setNewVenue] = useState('');
+  const [newTotalDays, setNewTotalDays] = useState(10);
+  const [newServerDest, setNewServerDest] = useState('//aljamea-nas.local/Central_Vault');
+
+  // Form state for User Upload Request
+  const [requestNotes, setRequestNotes] = useState('');
+  const [requestServerPath, setRequestServerPath] = useState('');
+  const [requestSizeGb, setRequestSizeGb] = useState('40.0');
+
+  const activeCampaign = safarCampaigns.find(c => c.id === selectedCampaignId) || safarCampaigns[0];
+
+  if (!activeCampaign) {
+    return (
+      <div className="p-8 text-center text-slate-800">
+        <p>No Safar campaigns found. Please create one.</p>
+      </div>
+    );
+  }
+
+  // Calculate metrics for active campaign
+  const totalDays = activeCampaign.dates?.length || activeCampaign.totalDays || 0;
+  const uploadedCount = activeCampaign.dates?.filter(d => d.status === 'uploaded').length || 0;
+  const pendingCount = totalDays - uploadedCount;
+  const progressPercent = totalDays > 0 ? Math.round((uploadedCount / totalDays) * 100) : 0;
+
+  // Filter dates
+  const filteredDates = (activeCampaign.dates || []).filter(d => {
+    if (filterStatus === 'uploaded') return d.status === 'uploaded';
+    if (filterStatus === 'pending') return d.status === 'pending';
+    return true;
+  });
+
+  // Pending requests for this campaign
+  const campaignPendingRequests = (safarRequests || []).filter(
+    r => r.safarId === activeCampaign.id && r.status === 'pending'
+  );
+
+  const handleAdminMarkUploaded = (dayNumber, defaultPath) => {
+    sounds.playTap();
+    markSafarDateUploaded({
+      safarId: activeCampaign.id,
+      dayNumber,
+      serverPath: defaultPath || activeCampaign.serverDestination + `/Day_${dayNumber}`
+    });
+  };
+
+  const handleOpenRequestModal = (dateItem) => {
+    sounds.playTap();
+    setRequestTargetDate(dateItem);
+    setRequestNotes(`Finished export for ${dateItem.title}. Ready for central vault verification.`);
+    setRequestServerPath(`${activeCampaign.serverDestination}/Main Data/${dateItem.dateLabel}_0${dateItem.dayNumber}M`);
+    setShowRequestModal(true);
+  };
+
+  const handleSubmitRequest = (e) => {
+    e.preventDefault();
+    if (!requestTargetDate) return;
+
+    submitSafarRequest({
+      safarId: activeCampaign.id,
+      dayNumber: requestTargetDate.dayNumber,
+      type: 'mark_uploaded',
+      notes: requestNotes,
+      serverPathProposed: requestServerPath,
+      fileSizeGb: requestSizeGb
+    });
+
+    setShowRequestModal(false);
+    setRequestTargetDate(null);
+  };
+
+  const handleCreateCampaignSubmit = (e) => {
+    e.preventDefault();
+    if (!newName.trim() || !newCity.trim()) return;
+
+    createSafarCampaign({
+      name: newName,
+      hijriYear: newHijri,
+      city: newCity,
+      venue: newVenue,
+      totalDays: newTotalDays,
+      serverDestination: newServerDest
+    });
+
+    setShowCreateModal(false);
+    setNewName('');
+    setNewCity('');
+  };
+
+  return (
+    <div className="space-y-8 animate-fadeIn text-left">
+      {/* 1. Header: Apple Liquid Glass Executive Safar Banner */}
+      <div className="apple-liquid-glass rounded-3xl p-6 sm:p-8 border border-white/70 relative overflow-hidden shadow-lg">
+        {/* Subtle Ethereal Refraction Mesh */}
+        <div className="absolute -top-16 -right-16 w-80 h-80 rounded-full bg-gradient-to-br from-amber-300/20 via-sky-200/20 to-transparent blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-6">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-black apple-liquid-glass-pill text-slate-900 border border-white/80 bg-white/90 shadow-xs mb-3">
+              <CalendarDays className="w-3.5 h-3.5 text-[#B8860B]" />
+              <span>Safar Hub • Central Upload Tracking Matrix</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            </div>
+
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight font-serif">
+                {activeCampaign.name}
+              </h2>
+
+              {/* Campaign Switcher Dropdown */}
+              {safarCampaigns.length > 1 && (
+                <div className="relative inline-block">
+                  <select
+                    value={selectedCampaignId}
+                    onChange={(e) => {
+                      sounds.playTap();
+                      setSelectedCampaignId(e.target.value);
+                    }}
+                    className="px-3 py-1.5 rounded-xl text-xs font-black bg-white/95 border border-white/80 text-slate-950 focus:outline-none focus:ring-2 focus:ring-amber-400 shadow-xs cursor-pointer"
+                  >
+                    {safarCampaigns.map(c => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+
+            <p className="text-xs sm:text-sm text-slate-700 font-medium mt-1 leading-relaxed">
+              Real-time synchronization of Safar recording dates, 4K master uploads, and vault verification. Marked uploads instantly broadcast cross-device notifications to team editors and admins.
+            </p>
+          </div>
+
+          {/* Action Button: Create Safar Campaign */}
+          <div className="flex items-center gap-3 shrink-0">
+            {isAdmin ? (
+              <button
+                type="button"
+                onClick={() => {
+                  sounds.playTap();
+                  setShowCreateModal(true);
+                }}
+                className="px-5 py-2.5 rounded-2xl text-xs font-black glass-button-primary flex items-center gap-2 cursor-pointer shadow-md shadow-amber-900/15"
+              >
+                <FolderPlus className="w-4 h-4" />
+                <span>+ Create New Safar Campaign</span>
+              </button>
+            ) : (
+              <div className="p-3 rounded-2xl bg-white/80 border border-white/60 text-xs font-bold text-slate-800 flex items-center gap-2 shadow-xs">
+                <Shield className="w-4 h-4 text-[#8A6614]" />
+                <span>Safar campaigns are curated by Admin</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 4 Executive Metric Cards with Liquid Glass Progress Bar */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-slate-200/60 mb-4">
+          <div className="p-4 rounded-2xl bg-white/85 border border-white/80 shadow-xs">
+            <span className="text-xs font-bold text-slate-700 block">Total Safar Dates</span>
+            <span className="text-2xl font-black text-slate-950 font-serif">{totalDays} Days</span>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-white/85 border border-white/80 shadow-xs">
+            <span className="text-xs font-bold text-slate-700 block">Uploaded & Verified</span>
+            <span className="text-2xl font-black text-emerald-800 font-serif">
+              {uploadedCount} Done
+            </span>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-white/85 border border-white/80 shadow-xs">
+            <span className="text-xs font-bold text-slate-700 block">Pending Uploads</span>
+            <span className="text-2xl font-black text-amber-700 font-serif">
+              {pendingCount} Pending
+            </span>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-white/85 border border-white/80 shadow-xs">
+            <span className="text-xs font-bold text-slate-700 block">Vault Completion</span>
+            <span className="text-2xl font-black text-slate-950 font-mono">
+              {progressPercent}%
+            </span>
+          </div>
+        </div>
+
+        {/* Linear Completion Progress Bar */}
+        <div className="w-full bg-slate-200/70 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/60">
+          <div 
+            className="h-full rounded-full bg-gradient-to-r from-[#D4AF37] via-amber-400 to-emerald-500 transition-all duration-700 ease-out shadow-xs"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+      </div>
+
+      {/* 2. Admin Review Queue for Pending User Requests (Visible to Admin) */}
+      {isAdmin && campaignPendingRequests.length > 0 && (
+        <div className="apple-liquid-glass rounded-3xl p-6 border-2 border-amber-300/80 bg-amber-50/70 shadow-sm space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping" />
+              <h3 className="text-sm font-black text-slate-950 font-serif">
+                Pending Upload Approval Requests ({campaignPendingRequests.length})
+              </h3>
+            </div>
+            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-amber-200 text-slate-950 border border-amber-400">
+              Admin Action Required
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+            {campaignPendingRequests.map((req) => (
+              <div 
+                key={req.id} 
+                className="p-4 rounded-2xl bg-white/95 border border-white/80 shadow-xs space-y-2 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-black text-slate-950">
+                      Day {req.dayNumber} Upload Verification
+                    </span>
+                    <span className="font-mono text-xs font-bold text-[#785005]">
+                      @{req.requestedBy}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-700 italic">
+                    "{req.notes}"
+                  </p>
+                  {req.serverPathProposed && (
+                    <p className="text-[11px] font-mono text-slate-600 mt-1 truncate bg-slate-100 p-1.5 rounded-lg border border-slate-200">
+                      {req.serverPathProposed}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      sounds.playTap();
+                      reviewSafarRequest({ requestId: req.id, action: 'approve' });
+                    }}
+                    className="flex-1 py-1.5 rounded-xl text-xs font-black bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Approve & Mark Uploaded</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      sounds.playTap();
+                      reviewSafarRequest({ requestId: req.id, action: 'reject' });
+                    }}
+                    className="px-3 py-1.5 rounded-xl text-xs font-bold text-rose-700 hover:bg-rose-50 border border-rose-300 cursor-pointer"
+                  >
+                    Reject
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 3. Safar Dates Matrix Table & Grid */}
+      <div className="space-y-4">
+        {/* Filter and Status Toggles */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1">
+          <div>
+            <h3 className="text-base font-black text-slate-950">
+              Safar Dates Breakdown & Server Deliveries
+            </h3>
+            <p className="text-xs text-slate-600 font-semibold">
+              Showing {filteredDates.length} of {totalDays} dates in this campaign
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="flex rounded-xl p-1 bg-white/80 border border-white/60 shadow-xs">
+              <button
+                type="button"
+                onClick={() => {
+                  sounds.playTap();
+                  setFilterStatus('all');
+                }}
+                className={`px-3 py-1 rounded-lg text-xs font-black transition-all cursor-pointer ${
+                  filterStatus === 'all'
+                    ? 'bg-slate-950 text-white shadow-xs'
+                    : 'text-slate-700 hover:text-slate-950'
+                }`}
+              >
+                All Dates ({totalDays})
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  sounds.playTap();
+                  setFilterStatus('uploaded');
+                }}
+                className={`px-3 py-1 rounded-lg text-xs font-black transition-all cursor-pointer ${
+                  filterStatus === 'uploaded'
+                    ? 'bg-slate-950 text-white shadow-xs'
+                    : 'text-slate-700 hover:text-slate-950'
+                }`}
+              >
+                Done ({uploadedCount})
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  sounds.playTap();
+                  setFilterStatus('pending');
+                }}
+                className={`px-3 py-1 rounded-lg text-xs font-black transition-all cursor-pointer ${
+                  filterStatus === 'pending'
+                    ? 'bg-slate-950 text-white shadow-xs'
+                    : 'text-slate-700 hover:text-slate-950'
+                }`}
+              >
+                Pending ({pendingCount})
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Matrix Grid Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {filteredDates.map((dateItem) => {
+            const isDone = dateItem.status === 'uploaded';
+
+            return (
+              <div
+                key={dateItem.id}
+                className={`apple-liquid-glass-card rounded-3xl p-5 border text-left flex flex-col justify-between select-none ${
+                  isDone
+                    ? 'border-emerald-300/80 bg-gradient-to-br from-emerald-50/50 via-white to-white'
+                    : 'border-white/80 bg-white/85'
+                }`}
+              >
+                <div>
+                  {/* Card Header: Day Badge & Upload Status */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono font-black px-2.5 py-1 rounded-lg bg-slate-900 text-white shadow-xs">
+                        DAY {dateItem.dayNumber < 10 ? `0${dateItem.dayNumber}` : dateItem.dayNumber}
+                      </span>
+                      <span className="text-xs font-bold text-slate-600">
+                        {dateItem.dateLabel}
+                      </span>
+                    </div>
+
+                    <span className={`text-[11px] font-black px-3 py-1 rounded-full border flex items-center gap-1.5 ${
+                      isDone
+                        ? 'bg-emerald-200 text-emerald-950 border-emerald-400 font-black'
+                        : 'bg-amber-100 text-amber-950 border-amber-300 font-bold'
+                    }`}>
+                      {isDone ? (
+                        <>
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
+                          <span>UPLOADED (DONE)</span>
+                        </>
+                      ) : (
+                        <>
+                          <Clock className="w-3.5 h-3.5 text-amber-600" />
+                          <span>PENDING UPLOAD</span>
+                        </>
+                      )}
+                    </span>
+                  </div>
+
+                  {/* Title & Hijri Date */}
+                  <h4 className="text-base font-black text-slate-950 tracking-tight leading-snug">
+                    {dateItem.title}
+                  </h4>
+                  <p className="text-xs text-[#785005] font-semibold mt-0.5">
+                    {dateItem.hijriDate}
+                  </p>
+
+                  {/* File & Server Telemetry */}
+                  <div className="mt-3.5 p-3 rounded-2xl bg-white/90 border border-slate-200/80 text-xs space-y-1.5 shadow-xs font-mono">
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 font-sans font-medium">Assigned Editor:</span>
+                      <span className="font-bold text-slate-950">@{dateItem.assignedEditor || 'unassigned'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 font-sans font-medium">Vault Archive Path:</span>
+                      <span className="font-bold text-slate-950 truncate max-w-[190px]" title={dateItem.server_path || 'Pending upload'}>
+                        {dateItem.server_path ? dateItem.server_path : 'Not Yet Uploaded'}
+                      </span>
+                    </div>
+                    {isDone && (
+                      <div className="flex justify-between text-emerald-800">
+                        <span className="font-sans font-medium">Verified by:</span>
+                        <span className="font-bold">@{dateItem.uploaded_by || 'admin'} • {new Date(dateItem.uploaded_at).toLocaleDateString()}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Card Action Footer */}
+                <div className="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-600">
+                    Est. Size: <strong className="text-slate-950">{dateItem.file_size_gb || 40.0} GB</strong>
+                  </span>
+
+                  <div className="flex items-center gap-2">
+                    {isDone ? (
+                      <span className="text-xs font-black text-emerald-800 bg-emerald-100 px-3 py-1.5 rounded-xl border border-emerald-300 flex items-center gap-1">
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Completed</span>
+                      </span>
+                    ) : isAdmin ? (
+                      <button
+                        type="button"
+                        onClick={() => handleAdminMarkUploaded(dateItem.dayNumber, dateItem.server_path)}
+                        className="px-4 py-2 rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs flex items-center gap-1.5 cursor-pointer transition-all"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Mark Uploaded (Admin)</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleOpenRequestModal(dateItem)}
+                        className="px-3.5 py-2 rounded-xl text-xs font-black glass-button-primary flex items-center gap-1.5 cursor-pointer shadow-xs"
+                      >
+                        <Send className="w-3.5 h-3.5" />
+                        <span>Request Admin to Mark Done</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* MODAL 1: User Request Upload Verification Modal */}
+      {showRequestModal && requestTargetDate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fadeIn text-left">
+          <div className="w-full max-w-lg rounded-3xl border-2 border-white/80 bg-white shadow-2xl overflow-hidden">
+            <div className="p-5 border-b border-slate-200 bg-gradient-to-r from-amber-50 to-white flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-black text-slate-950 font-serif">
+                  Request Upload Verification
+                </h3>
+                <p className="text-xs text-slate-600 font-semibold">
+                  {activeCampaign.name} — Day {requestTargetDate.dayNumber}
+                </p>
+              </div>
+              <button 
+                onClick={() => setShowRequestModal(false)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmitRequest} className="p-6 space-y-4 text-xs">
+              <div>
+                <label className="block text-slate-800 font-bold mb-1">
+                  Proposed Server Vault Directory / File Path
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={requestServerPath}
+                  onChange={(e) => setRequestServerPath(e.target.value)}
+                  placeholder="//aljamea-nas.local/Central_Vault/..."
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono text-slate-950 font-bold focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-800 font-bold mb-1">
+                    Uploaded File Size (GB)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={requestSizeGb}
+                    onChange={(e) => setRequestSizeGb(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono text-slate-950 font-bold focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-800 font-bold mb-1">
+                    Submitting Creator Handle
+                  </label>
+                  <input
+                    type="text"
+                    disabled
+                    value={`@${currentUser.username || 'creator'}`}
+                    className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl font-mono text-slate-600 font-bold cursor-not-allowed"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-800 font-bold mb-1">
+                  Notes for Admin Verification
+                </label>
+                <textarea
+                  rows={3}
+                  value={requestNotes}
+                  onChange={(e) => setRequestNotes(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-950 font-medium focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setShowRequestModal(false)}
+                  className="px-4 py-2 rounded-xl text-slate-700 font-bold hover:bg-slate-100 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl text-xs font-black glass-button-primary shadow-xs cursor-pointer flex items-center gap-1.5"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Submit Request to Admin</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: Admin Create Safar Campaign Modal */}
+      {showCreateModal && isAdmin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fadeIn text-left">
+          <div className="w-full max-w-lg rounded-3xl border-2 border-white/80 bg-white shadow-2xl overflow-hidden">
+            <div className="p-5 border-b border-slate-200 bg-gradient-to-r from-amber-50 to-white flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-black text-slate-950 font-serif">
+                  Create New Safar Campaign (Admin)
+                </h3>
+                <p className="text-xs text-slate-600 font-semibold">
+                  Generate Safar dates matrix and server destination folder
+                </p>
+              </div>
+              <button 
+                onClick={() => setShowCreateModal(false)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateCampaignSubmit} className="p-6 space-y-4 text-xs">
+              <div>
+                <label className="block text-slate-800 font-bold mb-1">
+                  Safar Campaign Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder="e.g. Safar 1449 — Colombo"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-950 font-bold focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-800 font-bold mb-1">
+                    Hijri Year
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={newHijri}
+                    onChange={(e) => setNewHijri(e.target.value)}
+                    placeholder="1449 H"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono text-slate-950 font-bold focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-800 font-bold mb-1">
+                    City / Location
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={newCity}
+                    onChange={(e) => setNewCity(e.target.value)}
+                    placeholder="Colombo"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-950 font-bold focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-800 font-bold mb-1">
+                    Venue / Complex
+                  </label>
+                  <input
+                    type="text"
+                    value={newVenue}
+                    onChange={(e) => setNewVenue(e.target.value)}
+                    placeholder="Saifee Masjid Complex"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-950 font-bold focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-800 font-bold mb-1">
+                    Total Recording Days
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="40"
+                    value={newTotalDays}
+                    onChange={(e) => setNewTotalDays(parseInt(e.target.value, 10))}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono text-slate-950 font-bold focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-800 font-bold mb-1">
+                  Central Server Vault Destination Path
+                </label>
+                <input
+                  type="text"
+                  value={newServerDest}
+                  onChange={(e) => setNewServerDest(e.target.value)}
+                  placeholder="//aljamea-nas.local/Central_Vault"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono text-slate-950 font-bold focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="px-4 py-2 rounded-xl text-slate-700 font-bold hover:bg-slate-100 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl text-xs font-black glass-button-primary shadow-xs cursor-pointer flex items-center gap-1.5"
+                >
+                  <FolderPlus className="w-3.5 h-3.5" />
+                  <span>Create Campaign & Generate Dates</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

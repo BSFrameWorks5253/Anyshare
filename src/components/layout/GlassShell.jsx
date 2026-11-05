@@ -16,35 +16,35 @@ export default function GlassShell({ children }) {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-[#FAF8F5] text-stone-950 flex flex-col selection:bg-amber-400 selection:text-stone-950 font-sans">
-      {/* 24K Islamic Gold Scroll Indicator Bar at Top of Viewport */}
+    <div className="relative min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col selection:bg-amber-400 selection:text-slate-950 font-sans">
+      {/* 24K Platinum & Gold Precision Scroll Indicator Bar */}
       <div 
         className="fixed top-0 left-0 right-0 h-1 z-50 pointer-events-none transition-all duration-150 ease-out"
         style={{
           width: `${scrollProgress}%`,
-          background: 'linear-gradient(90deg, #D4AF37 0%, #F5E6C8 50%, #B8860B 100%)',
-          boxShadow: '0 0 10px rgba(212, 175, 55, 0.8), 0 0 4px rgba(212, 175, 55, 0.4)'
+          background: 'linear-gradient(90deg, #D4AF37 0%, #FFFFFF 50%, #C5A059 100%)',
+          boxShadow: '0 0 12px rgba(212, 175, 55, 0.7), 0 0 4px rgba(255, 255, 255, 0.9)'
         }}
       />
-      {/* Ambient background glows & Islamic Geometric Watermark */}
+      {/* Apple Liquid Glass Atmospheric Mesh Backdrop */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        {/* Top-right Warm 24K Gold Ambient Lighting */}
+        {/* Top-right Ethereal Sky & Platinum Glow */}
         <div 
-          className="absolute -top-[15%] -right-[10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-bl from-amber-400/25 via-yellow-500/15 to-transparent blur-[130px] ambient-gold-orb" 
+          className="absolute -top-[15%] -right-[10%] w-[65vw] h-[65vw] rounded-full bg-gradient-to-bl from-amber-300/15 via-sky-200/20 to-transparent blur-[140px] ambient-gold-orb" 
         />
-        {/* Center-left Champagne Glow */}
+        {/* Center-left Soft Lavender Frost Glow */}
         <div 
-          className="absolute top-[35%] -left-[15%] w-[55vw] h-[55vw] rounded-full bg-gradient-to-br from-yellow-600/15 via-amber-300/20 to-transparent blur-[140px] ambient-gold-orb" 
+          className="absolute top-[30%] -left-[15%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-br from-indigo-200/15 via-amber-200/15 to-transparent blur-[150px] ambient-gold-orb" 
           style={{ animationDelay: '-6s' }}
         />
-        {/* Bottom Warm Gold Luster */}
+        {/* Bottom Pearl Luster */}
         <div 
-          className="absolute -bottom-[20%] left-[20%] w-[65vw] h-[55vw] rounded-full bg-gradient-to-tr from-amber-500/15 via-yellow-200/25 to-transparent blur-[150px] ambient-gold-orb" 
+          className="absolute -bottom-[20%] left-[25%] w-[70vw] h-[60vw] rounded-full bg-gradient-to-tr from-sky-100/25 via-amber-100/20 to-transparent blur-[160px] ambient-gold-orb" 
           style={{ animationDelay: '-10s' }}
         />
 
-        {/* Authentic Islamic Khatam 8-Point Star Geometric Lattice Texture */}
-        <svg className="absolute inset-0 w-full h-full opacity-[0.035] text-[#8A6614]" xmlns="http://www.w3.org/2000/svg">
+        {/* Authentic Islamic Geometric Lattice Texture */}
+        <svg className="absolute inset-0 w-full h-full opacity-[0.025] text-slate-800" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <pattern id="islamic-star-pattern" width="80" height="80" patternUnits="userSpaceOnUse">
               <path d="M 40,0 L 50,30 L 80,40 L 50,50 L 40,80 L 30,50 L 0,40 L 30,30 Z" fill="none" stroke="currentColor" strokeWidth="1.2" />
@@ -55,8 +55,8 @@ export default function GlassShell({ children }) {
           <rect width="100%" height="100%" fill="url(#islamic-star-pattern)" />
         </svg>
 
-        {/* Fine gold micro-stippling */}
-        <div className="absolute inset-0 bg-[radial-gradient(rgba(197,160,89,0.12)_1px,transparent_1px)] [background-size:24px_24px] opacity-60" />
+        {/* Fine refractive micro-stippling */}
+        <div className="absolute inset-0 bg-[radial-gradient(rgba(148,163,184,0.12)_1px,transparent_1px)] [background-size:24px_24px] opacity-70" />
       </div>
 
       {/* Main Content Shell */}
