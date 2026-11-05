@@ -8,6 +8,7 @@ export default function WorkList({
   onInspect,
   onStartRender,
   onReviewCorrection,
+  onOpenMonitor,
   onCreateNew,
   onRefreshScan
 }) {
@@ -67,6 +68,7 @@ export default function WorkList({
           onInspect={onInspect}
           onStartRender={onStartRender}
           onReviewCorrection={onReviewCorrection}
+          onOpenMonitor={onOpenMonitor}
         />
       ))}
     </div>

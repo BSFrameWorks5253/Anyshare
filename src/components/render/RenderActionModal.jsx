@@ -15,7 +15,7 @@ import {
   WifiOff
 } from 'lucide-react';
 
-export default function RenderActionModal({ item, isOpen, onClose }) {
+export default function RenderActionModal({ item, isOpen, onClose, onRenderStarted }) {
   const { requestRender, bridge, currentUser } = useApp();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -40,7 +40,10 @@ export default function RenderActionModal({ item, isOpen, onClose }) {
       setTimeout(() => {
         setIsSubmitting(false);
         onClose();
-      }, 600);
+        if (onRenderStarted) {
+          onRenderStarted(item);
+        }
+      }, 400);
     }
   };
 

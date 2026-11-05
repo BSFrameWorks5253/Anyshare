@@ -10,6 +10,7 @@ import WorkFilters from './components/dashboard/WorkFilters';
 import WorkList from './components/dashboard/WorkList';
 import WorkDetailModal from './components/dashboard/WorkDetailModal';
 import RenderActionModal from './components/render/RenderActionModal';
+import LiveRenderMonitorModal from './components/render/LiveRenderMonitorModal';
 import CorrectionReviewModal from './components/corrections/CorrectionReviewModal';
 import CorrectionQueue from './components/corrections/CorrectionQueue';
 import NotificationCenter from './components/notifications/NotificationCenter';
@@ -52,6 +53,8 @@ export default function App() {
 
   const [inspectedItem, setInspectedItem] = useState(null);
   const [renderItem, setRenderItem] = useState(null);
+  const [isRenderMonitorOpen, setIsRenderMonitorOpen] = useState(false);
+  const [monitorItemId, setMonitorItemId] = useState(null);
   const [correctionItem, setCorrectionItem] = useState(null);
   const [isNewProductionOpen, setIsNewProductionOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -284,6 +287,10 @@ export default function App() {
                 onInspect={(item) => setInspectedItem(item)}
                 onStartRender={(item) => setRenderItem(item)}
                 onReviewCorrection={(item) => setCorrectionItem(item)}
+                onOpenMonitor={(item) => {
+                  setMonitorItemId(item.id);
+                  setIsRenderMonitorOpen(true);
+                }}
                 onCreateNew={() => setIsNewProductionOpen(true)}
                 onRefreshScan={() => triggerBridgeScan()}
               />
@@ -324,10 +331,19 @@ export default function App() {
           </div>
 
           {renderingCount > 0 ? (
-            <div className="flex items-center gap-1.5 text-xs font-black text-amber-950 bg-amber-200/80 px-2.5 py-1 rounded-lg border border-amber-400">
+            <button
+              type="button"
+              onClick={() => {
+                sounds.playTap();
+                const active = items.find(i => i.status === 'rendering');
+                if (active) setMonitorItemId(active.id);
+                setIsRenderMonitorOpen(true);
+              }}
+              className="flex items-center gap-1.5 text-xs font-black text-amber-950 bg-gradient-to-r from-amber-200 to-amber-300 hover:from-amber-300 hover:to-amber-400 px-3 py-1 rounded-xl border border-amber-500/50 shadow-sm animate-pulse cursor-pointer transition-all"
+            >
               <Cpu className="w-3.5 h-3.5 animate-spin text-[#8A6614]" />
-              <span>{renderingCount} Rendering</span>
-            </div>
+              <span>{renderingCount} Rendering • Monitor</span>
+            </button>
           ) : (
             <span className="text-xs text-stone-700 font-semibold hidden sm:inline">
               {items.length} Productions Loaded
@@ -375,12 +391,26 @@ export default function App() {
         onClose={() => setInspectedItem(null)}
         onStartRender={(item) => setRenderItem(item)}
         onReviewCorrection={(item) => setCorrectionItem(item)}
+        onOpenMonitor={(item) => {
+          setMonitorItemId(item.id);
+          setIsRenderMonitorOpen(true);
+        }}
       />
 
       <RenderActionModal
         item={renderItem}
         isOpen={Boolean(renderItem)}
         onClose={() => setRenderItem(null)}
+        onRenderStarted={(item) => {
+          setMonitorItemId(item.id);
+          setIsRenderMonitorOpen(true);
+        }}
+      />
+
+      <LiveRenderMonitorModal
+        isOpen={isRenderMonitorOpen}
+        itemId={monitorItemId}
+        onClose={() => setIsRenderMonitorOpen(false)}
       />
 
       <CorrectionReviewModal

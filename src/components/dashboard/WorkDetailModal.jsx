@@ -23,7 +23,8 @@ export default function WorkDetailModal({
   isOpen,
   onClose,
   onStartRender,
-  onReviewCorrection
+  onReviewCorrection,
+  onOpenMonitor
 }) {
   const { events, users, currentUser, isAdmin, assignUser, adminMarkDone, triggerBridgeScan, bridge } = useApp();
   const [activeTab, setActiveTab] = useState('evidence');
@@ -240,6 +241,21 @@ export default function WorkDetailModal({
           </div>
 
           <div className="flex items-center gap-2">
+            {item.status === 'rendering' && (
+              <button
+                type="button"
+                onClick={() => {
+                  sounds.playTap();
+                  onClose();
+                  if (onOpenMonitor) onOpenMonitor(item);
+                }}
+                className="py-2 px-4 rounded-xl text-xs font-black bg-gradient-to-r from-amber-200 to-amber-300 text-stone-950 border border-amber-500/50 flex items-center gap-2 cursor-pointer shadow-sm animate-pulse"
+              >
+                <Cpu className="w-3.5 h-3.5 text-[#8A6614]" />
+                <span>Live Monitor</span>
+              </button>
+            )}
+
             {isEligibleForRender && (
               <button
                 type="button"

@@ -15,7 +15,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 
-export default function WorkCard({ item, onInspect, onStartRender, onReviewCorrection }) {
+export default function WorkCard({ item, onInspect, onStartRender, onReviewCorrection, onOpenMonitor }) {
   const { users, bridge, isAdmin, currentUser } = useApp();
 
   const assignedUser = users.find(u => u.id === item.assigned_user_id);
@@ -206,12 +206,16 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
               type="button"
               onClick={() => {
                 sounds.playTap();
-                onInspect(item);
+                if (onOpenMonitor) {
+                  onOpenMonitor(item);
+                } else {
+                  onInspect(item);
+                }
               }}
-              className="flex-1 py-2.5 px-3 rounded-xl text-xs font-black bg-amber-200 text-stone-950 border border-amber-400 flex items-center justify-center gap-2 cursor-pointer shadow-xs animate-pulse"
+              className="flex-1 py-2.5 px-3 rounded-xl text-xs font-black bg-gradient-to-r from-amber-200 to-amber-300 text-stone-950 border border-amber-500/50 flex items-center justify-center gap-2 cursor-pointer shadow-sm animate-pulse"
             >
               <Cpu className="w-3.5 h-3.5 animate-pulse text-[#8A6614]" />
-              <span>View Progress</span>
+              <span>Live Monitor</span>
             </button>
           )}
 
