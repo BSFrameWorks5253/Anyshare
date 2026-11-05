@@ -1,6 +1,5 @@
 import React from 'react';
 import { useApp } from '../../lib/store';
-import { Activity, AlertCircle, Wifi, WifiOff } from 'lucide-react';
 
 export default function BridgeHealthBadge({ onClick, showDetail = false }) {
   const { bridge } = useApp();
@@ -20,31 +19,27 @@ export default function BridgeHealthBadge({ onClick, showDetail = false }) {
     <button
       onClick={onClick}
       type="button"
-      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold glass-pill transition-all cursor-pointer hover:border-neutral-300 text-neutral-800 bg-white/80 border border-[rgba(0,0,0,0.08)]/30"
-      title={`Bridge: ${bridge.label} (${bridge.is_online ? 'Connected' : 'Offline'})`}
+      className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer bg-white hover:bg-slate-50 border border-slate-200/80 text-slate-800 shadow-2xs"
+      title={`Workstation: ${bridge.label} (${bridge.is_online ? 'Connected' : 'Offline'})`}
     >
-      <span className="relative flex h-2 w-2">
+      <span className="relative flex h-2 w-2 shrink-0">
         {bridge.is_online ? (
           <>
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </>
         ) : (
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-slate-400" />
         )}
       </span>
 
-      <span className="flex items-center gap-1.5">
-        {bridge.is_online ? (
-          <span className="text-emerald-900 font-bold">Bridge Online</span>
-        ) : (
-          <span className="text-rose-800 font-bold">Bridge Offline</span>
-        )}
+      <span className="flex items-center gap-1.5 font-semibold text-slate-800 text-xs">
+        <span>{bridge.is_online ? 'Node Online' : 'Node Offline'}</span>
       </span>
 
       {showDetail && (
-        <span className="text-[10px] text-neutral-500 border-l border-neutral-300 pl-1.5 hidden sm:inline font-mono">
-          Scan: {timeAgo(bridge.last_scan_at)}
+        <span className="text-[10px] text-slate-400 border-l border-slate-200 pl-1.5 hidden xl:inline font-mono">
+          {timeAgo(bridge.last_scan_at)}
         </span>
       )}
     </button>
