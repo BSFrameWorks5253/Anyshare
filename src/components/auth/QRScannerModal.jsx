@@ -151,6 +151,24 @@ export default function QRScannerModal({ isOpen, onClose }) {
 
       // Check if it's a valid AnyShare / One Tap payload
       const token = payload.token || (typeof payload === 'string' ? payload : 'token_' + Date.now());
+
+      // STRICT ONE-TIME CHECK: Check if this token was already consumed locally
+      const consumedTokens = JSON.parse(localStorage.getItem('anyshare_consumed_tokens_v1') || '[]');
+      if (consumedTokens.includes(token)) {
+        setCameraError('❌ This one-time QR code has already been consumed and cannot be reused. Please generate a fresh code on the Anything master app.');
+        sounds.playAlert();
+        setIsProcessing(false);
+        return;
+      }
+
+      // Check Expiration
+      if (payload.expiresAt && new Date(payload.expiresAt).getTime() < Date.now()) {
+        setCameraError('⏰ This one-time pairing QR code has expired (5-minute security limit). Please generate a fresh code.');
+        sounds.playAlert();
+        setIsProcessing(false);
+        return;
+      }
+
       const user = payload.user || {
         id: 'user_master_01',
         name: 'Master Architect',
@@ -167,27 +185,58 @@ export default function QRScannerModal({ isOpen, onClose }) {
         storageFreeGB: 482.4
       };
 
-      // 1. Notify local bridge if accessible
+      let isRejected = false;
+      let rejectionMessage = '';
+
+      // 1. Notify local bridge if accessible and verify not consumed
       try {
-        fetch('http://127.0.0.1:5253/api/claim-pairing', {
+        const localBridgeRes = await fetch('http://127.0.0.1:5253/api/claim-pairing', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token, username: user.username })
-        }).catch(() => {});
+        });
+        if (localBridgeRes.status === 409) {
+          isRejected = true;
+          rejectionMessage = '❌ This one-time QR code has already been claimed on the local workstation node.';
+        }
       } catch (e) {}
 
-      // 2. Notify Vercel serverless pairing endpoint
-      try {
-        await fetch('/api/auth-pair', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'claim',
-            token,
-            claimedBy: `anyshare_web_${user.username}`
-          })
-        }).catch(() => {});
-      } catch (e) {}
+      // 2. Notify Vercel serverless pairing endpoint if not rejected
+      if (!isRejected) {
+        try {
+          const cloudPairRes = await fetch('/api/auth-pair', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'claim',
+              token,
+              claimedBy: `anyshare_web_${user.username}`
+            })
+          });
+
+          if (cloudPairRes.status === 409) {
+            isRejected = true;
+            rejectionMessage = '❌ This one-time QR code has already been consumed and cannot be reused.';
+          } else if (cloudPairRes.status === 410) {
+            isRejected = true;
+            rejectionMessage = '⏰ This one-time pairing QR code has expired.';
+          }
+        } catch (e) {}
+      }
+
+      if (isRejected) {
+        // Blacklist token locally so it can never be scanned again
+        consumedTokens.push(token);
+        localStorage.setItem('anyshare_consumed_tokens_v1', JSON.stringify(consumedTokens.slice(-100)));
+        setCameraError(rejectionMessage);
+        sounds.playAlert();
+        setIsProcessing(false);
+        return;
+      }
+
+      // Mark token as consumed permanently
+      consumedTokens.push(token);
+      localStorage.setItem('anyshare_consumed_tokens_v1', JSON.stringify(consumedTokens.slice(-100)));
 
       // 3. Authenticate current user in website state
       updateEcosystemUser(user);
@@ -255,13 +304,14 @@ export default function QRScannerModal({ isOpen, onClose }) {
 
   // Generate pairing QR for One Tap Workstation demo
   const generateAppLoginQR = async () => {
-    const token = 'pair_ot_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+    const token = 'otl_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
     const payload = {
       type: 'ANYSHARE_ONE_TIME_LOGIN',
       version: '1.0.0',
       token: token,
+      singleUse: true,
       createdAt: new Date().toISOString(),
-      expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
       user: {
         id: currentUser.id || 'user_master_01',
         name: currentUser.name || 'Master Architect',

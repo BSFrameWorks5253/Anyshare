@@ -189,15 +189,15 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
           {activeTab === 'profile' && (
             <div className="space-y-4">
               {/* Child App Registration Status Banner */}
-              <div className="p-3.5 rounded-2xl bg-amber-50 border border-[#C5A059]/35 flex items-center justify-between shadow-xs">
+              <div className="p-3.5 rounded-2xl bg-amber-50 border-2 border-[#C5A059]/50 flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-2.5">
                   <Laptop className="w-4 h-4 text-[#8A6614] shrink-0" />
                   <div>
-                    <span className="text-[11px] text-stone-600 font-bold block">Child App Folder Identity:</span>
+                    <span className="text-[11px] text-stone-800 font-extrabold block">Child App Folder Identity:</span>
                     <span className="text-xs font-black text-stone-950 font-mono">Anything share</span>
                   </div>
                 </div>
-                <span className="text-[10px] font-black px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-950 border border-emerald-400">
+                <span className="text-[10px] font-black px-2.5 py-0.5 rounded-md bg-emerald-200 text-emerald-950 border border-emerald-500 shadow-xs">
                   Ecosystem Linked
                 </span>
               </div>
@@ -305,17 +305,17 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
                   </form>
                 ) : (
                   <div className="space-y-2 pt-1 text-xs">
-                    <div className="flex justify-between py-1.5 border-b border-[#C5A059]/15">
-                      <span className="text-stone-700 font-bold">Username:</span>
+                    <div className="flex justify-between py-1.5 border-b border-[#C5A059]/25">
+                      <span className="text-stone-900 font-extrabold">Username:</span>
                       <span className="font-mono text-[#785005] font-black text-sm">@{currentUser.username || 'creator'}</span>
                     </div>
-                    <div className="flex justify-between py-1.5 border-b border-[#C5A059]/15">
-                      <span className="text-stone-700 font-bold">Email:</span>
-                      <span className="font-mono text-stone-950 font-bold">{currentUser.email}</span>
+                    <div className="flex justify-between py-1.5 border-b border-[#C5A059]/25">
+                      <span className="text-stone-900 font-extrabold">Email:</span>
+                      <span className="font-mono text-stone-950 font-black">{currentUser.email}</span>
                     </div>
                     <div className="flex justify-between py-1.5">
-                      <span className="text-stone-700 font-bold">SSO Universal Session:</span>
-                      <span className="font-mono text-emerald-950 font-black bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
+                      <span className="text-stone-900 font-extrabold">SSO Universal Session:</span>
+                      <span className="font-mono text-emerald-950 font-black bg-emerald-200 px-2 py-0.5 rounded border border-emerald-400">
                         anything_ecosystem_session_v1
                       </span>
                     </div>
@@ -341,14 +341,14 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
                   </span>
                 </div>
 
-                <div className="p-3 rounded-xl bg-white border border-[#C5A059]/20 text-[11px] text-stone-800 space-y-1 font-mono">
+                <div className="p-3 rounded-xl bg-white border border-[#C5A059]/30 text-[11px] text-stone-900 space-y-1 font-mono shadow-xs">
                   <div className="flex justify-between">
-                    <span className="text-stone-500 font-sans">Active Workstation:</span>
-                    <span className="font-bold text-stone-900">Studio-PC-01 (Port 5253)</span>
+                    <span className="text-stone-800 font-sans font-bold">Active Workstation:</span>
+                    <span className="font-black text-stone-950">Studio-PC-01 (Port 5253)</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-stone-500 font-sans">Ecosystem State:</span>
-                    <span className="text-emerald-700 font-bold">Synchronized with Anything Session</span>
+                    <span className="text-stone-800 font-sans font-bold">Ecosystem State:</span>
+                    <span className="text-emerald-800 font-black">Synchronized with Anything Session</span>
                   </div>
                 </div>
 
@@ -371,22 +371,22 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
                   <Clock className="w-4 h-4 text-[#8A6614]" />
                   Automated Retention Cleanups
                 </h4>
-                <div className="space-y-2 text-stone-900 text-xs">
-                  <div className="flex justify-between py-1 border-b border-[#C5A059]/15">
-                    <span className="text-stone-700 font-bold">Notifications:</span>
-                    <span className="font-mono text-stone-950 font-bold">Pruned after 30 days</span>
+                <div className="space-y-2 text-stone-950 text-xs">
+                  <div className="flex justify-between py-1 border-b border-[#C5A059]/20">
+                    <span className="text-stone-800 font-bold">Notifications:</span>
+                    <span className="font-mono text-stone-950 font-black">Pruned after 30 days</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-[#C5A059]/15">
-                    <span className="text-stone-700 font-bold">Terminal Render Commands:</span>
-                    <span className="font-mono text-stone-950 font-bold">Deleted after 7 days</span>
+                  <div className="flex justify-between py-1 border-b border-[#C5A059]/20">
+                    <span className="text-stone-800 font-bold">Terminal Render Commands:</span>
+                    <span className="font-mono text-stone-950 font-black">Deleted after 7 days</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-[#C5A059]/15">
-                    <span className="text-stone-700 font-bold">Completed Work:</span>
-                    <span className="font-mono text-stone-950 font-bold">Purged after 90 days</span>
+                  <div className="flex justify-between py-1 border-b border-[#C5A059]/20">
+                    <span className="text-stone-800 font-bold">Completed Work:</span>
+                    <span className="font-mono text-stone-950 font-black">Purged after 90 days</span>
                   </div>
                   <div className="flex justify-between py-1">
-                    <span className="text-stone-700 font-bold">Account Identity:</span>
-                    <span className="font-black text-emerald-900 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
+                    <span className="text-stone-800 font-bold">Account Identity:</span>
+                    <span className="font-black text-emerald-950 bg-emerald-200 px-2 py-0.5 rounded border border-emerald-400">
                       Protected (Never auto-deleted)
                     </span>
                   </div>
@@ -611,16 +611,16 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-[#C5A059]/25 bg-amber-50/50 flex items-center justify-end">
+        <div className="p-4 border-t border-[#C5A059]/25 bg-amber-50/70 flex items-center justify-end">
           <button
             type="button"
             onClick={() => {
               sounds.playTap();
               onClose();
             }}
-            className="px-5 py-2 rounded-xl text-xs font-black glass-pill hover:bg-stone-200 text-stone-900 border border-[#C5A059]/35 cursor-pointer shadow-xs"
+            className="px-6 py-2.5 rounded-xl text-xs font-black bg-stone-900 text-amber-200 hover:bg-black transition-all border border-stone-800 shadow-md cursor-pointer flex items-center gap-1.5"
           >
-            Done
+            <span>Done</span>
           </button>
         </div>
       </div>
