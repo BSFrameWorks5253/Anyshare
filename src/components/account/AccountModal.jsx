@@ -3,6 +3,7 @@ import { useApp } from '../../lib/store';
 import { sounds } from '../../lib/sound';
 import {
   User,
+  Users,
   Shield,
   Database,
   Trash2,
@@ -15,18 +16,42 @@ import {
   Edit2,
   Save,
   AtSign,
-  Laptop
+  Laptop,
+  UserCheck,
+  UserPlus,
+  ArrowRightLeft,
+  Mail,
+  ShieldCheck,
+  Search
 } from 'lucide-react';
 
 export default function AccountModal({ isOpen, onClose, onOpenDbInspector }) {
-  const { currentUser, updateEcosystemUser, runRetentionCleanup, isAdmin } = useApp();
+  const {
+    currentUser,
+    users,
+    switchUser,
+    addTeamUser,
+    items,
+    updateEcosystemUser,
+    runRetentionCleanup,
+    isAdmin
+  } = useApp();
   
+  const [activeTab, setActiveTab] = useState('profile'); // 'profile' | 'team'
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [usernameInput, setUsernameInput] = useState(currentUser.username || '');
   const [nameInput, setNameInput] = useState(currentUser.name || '');
   const [emailInput, setEmailInput] = useState(currentUser.email || '');
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [cleanupResult, setCleanupResult] = useState(null);
+
+  // New user form state
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [newUserName, setNewUserName] = useState('');
+  const [newUserUsername, setNewUserUsername] = useState('');
+  const [newUserEmail, setNewUserEmail] = useState('');
+  const [newUserRole, setNewUserRole] = useState('member');
+  const [userSearch, setUserSearch] = useState('');
 
   if (!isOpen) return null;
 
@@ -47,37 +72,64 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector }) {
     setTimeout(() => setSaveSuccess(false), 3000);
   };
 
+  const handleCreateUser = (e) => {
+    e.preventDefault();
+    if (!newUserUsername.trim()) return;
+
+    addTeamUser({
+      name: newUserName.trim() || newUserUsername.trim(),
+      username: newUserUsername.trim(),
+      email: newUserEmail.trim() || `${newUserUsername.trim()}@anything.local`,
+      role: newUserRole
+    });
+
+    setNewUserName('');
+    setNewUserUsername('');
+    setNewUserEmail('');
+    setShowAddUser(false);
+  };
+
   const handleRunCleanup = () => {
     const res = runRetentionCleanup();
     setCleanupResult(res);
     sounds.playSuccess();
   };
 
+  const filteredUsers = (users || []).filter(u => {
+    if (!userSearch.trim()) return true;
+    const q = userSearch.toLowerCase();
+    return (
+      u.name?.toLowerCase().includes(q) ||
+      u.username?.toLowerCase().includes(q) ||
+      u.email?.toLowerCase().includes(q)
+    );
+  });
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-900/50 backdrop-blur-md animate-fadeIn">
       <div 
-        className="glass-panel w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl border border-white/20 shadow-2xl flex flex-col overflow-hidden text-left"
+        className="glass-panel w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl border border-[#C5A059]/40 shadow-2xl flex flex-col overflow-hidden text-left bg-white/95"
         role="dialog"
       >
-        {/* Header */}
-        <div className="p-5 border-b border-white/10 flex items-start justify-between gap-3 bg-gradient-to-r from-indigo-950/40 to-transparent">
-          <div className="flex items-center gap-3">
+        {/* Header with High-Contrast Islamic Gold Styling */}
+        <div className="p-5 border-b border-[#C5A059]/30 flex items-start justify-between gap-3 bg-gradient-to-r from-amber-100/90 via-yellow-50/70 to-white">
+          <div className="flex items-center gap-3.5">
             <img
               src={currentUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'}
               alt={currentUser.name}
-              className="w-12 h-12 rounded-2xl object-cover border border-white/20 shadow-md"
+              className="w-13 h-13 rounded-2xl object-cover border-2 border-[#C5A059] shadow-md"
             />
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-white">
+                <h2 className="text-lg font-black text-stone-950 font-serif">
                   {currentUser.name}
                 </h2>
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-200 text-stone-950 border border-amber-400 shadow-xs">
                   {currentUser.role}
                 </span>
               </div>
-              <p className="text-xs text-indigo-300 font-mono flex items-center gap-1 mt-0.5">
-                <AtSign className="w-3 h-3 text-indigo-400" />
+              <p className="text-xs text-[#785005] font-mono font-black flex items-center gap-1 mt-0.5">
+                <AtSign className="w-3.5 h-3.5 text-[#8A6614]" />
                 {currentUser.username || 'creator'}
               </p>
             </div>
@@ -88,224 +140,442 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector }) {
               sounds.playTap();
               onClose();
             }}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-2 rounded-xl text-stone-500 hover:text-stone-950 hover:bg-[#C5A059]/15 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-5 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
-          {/* Child App Registration Status Banner */}
-          <div className="p-3.5 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <Laptop className="w-4 h-4 text-cyan-400 shrink-0" />
-              <div>
-                <span className="text-[11px] text-slate-400 block">Child App Folder Identity:</span>
-                <span className="text-xs font-bold text-white font-mono">Anything share</span>
+        {/* Navigation Tabs: My Profile vs Team Directory */}
+        <div className="flex border-b border-[#C5A059]/20 bg-amber-50/50 p-1 px-4 gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              sounds.playTap();
+              setActiveTab('profile');
+            }}
+            className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              activeTab === 'profile'
+                ? 'bg-stone-900 text-[#F5E6C8] shadow-sm'
+                : 'text-stone-700 hover:text-stone-950 hover:bg-white/80'
+            }`}
+          >
+            <User className="w-4 h-4 text-[#D4AF37]" />
+            <span>My Account & Login</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              sounds.playTap();
+              setActiveTab('team');
+            }}
+            className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              activeTab === 'team'
+                ? 'bg-stone-900 text-[#F5E6C8] shadow-sm'
+                : 'text-stone-700 hover:text-stone-950 hover:bg-white/80'
+            }`}
+          >
+            <Users className="w-4 h-4 text-[#D4AF37]" />
+            <span>Team & Users Directory ({users.length})</span>
+          </button>
+        </div>
+
+        {/* Content Area */}
+        <div className="p-5 space-y-4 max-h-[70vh] overflow-y-auto text-xs">
+          
+          {/* TAB 1: MY PROFILE & SSO CREDENTIALS */}
+          {activeTab === 'profile' && (
+            <div className="space-y-4">
+              {/* Child App Registration Status Banner */}
+              <div className="p-3.5 rounded-2xl bg-amber-50 border border-[#C5A059]/35 flex items-center justify-between shadow-xs">
+                <div className="flex items-center gap-2.5">
+                  <Laptop className="w-4 h-4 text-[#8A6614] shrink-0" />
+                  <div>
+                    <span className="text-[11px] text-stone-600 font-bold block">Child App Folder Identity:</span>
+                    <span className="text-xs font-black text-stone-950 font-mono">Anything share</span>
+                  </div>
+                </div>
+                <span className="text-[10px] font-black px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-950 border border-emerald-400">
+                  Ecosystem Linked
+                </span>
               </div>
-            </div>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-              Ecosystem Linked
-            </span>
-          </div>
 
-          {/* Success Banner */}
-          {saveSuccess && (
-            <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 shrink-0" />
-              <span>Username updated & synchronized to Anything website and child apps!</span>
-            </div>
-          )}
+              {/* Success Banner */}
+              {saveSuccess && (
+                <div className="p-3 rounded-xl bg-emerald-100 border border-emerald-400 text-emerald-950 font-bold flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-700" />
+                  <span>Username updated & synchronized to Anything website and child apps!</span>
+                </div>
+              )}
 
-          {/* Edit Username / Ecosystem Identity Section */}
-          <div className="glass-panel-subtle rounded-2xl p-4 border border-white/10 space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-bold text-white flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5 text-indigo-400" />
-                  Anything Website Login Credentials
+              {/* Edit Username / Ecosystem Identity Section */}
+              <div className="rounded-2xl p-4 border border-[#C5A059]/30 bg-white/95 space-y-3 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-black text-stone-950 text-sm flex items-center gap-1.5">
+                      <User className="w-4 h-4 text-[#8A6614]" />
+                      Anything Website Login Credentials
+                    </h4>
+                    <p className="text-[11px] text-stone-600 font-semibold">
+                      Set the username you use to log into the master Anything website and child apps
+                    </p>
+                  </div>
+
+                  {!isEditingProfile && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        sounds.playTap();
+                        setIsEditingProfile(true);
+                      }}
+                      className="px-3 py-1.5 rounded-xl text-xs font-black glass-pill hover:bg-stone-100 text-stone-900 border border-[#C5A059]/40 flex items-center gap-1.5 cursor-pointer shadow-xs"
+                    >
+                      <Edit2 className="w-3.5 h-3.5 text-[#8A6614]" />
+                      <span>Edit</span>
+                    </button>
+                  )}
+                </div>
+
+                {isEditingProfile ? (
+                  <form onSubmit={handleSaveProfile} className="space-y-3 pt-2 border-t border-[#C5A059]/20">
+                    <div>
+                      <label className="block text-[11px] text-stone-900 font-black mb-1">
+                        Ecosystem Username (@handle)
+                      </label>
+                      <div className="relative">
+                        <AtSign className="w-3.5 h-3.5 text-stone-600 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          required
+                          value={usernameInput}
+                          onChange={(e) => setUsernameInput(e.target.value)}
+                          placeholder="e.g. burhanuddin or creator_lead"
+                          className="w-full pl-8 pr-3 py-2 bg-stone-50 border border-[#C5A059]/40 rounded-xl text-xs text-stone-950 font-bold focus:outline-none focus:border-[#B8860B] font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] text-stone-900 font-black mb-1">
+                        Display Name
+                      </label>
+                      <input
+                        type="text"
+                        value={nameInput}
+                        onChange={(e) => setNameInput(e.target.value)}
+                        placeholder="Full Name"
+                        className="w-full px-3 py-2 bg-stone-50 border border-[#C5A059]/40 rounded-xl text-xs text-stone-950 font-bold focus:outline-none focus:border-[#B8860B]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] text-stone-900 font-black mb-1">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        value={emailInput}
+                        onChange={(e) => setEmailInput(e.target.value)}
+                        placeholder="user@anything.local"
+                        className="w-full px-3 py-2 bg-stone-50 border border-[#C5A059]/40 rounded-xl text-xs text-stone-950 font-bold focus:outline-none focus:border-[#B8860B] font-mono"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-end gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          sounds.playTap();
+                          setIsEditingProfile(false);
+                        }}
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold glass-pill hover:bg-stone-200 text-stone-700"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-4 py-2 rounded-xl text-xs font-black glass-button-primary flex items-center gap-1.5 cursor-pointer shadow-sm"
+                      >
+                        <Save className="w-3.5 h-3.5" />
+                        <span>Save & Sync to Anything</span>
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="space-y-2 pt-1 text-xs">
+                    <div className="flex justify-between py-1.5 border-b border-[#C5A059]/15">
+                      <span className="text-stone-700 font-bold">Username:</span>
+                      <span className="font-mono text-[#785005] font-black text-sm">@{currentUser.username || 'creator'}</span>
+                    </div>
+                    <div className="flex justify-between py-1.5 border-b border-[#C5A059]/15">
+                      <span className="text-stone-700 font-bold">Email:</span>
+                      <span className="font-mono text-stone-950 font-bold">{currentUser.email}</span>
+                    </div>
+                    <div className="flex justify-between py-1.5">
+                      <span className="text-stone-700 font-bold">SSO Universal Session:</span>
+                      <span className="font-mono text-emerald-950 font-black bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
+                        anything_ecosystem_session_v1
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Automated Retention Cleanups Policy (High Contrast) */}
+              <div className="rounded-2xl p-4 border border-[#C5A059]/30 bg-white/95 space-y-2 shadow-xs">
+                <h4 className="font-black text-stone-950 text-sm flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-[#8A6614]" />
+                  Automated Retention Cleanups
                 </h4>
-                <p className="text-[11px] text-slate-400">
-                  Set the username you use to log into the Anything website and child apps
-                </p>
+                <div className="space-y-2 text-stone-900 text-xs">
+                  <div className="flex justify-between py-1 border-b border-[#C5A059]/15">
+                    <span className="text-stone-700 font-bold">Notifications:</span>
+                    <span className="font-mono text-stone-950 font-bold">Pruned after 30 days</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-[#C5A059]/15">
+                    <span className="text-stone-700 font-bold">Terminal Render Commands:</span>
+                    <span className="font-mono text-stone-950 font-bold">Deleted after 7 days</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-[#C5A059]/15">
+                    <span className="text-stone-700 font-bold">Completed Work:</span>
+                    <span className="font-mono text-stone-950 font-bold">Purged after 90 days</span>
+                  </div>
+                  <div className="flex justify-between py-1">
+                    <span className="text-stone-700 font-bold">Account Identity:</span>
+                    <span className="font-black text-emerald-900 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
+                      Protected (Never auto-deleted)
+                    </span>
+                  </div>
+                </div>
+
+                {isAdmin && (
+                  <button
+                    type="button"
+                    onClick={handleRunCleanup}
+                    className="w-full mt-2 py-2 rounded-xl text-xs font-bold glass-pill hover:bg-stone-100 text-stone-900 flex items-center justify-center gap-1.5 cursor-pointer border border-[#C5A059]/40 shadow-xs"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                    <span>Test Retention Sweep Now</span>
+                  </button>
+                )}
+
+                {cleanupResult && (
+                  <div className="p-2.5 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-950 text-xs font-bold">
+                    Sweep finished: purged {cleanupResult.cleaned_notifications} expired notifications.
+                  </div>
+                )}
               </div>
 
-              {!isEditingProfile && (
+              {/* Supabase Schema Blueprint Trigger */}
+              <div className="rounded-2xl p-4 border border-[#C5A059]/30 bg-white/95 flex items-center justify-between shadow-xs">
+                <div>
+                  <h4 className="font-black text-stone-950 flex items-center gap-1.5">
+                    <Database className="w-4 h-4 text-[#8A6614]" />
+                    Supabase Schema Blueprint
+                  </h4>
+                  <p className="text-[11px] text-stone-600 font-semibold mt-0.5">
+                    View DDL schema, tables, and RLS definitions
+                  </p>
+                </div>
                 <button
                   type="button"
                   onClick={() => {
                     sounds.playTap();
-                    setIsEditingProfile(true);
+                    onOpenDbInspector();
                   }}
-                  className="px-2.5 py-1 rounded-lg text-xs font-semibold glass-pill hover:bg-white/10 text-indigo-300 flex items-center gap-1 cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl text-xs font-black glass-pill hover:bg-stone-100 text-stone-900 flex items-center gap-1.5 cursor-pointer border border-[#C5A059]/40 shadow-xs"
                 >
-                  <Edit2 className="w-3 h-3" />
-                  <span>Edit</span>
+                  <Code2 className="w-3.5 h-3.5 text-[#8A6614]" />
+                  <span>Inspect</span>
                 </button>
-              )}
+              </div>
             </div>
+          )}
 
-            {isEditingProfile ? (
-              <form onSubmit={handleSaveProfile} className="space-y-3 pt-2 border-t border-white/5">
-                <div>
-                  <label className="block text-[11px] text-slate-300 font-semibold mb-1">
-                    Ecosystem Username (@handle)
-                  </label>
-                  <div className="relative">
-                    <AtSign className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      required
-                      value={usernameInput}
-                      onChange={(e) => setUsernameInput(e.target.value)}
-                      placeholder="e.g. burhanuddin or creator_lead"
-                      className="w-full pl-8 pr-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500 font-mono"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] text-slate-300 font-semibold mb-1">
-                    Display Name
-                  </label>
+          {/* TAB 2: TEAM & USER DIRECTORY */}
+          {activeTab === 'team' && (
+            <div className="space-y-4">
+              {/* Search & Add User Row */}
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <Search className="w-4 h-4 text-stone-500 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
-                    value={nameInput}
-                    onChange={(e) => setNameInput(e.target.value)}
-                    placeholder="Full Name"
-                    className="w-full px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+                    value={userSearch}
+                    onChange={(e) => setUserSearch(e.target.value)}
+                    placeholder="Search by name, handle, or email..."
+                    className="w-full pl-9 pr-3 py-2 bg-white border border-[#C5A059]/35 rounded-xl text-xs text-stone-950 font-bold focus:outline-none focus:border-[#B8860B]"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-[11px] text-slate-300 font-semibold mb-1">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    value={emailInput}
-                    onChange={(e) => setEmailInput(e.target.value)}
-                    placeholder="user@anything.local"
-                    className="w-full px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500 font-mono"
-                  />
-                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    sounds.playTap();
+                    setShowAddUser(!showAddUser);
+                  }}
+                  className="px-3 py-2 rounded-xl text-xs font-black glass-button-primary flex items-center gap-1.5 shrink-0 shadow-xs cursor-pointer"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>{showAddUser ? 'Close Form' : '+ New User'}</span>
+                </button>
+              </div>
 
-                <div className="flex items-center justify-end gap-2 pt-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      sounds.playTap();
-                      setIsEditingProfile(false);
-                    }}
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold glass-pill hover:bg-white/10 text-slate-300"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-1.5 rounded-lg text-xs font-bold glass-button-primary flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <Save className="w-3.5 h-3.5" />
-                    <span>Save & Sync to Anything</span>
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <div className="space-y-1.5 pt-1 text-[11px]">
-                <div className="flex justify-between py-1 border-b border-white/5">
-                  <span className="text-slate-400">Username:</span>
-                  <span className="font-mono text-indigo-300 font-bold">@{currentUser.username || 'creator'}</span>
-                </div>
-                <div className="flex justify-between py-1 border-b border-white/5">
-                  <span className="text-slate-400">Email:</span>
-                  <span className="font-mono text-slate-200">{currentUser.email}</span>
-                </div>
-                <div className="flex justify-between py-1">
-                  <span className="text-slate-400">SSO Storage:</span>
-                  <span className="font-mono text-emerald-300">anything_ecosystem_session_v1</span>
-                </div>
-              </div>
-            )}
-          </div>
+              {/* Add User Form Drawer */}
+              {showAddUser && (
+                <form onSubmit={handleCreateUser} className="p-4 rounded-2xl bg-amber-50/80 border border-[#C5A059]/40 space-y-3 shadow-xs animate-fadeIn">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-black text-stone-950 text-xs flex items-center gap-1.5">
+                      <UserPlus className="w-4 h-4 text-[#8A6614]" />
+                      Enroll Team Member into Ecosystem
+                    </h4>
+                  </div>
 
-          {/* Retention Policy Section */}
-          <div className="glass-panel-subtle rounded-2xl p-4 border border-white/10 space-y-2">
-            <h4 className="font-bold text-white flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-indigo-400" />
-              Automated Retention Cleanups
-            </h4>
-            <div className="space-y-1.5 text-slate-300 text-[11px]">
-              <div className="flex justify-between py-0.5">
-                <span className="text-slate-400">Notifications:</span>
-                <span className="font-mono text-slate-200">Pruned after 30 days</span>
-              </div>
-              <div className="flex justify-between py-0.5">
-                <span className="text-slate-400">Terminal Render Commands:</span>
-                <span className="font-mono text-slate-200">Deleted after 7 days</span>
-              </div>
-              <div className="flex justify-between py-0.5">
-                <span className="text-slate-400">Completed Work:</span>
-                <span className="font-mono text-slate-200">Purged after 90 days</span>
-              </div>
-              <div className="flex justify-between py-0.5">
-                <span className="text-slate-400">Account Identity:</span>
-                <span className="font-semibold text-emerald-300">Protected (Never auto-deleted)</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[11px] font-bold text-stone-700 mb-1">Full Name</label>
+                      <input
+                        type="text"
+                        required
+                        value={newUserName}
+                        onChange={(e) => setNewUserName(e.target.value)}
+                        placeholder="e.g. Tariq Editor"
+                        className="w-full px-3 py-1.5 bg-white border border-[#C5A059]/30 rounded-xl text-xs text-stone-950 font-bold focus:outline-none focus:border-[#B8860B]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-stone-700 mb-1">@Username</label>
+                      <input
+                        type="text"
+                        required
+                        value={newUserUsername}
+                        onChange={(e) => setNewUserUsername(e.target.value)}
+                        placeholder="e.g. tariq_cuts"
+                        className="w-full px-3 py-1.5 bg-white border border-[#C5A059]/30 rounded-xl text-xs text-stone-950 font-bold font-mono focus:outline-none focus:border-[#B8860B]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[11px] font-bold text-stone-700 mb-1">Email Address</label>
+                      <input
+                        type="email"
+                        value={newUserEmail}
+                        onChange={(e) => setNewUserEmail(e.target.value)}
+                        placeholder="tariq@anything.local"
+                        className="w-full px-3 py-1.5 bg-white border border-[#C5A059]/30 rounded-xl text-xs text-stone-950 font-bold font-mono focus:outline-none focus:border-[#B8860B]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-stone-700 mb-1">Role Permission</label>
+                      <select
+                        value={newUserRole}
+                        onChange={(e) => setNewUserRole(e.target.value)}
+                        className="w-full px-3 py-1.5 bg-white border border-[#C5A059]/30 rounded-xl text-xs text-stone-950 font-bold focus:outline-none focus:border-[#B8860B]"
+                      >
+                        <option value="member">Member / Video Editor</option>
+                        <option value="admin">Admin / Lead Director</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end pt-1">
+                    <button
+                      type="submit"
+                      className="px-4 py-2 rounded-xl text-xs font-black glass-button-primary shadow-xs cursor-pointer"
+                    >
+                      Add & Register User
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* User Directory Cards */}
+              <div className="space-y-2.5">
+                {filteredUsers.map((user) => {
+                  const isCurrent = user.id === currentUser.id;
+                  const assignedCount = (items || []).filter(i => i.assigned_user_id === user.id).length;
+
+                  return (
+                    <div
+                      key={user.id}
+                      className={`p-3.5 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                        isCurrent
+                          ? 'bg-amber-100/70 border-[#B8860B] ring-1 ring-[#B8860B]/40 shadow-xs'
+                          : 'bg-white/95 border-[#C5A059]/30 hover:border-[#B8860B]/60 shadow-xs'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={user.avatar}
+                          alt={user.name}
+                          className="w-10 h-10 rounded-xl object-cover border border-[#C5A059]/40 shadow-xs"
+                        />
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-xs font-black text-stone-950">
+                              {user.name}
+                            </h4>
+                            <span className={`text-[10px] font-black uppercase px-2 py-0.2 rounded-full border ${
+                              user.role === 'admin'
+                                ? 'bg-amber-200 text-stone-950 border-amber-400'
+                                : 'bg-stone-100 text-stone-800 border-stone-300'
+                            }`}>
+                              {user.role}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="font-mono text-[#785005] font-black text-[11px]">
+                              @{user.username || 'creator'}
+                            </span>
+                            <span className="text-stone-400">•</span>
+                            <span className="font-mono text-stone-600 text-[11px] truncate max-w-[150px]">
+                              {user.email}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#C5A059]/15">
+                        <span className="text-[11px] font-extrabold px-2.5 py-1 rounded-lg bg-stone-100 text-stone-900 border border-stone-200">
+                          {assignedCount} Assigned
+                        </span>
+
+                        {isCurrent ? (
+                          <span className="text-[11px] font-black px-2.5 py-1 rounded-xl bg-amber-200 text-stone-950 border border-amber-400 flex items-center gap-1">
+                            <UserCheck className="w-3.5 h-3.5 text-[#8A6614]" />
+                            <span>Active</span>
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => switchUser(user.id)}
+                            className="px-3 py-1 rounded-xl text-xs font-black glass-pill hover:bg-stone-200 text-stone-900 flex items-center gap-1 cursor-pointer border border-[#C5A059]/40 shadow-xs"
+                          >
+                            <ArrowRightLeft className="w-3 h-3 text-[#8A6614]" />
+                            <span>Switch Identity</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
-
-            {isAdmin && (
-              <button
-                type="button"
-                onClick={handleRunCleanup}
-                className="w-full mt-2 py-2 rounded-xl text-xs font-semibold glass-pill hover:bg-white/10 text-slate-200 flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <Trash2 className="w-3.5 h-3.5 text-rose-400" />
-                <span>Test Retention Sweep Now</span>
-              </button>
-            )}
-
-            {cleanupResult && (
-              <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[11px]">
-                Sweep finished: purged {cleanupResult.cleaned_notifications} expired notifications.
-              </div>
-            )}
-          </div>
-
-          {/* Supabase Schema Blueprint Trigger */}
-          <div className="glass-panel-subtle rounded-2xl p-4 border border-white/10 flex items-center justify-between">
-            <div>
-              <h4 className="font-bold text-white flex items-center gap-1.5">
-                <Database className="w-3.5 h-3.5 text-indigo-400" />
-                Supabase Schema Blueprint
-              </h4>
-              <p className="text-[11px] text-slate-400 mt-0.5">
-                View DDL schema, tables, and RLS definitions
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                sounds.playTap();
-                onOpenDbInspector();
-              }}
-              className="px-3 py-1.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white/10 text-indigo-300 flex items-center gap-1 cursor-pointer"
-            >
-              <Code2 className="w-3.5 h-3.5" />
-              <span>Inspect</span>
-            </button>
-          </div>
+          )}
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-white/10 bg-slate-900/60 flex items-center justify-end">
+        <div className="p-4 border-t border-[#C5A059]/25 bg-amber-50/50 flex items-center justify-end">
           <button
             type="button"
             onClick={() => {
               sounds.playTap();
               onClose();
             }}
-            className="px-4 py-2 rounded-xl text-xs font-semibold glass-pill hover:bg-white/10 text-slate-300"
+            className="px-5 py-2 rounded-xl text-xs font-black glass-pill hover:bg-stone-200 text-stone-900 border border-[#C5A059]/35 cursor-pointer shadow-xs"
           >
             Done
           </button>

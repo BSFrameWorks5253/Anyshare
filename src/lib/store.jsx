@@ -71,6 +71,14 @@ export function AppProvider({ children }) {
     return [];
   });
 
+  const [users, setUsers] = useState(() => {
+    try {
+      const saved = localStorage.getItem('anyshare_team_users_v1');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return INITIAL_USERS;
+  });
+
   const [bridge, setBridge] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.BRIDGE);
@@ -79,19 +87,16 @@ export function AppProvider({ children }) {
     return INITIAL_BRIDGE;
   });
 
-  const [pushEnabled, setPushEnabled] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.PUSH_PREFS);
-      return saved ? JSON.parse(saved) : false;
-    } catch (e) {
-      return false;
-    }
-  });
+  const [pushEnabled, setPushEnabled] = useState(false);
 
   // Persist state
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.ITEMS, JSON.stringify(items));
   }, [items]);
+
+  useEffect(() => {
+    localStorage.setItem('anyshare_team_users_v1', JSON.stringify(users));
+  }, [users]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.EVENTS, JSON.stringify(events));
@@ -294,20 +299,20 @@ export function AppProvider({ children }) {
       kind,
       title,
       message,
-      delivery_state: pushEnabled ? 'sent' : 'in_app',
+      delivery_state: 'supabase_live',
       read_at: null,
       created_at: new Date().toISOString()
     };
     setNotifications(prev => [notif, ...prev]);
 
-    if (pushEnabled && 'Notification' in window && Notification.permission === 'granted') {
-      try {
-        new Notification(title, {
-          body: message,
-          icon: '/icon-192.svg'
-        });
-      } catch (e) {}
-    }
+    // Dispatch to Vercel Serverless notification gateway in background
+    try {
+      fetch('/api/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, message, kind, recipientId, itemId })
+      }).catch(() => {});
+    } catch (e) {}
   };
 
   const markNotificationRead = (notifId) => {
@@ -323,7 +328,7 @@ export function AppProvider({ children }) {
     );
   };
 
-  // Request Render Command (1-Tap Core Feature)
+  // Request Render Command (1-Tap Core Feature powered by Vercel Serverless & One Tap)
   const requestRender = async (itemId) => {
     const item = items.find(i => i.id === itemId);
     if (!item) return { success: false, error: 'Item not found' };
@@ -342,6 +347,22 @@ export function AppProvider({ children }) {
 
     const commandId = 'cmd_' + Date.now();
     const idempotencyKey = crypto.randomUUID ? crypto.randomUUID() : 'idempotency_' + Date.now();
+
+    // Dispatch to Vercel Serverless Render Dispatcher in background
+    try {
+      fetch('/api/render-command', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          itemId,
+          externalKey: item.external_key,
+          displayLabel: item.display_label,
+          requestedBy: currentUser.username || 'creator',
+          targetPreset: 'Match Source - High Bitrate (4K H.264)',
+          priority: 'rush'
+        })
+      }).catch(() => {});
+    } catch (e) {}
 
     // 1. Initial State: render_requested
     setItems(prev => prev.map(i => i.id === itemId ? {
@@ -595,11 +616,38 @@ export function AppProvider({ children }) {
     };
   };
 
+  const switchUser = (userId) => {
+    const target = users.find(u => u.id === userId);
+    if (target) {
+      setCurrentUser(target);
+      updateEcosystemUser(target);
+      sounds.playSuccess();
+    }
+  };
+
+  const addTeamUser = ({ name, username, email, role }) => {
+    const cleanUsername = (username || name).toLowerCase().replace(/[^a-z0-9_.-]/g, '');
+    const newUser = {
+      id: 'user_' + Date.now(),
+      name: name.trim() || cleanUsername,
+      email: email.trim() || `${cleanUsername}@anything.local`,
+      username: cleanUsername,
+      role: role || 'member',
+      avatar: `https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80`,
+      provider: 'anything'
+    };
+    setUsers(prev => [...prev, newUser]);
+    sounds.playSuccess();
+    return { success: true, user: newUser };
+  };
+
   return (
     <AppContext.Provider value={{
       currentUser,
       isAdmin,
-      users: INITIAL_USERS,
+      users,
+      switchUser,
+      addTeamUser,
       items,
       events,
       notifications,
