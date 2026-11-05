@@ -27,7 +27,7 @@ export default function GlassTopBar({
   ).length;
 
   return (
-    <header className="sticky top-0 z-30 w-full glass-panel border-b border-white/10 px-4 sm:px-8 py-3 transition-all backdrop-blur-xl">
+    <header className="sticky top-0 z-30 w-full glass-panel border-b border-[#C5A059]/25 px-4 sm:px-8 py-3 transition-all backdrop-blur-2xl bg-white/80 shadow-xs">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
         {/* Brand / Logo */}
         <div 
@@ -37,23 +37,23 @@ export default function GlassTopBar({
           }}
           className="flex items-center gap-3 cursor-pointer group shrink-0"
         >
-          {/* Custom AnyShare Icon */}
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-purple-600 p-0.5 shadow-lg shadow-indigo-950/50 group-hover:scale-105 transition-transform flex items-center justify-center">
-            <div className="w-full h-full bg-[#080d1a] rounded-[10px] flex items-center justify-center relative overflow-hidden">
-              <Zap className="w-5 h-5 text-cyan-400 fill-cyan-400/30" />
+          {/* Islamic Golden AnyShare Monogram */}
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#D4AF37] via-[#F7E7A9] to-[#B8860B] p-0.5 shadow-md shadow-amber-900/15 group-hover:scale-105 transition-transform flex items-center justify-center">
+            <div className="w-full h-full bg-[#FAF8F5] rounded-[10px] flex items-center justify-center relative overflow-hidden border border-[#D4AF37]/30">
+              <Zap className="w-4 h-4 text-[#B8860B] fill-[#D4AF37]/40" />
             </div>
           </div>
 
           <div>
             <div className="flex items-center gap-1.5">
-              <h1 className="text-sm font-extrabold text-white tracking-tight group-hover:text-cyan-300 transition-colors">
+              <h1 className="text-sm font-extrabold text-stone-900 tracking-tight group-hover:text-[#B8860B] transition-colors">
                 AnyShare
               </h1>
-              <span className="hidden sm:inline-block text-[10px] font-mono px-1.5 py-0.2 rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-semibold">
+              <span className="hidden sm:inline-block text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-100 text-[#8B6508] border border-amber-300/60 font-bold">
                 One Tap Bridge
               </span>
             </div>
-            <p className="text-[10px] text-slate-400 hidden sm:block">
+            <p className="text-[10px] text-stone-500 hidden sm:block">
               One Tap production status & remote render command hub
             </p>
           </div>
@@ -73,13 +73,13 @@ export default function GlassTopBar({
               sounds.playTap();
               onOpenAccount();
             }}
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold glass-pill hover:bg-white/10 text-slate-300 transition-colors cursor-pointer"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white text-stone-800 transition-colors cursor-pointer border border-[#C5A059]/30"
             title="Ecosystem Identity & Username Settings"
           >
-            <AtSign className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="font-mono text-cyan-300">{currentUser.username || 'creator'}</span>
+            <AtSign className="w-3.5 h-3.5 text-[#B8860B]" />
+            <span className="font-mono text-[#8B6508] font-bold">@{currentUser.username || 'creator'}</span>
             <span className={`text-[10px] uppercase font-bold px-1.5 py-0.2 rounded ${
-              isAdmin ? 'bg-purple-500/20 text-purple-300' : 'bg-slate-700/50 text-slate-300'
+              isAdmin ? 'bg-amber-500/20 text-[#8B6508]' : 'bg-stone-200 text-stone-700'
             }`}>
               {isAdmin ? 'Admin' : 'Member'}
             </span>
@@ -92,12 +92,12 @@ export default function GlassTopBar({
               sounds.playTap();
               onOpenNotifications();
             }}
-            className="relative p-2 rounded-xl glass-pill hover:bg-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
+            className="relative p-2 rounded-xl glass-pill hover:bg-white text-stone-700 hover:text-stone-900 transition-colors cursor-pointer border border-[#C5A059]/30"
             aria-label="Notifications"
           >
-            <Bell className="w-4 h-4 text-indigo-300" />
+            <Bell className="w-4 h-4 text-[#B8860B]" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-white text-[10px] font-extrabold flex items-center justify-center animate-pulse">
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-600 text-white text-[10px] font-extrabold flex items-center justify-center shadow-xs">
                 {unreadCount}
               </span>
             )}
@@ -110,14 +110,14 @@ export default function GlassTopBar({
               sounds.playTap();
               onOpenAccount();
             }}
-            className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-xl glass-pill hover:bg-white/10 transition-colors cursor-pointer"
+            className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-xl glass-pill hover:bg-white transition-colors cursor-pointer border border-[#C5A059]/30"
           >
             <img
               src={currentUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'}
               alt={currentUser.name}
-              className="w-6 h-6 rounded-lg object-cover border border-white/20"
+              className="w-6 h-6 rounded-lg object-cover border border-amber-400/40"
             />
-            <span className="text-xs font-medium text-slate-200 hidden md:inline truncate max-w-[90px]">
+            <span className="text-xs font-semibold text-stone-800 hidden md:inline truncate max-w-[90px]">
               {currentUser.name.split(' ')[0]}
             </span>
           </button>

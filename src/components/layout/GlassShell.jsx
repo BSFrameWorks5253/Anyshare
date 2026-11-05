@@ -2,28 +2,28 @@ import React from 'react';
 
 export default function GlassShell({ children }) {
   return (
-    <div className="relative min-h-screen bg-[#070a13] text-slate-100 flex flex-col selection:bg-indigo-500/30 selection:text-indigo-200">
-      {/* Ambient background glows for Liquid Glass depth */}
+    <div className="relative min-h-screen bg-[#FAF8F5] text-stone-900 flex flex-col selection:bg-amber-400/30 selection:text-amber-950 font-sans">
+      {/* Ambient background glows for Islamic Golden & White Liquid Glass */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        {/* Top-left Indigo Orb */}
+        {/* Top-right Warm 24K Gold Orb */}
         <div 
-          className="absolute -top-[12%] -left-[10%] w-[55vw] h-[55vw] rounded-full bg-gradient-to-br from-indigo-600/15 via-purple-700/10 to-transparent blur-[120px] ambient-orb" 
+          className="absolute -top-[12%] -right-[10%] w-[55vw] h-[55vw] rounded-full bg-gradient-to-bl from-amber-400/20 via-yellow-500/12 to-transparent blur-[120px] ambient-gold-orb" 
         />
-        {/* Center-right Cyan Orb */}
+        {/* Center-left Champagne Glow */}
         <div 
-          className="absolute top-[35%] -right-[15%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-bl from-cyan-600/12 via-blue-700/8 to-transparent blur-[130px] ambient-orb" 
-          style={{ animationDelay: '-6s' }}
+          className="absolute top-[30%] -left-[15%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-br from-yellow-600/12 via-amber-300/15 to-transparent blur-[130px] ambient-gold-orb" 
+          style={{ animationDelay: '-5s' }}
         />
-        {/* Bottom Emerald/Teal Glow */}
+        {/* Bottom Warm Ivory / Gold Luster */}
         <div 
-          className="absolute -bottom-[15%] left-[20%] w-[60vw] h-[50vw] rounded-full bg-gradient-to-tr from-teal-600/10 via-emerald-800/8 to-transparent blur-[140px] ambient-orb" 
-          style={{ animationDelay: '-11s' }}
+          className="absolute -bottom-[15%] left-[25%] w-[60vw] h-[50vw] rounded-full bg-gradient-to-tr from-amber-500/12 via-yellow-200/20 to-transparent blur-[140px] ambient-gold-orb" 
+          style={{ animationDelay: '-9s' }}
         />
-        {/* Micro-dot grid texture for subtle tactility */}
-        <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:24px_24px] opacity-40" />
+        {/* Subtle geometric star watermark lattice texture */}
+        <div className="absolute inset-0 bg-[radial-gradient(rgba(197,160,89,0.08)_1px,transparent_1px)] [background-size:28px_28px] opacity-75" />
       </div>
 
-      {/* Main App Container */}
+      {/* Main Content Shell */}
       <div className="relative z-10 flex-1 flex flex-col">
         {children}
       </div>

@@ -29,8 +29,6 @@ export default function RenderActionModal({ item, isOpen, onClose }) {
     { id: 'disk_space', name: 'Workstation Storage Space', passed: true, detail: `${bridge.workstation_storage_free_gb || 480} GB available (min 25 GB)` }
   ];
 
-  const allPassed = preflightChecks.every(c => c.passed);
-
   const handleStartRender = async () => {
     setIsSubmitting(true);
     setErrorMsg('');
@@ -47,22 +45,22 @@ export default function RenderActionModal({ item, isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-900/40 backdrop-blur-md animate-fadeIn">
       <div 
-        className="glass-panel w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl border border-white/20 shadow-2xl flex flex-col overflow-hidden text-left"
+        className="glass-panel w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl border border-[#C5A059]/40 shadow-2xl flex flex-col overflow-hidden text-left bg-[#FAF8F5]/95"
         role="dialog"
       >
         {/* Header */}
-        <div className="p-5 border-b border-white/10 flex items-start justify-between gap-3">
+        <div className="p-5 border-b border-[#C5A059]/20 flex items-start justify-between gap-3 bg-gradient-to-r from-amber-100/60 to-transparent">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 text-indigo-400">
-              <Play className="w-5 h-5 fill-current" />
+            <div className="p-2.5 rounded-2xl bg-amber-500/20 border border-amber-400 text-amber-900">
+              <Play className="w-5 h-5 fill-current text-[#B8860B]" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">
+              <h2 className="text-base font-extrabold text-stone-900">
                 One Tap Remote Render
               </h2>
-              <p className="text-xs text-indigo-300 font-mono truncate max-w-[240px]">
+              <p className="text-xs text-[#8B6508] font-mono truncate max-w-[240px] font-bold">
                 {item.display_label}
               </p>
             </div>
@@ -73,7 +71,7 @@ export default function RenderActionModal({ item, isOpen, onClose }) {
               sounds.playTap();
               onClose();
             }}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-xl text-stone-400 hover:text-stone-800 hover:bg-stone-200/50 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -81,32 +79,32 @@ export default function RenderActionModal({ item, isOpen, onClose }) {
 
         {/* Content */}
         <div className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
-          {/* Bridge Health Verification Callout */}
-          <div className={`p-3 rounded-2xl border flex items-center justify-between text-xs ${
+          {/* Bridge Health Callout */}
+          <div className={`p-3.5 rounded-2xl border flex items-center justify-between text-xs ${
             bridge.is_online
-              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
-              : 'bg-rose-500/10 border-rose-500/20 text-rose-300'
+              ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+              : 'bg-rose-50 border-rose-300 text-rose-900'
           }`}>
             <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${bridge.is_online ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'}`} />
+              <span className={`w-2 h-2 rounded-full ${bridge.is_online ? 'bg-emerald-600 animate-pulse' : 'bg-rose-600'}`} />
               <div>
-                <span className="font-semibold block">{bridge.label}</span>
-                <span className="text-[11px] text-slate-400">{bridge.app_version}</span>
+                <span className="font-bold block">{bridge.label}</span>
+                <span className="text-[11px] text-stone-500">{bridge.app_version}</span>
               </div>
             </div>
-            <span className="font-semibold">
+            <span className="font-bold">
               {bridge.is_online ? 'Ready to Claim' : 'Bridge Offline'}
             </span>
           </div>
 
           {/* Offline warning banner */}
           {!bridge.is_online && (
-            <div className="bg-rose-500/15 border border-rose-500/30 rounded-2xl p-3.5 text-xs text-rose-200 space-y-1">
-              <div className="flex items-center gap-2 font-bold text-rose-300">
-                <WifiOff className="w-4 h-4 text-rose-400" />
+            <div className="bg-rose-50 border border-rose-300 rounded-2xl p-3.5 text-xs text-rose-900 space-y-1">
+              <div className="flex items-center gap-2 font-bold text-rose-800">
+                <WifiOff className="w-4 h-4 text-rose-600" />
                 Render Blocked: Workstation Disconnected
               </div>
-              <p className="text-[11px] text-rose-300/80 leading-relaxed">
+              <p className="text-[11px] text-rose-700 leading-relaxed">
                 One Tap workstation is not connected to Supabase. Commands will not start until the desktop bridge is resumed.
               </p>
             </div>
@@ -115,11 +113,11 @@ export default function RenderActionModal({ item, isOpen, onClose }) {
           {/* Preflight Checks Section */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-indigo-400" />
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#8B6508] flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-[#B8860B]" />
                 Preflight Verification Gates
               </h4>
-              <span className="text-[11px] font-mono text-slate-400">
+              <span className="text-[11px] font-mono text-stone-600 font-bold">
                 {preflightChecks.filter(c => c.passed).length}/{preflightChecks.length} Passed
               </span>
             </div>
@@ -130,18 +128,18 @@ export default function RenderActionModal({ item, isOpen, onClose }) {
                   key={check.id}
                   className={`p-3 rounded-xl border flex items-start gap-3 text-xs ${
                     check.passed
-                      ? 'bg-slate-900/60 border-white/5 text-slate-300'
-                      : 'bg-rose-500/10 border-rose-500/30 text-rose-200'
+                      ? 'bg-white/80 border-[#C5A059]/20 text-stone-800'
+                      : 'bg-rose-50 border-rose-300 text-rose-900'
                   }`}
                 >
                   {check.passed ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                   ) : (
-                    <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                    <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                   )}
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-slate-200">{check.name}</div>
-                    <div className="text-[11px] text-slate-400 font-mono mt-0.5 truncate">{check.detail}</div>
+                    <div className="font-bold text-stone-900">{check.name}</div>
+                    <div className="text-[11px] text-stone-500 font-mono mt-0.5 truncate">{check.detail}</div>
                   </div>
                 </div>
               ))}
@@ -149,35 +147,34 @@ export default function RenderActionModal({ item, isOpen, onClose }) {
           </div>
 
           {/* Command Specs & Safety Statement */}
-          <div className="glass-panel-subtle rounded-2xl p-3.5 border border-white/10 text-xs space-y-2 text-slate-300">
+          <div className="glass-panel-subtle rounded-2xl p-3.5 border border-[#C5A059]/25 text-xs space-y-2 text-stone-700 bg-amber-50/40">
             <div className="flex items-center justify-between">
-              <span className="text-slate-400">Requester:</span>
-              <span className="font-semibold text-white">{currentUser.name}</span>
+              <span className="text-stone-500">Requester:</span>
+              <span className="font-bold text-stone-900">{currentUser.name} (@{currentUser.username})</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-slate-400">Target Resolution:</span>
-              <span className="font-mono text-indigo-300">4K UHD 59.94fps Master</span>
+              <span className="text-stone-500">Target Resolution:</span>
+              <span className="font-mono text-[#8B6508] font-bold">4K UHD 59.94fps Master</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-slate-400">Hardware Encoder:</span>
-              <span className="font-mono text-slate-200">NVENC H.264 Acceleration</span>
+              <span className="text-stone-500">Hardware Encoder:</span>
+              <span className="font-mono text-stone-800 font-semibold">NVENC H.264 Acceleration</span>
             </div>
-            <div className="pt-2 border-t border-white/5 text-[11px] text-slate-400 leading-relaxed">
+            <div className="pt-2 border-t border-[#C5A059]/15 text-[11px] text-stone-600 leading-relaxed">
               🔒 <em>Idempotency guarantee:</em> A unique command token is generated. Exactly one local render process will execute. Output checksum will be verified before status advances to Rendered.
             </div>
           </div>
 
-          {/* Error Message if any */}
           {errorMsg && (
-            <div className="p-3 rounded-xl bg-rose-500/20 border border-rose-500/40 text-xs text-rose-200 flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+            <div className="p-3 rounded-xl bg-rose-100 border border-rose-300 text-xs text-rose-900 flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
               <span>{errorMsg}</span>
             </div>
           )}
         </div>
 
         {/* Modal Action Buttons */}
-        <div className="p-4 border-t border-white/10 bg-slate-900/60 flex items-center justify-end gap-3">
+        <div className="p-4 border-t border-[#C5A059]/20 bg-stone-100/70 flex items-center justify-end gap-3">
           <button
             type="button"
             disabled={isSubmitting}
@@ -185,7 +182,7 @@ export default function RenderActionModal({ item, isOpen, onClose }) {
               sounds.playTap();
               onClose();
             }}
-            className="px-4 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white/10 text-slate-300"
+            className="px-4 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white text-stone-700"
           >
             Cancel
           </button>
@@ -198,7 +195,7 @@ export default function RenderActionModal({ item, isOpen, onClose }) {
           >
             {isSubmitting ? (
               <>
-                <span className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-white border-t-transparent" />
+                <span className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-amber-950 border-t-transparent" />
                 <span>Transmitting Command...</span>
               </>
             ) : (

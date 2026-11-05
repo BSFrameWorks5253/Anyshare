@@ -127,22 +127,22 @@ export default function DatabaseInspectorModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-900/40 backdrop-blur-md animate-fadeIn">
       <div 
-        className="glass-panel w-full sm:max-w-2xl rounded-t-3xl sm:rounded-3xl border border-white/20 shadow-2xl flex flex-col overflow-hidden text-left"
+        className="glass-panel w-full sm:max-w-2xl rounded-t-3xl sm:rounded-3xl border border-[#C5A059]/30 shadow-2xl flex flex-col overflow-hidden text-left bg-white/95"
         role="dialog"
       >
         {/* Header */}
-        <div className="p-5 border-b border-white/10 flex items-start justify-between gap-3">
+        <div className="p-5 border-b border-[#C5A059]/20 flex items-start justify-between gap-3 bg-gradient-to-r from-amber-50/60 to-white/60">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 text-indigo-400">
+            <div className="p-2.5 rounded-2xl bg-amber-50 border border-[#C5A059]/30 text-[#997328]">
               <Database className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">
+              <h2 className="text-base font-bold text-stone-900">
                 Supabase Schema Blueprint
               </h2>
-              <p className="text-xs text-slate-400 font-mono truncate max-w-[280px]">
+              <p className="text-xs text-[#997328] font-mono truncate max-w-[280px]">
                 {SUPABASE_CONFIG.url}
               </p>
             </div>
@@ -153,7 +153,7 @@ export default function DatabaseInspectorModal({ isOpen, onClose }) {
               sounds.playTap();
               onClose();
             }}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-xl text-stone-400 hover:text-stone-800 hover:bg-[#C5A059]/10 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -162,18 +162,18 @@ export default function DatabaseInspectorModal({ isOpen, onClose }) {
         {/* Content */}
         <div className="p-5 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
           <div className="flex items-center justify-between">
-            <span className="text-slate-300 font-semibold flex items-center gap-1.5">
-              <Lock className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="text-stone-700 font-semibold flex items-center gap-1.5">
+              <Lock className="w-3.5 h-3.5 text-emerald-600" />
               Row Level Security (RLS) Enforced
             </span>
             <button
               onClick={handleCopy}
-              className="px-3 py-1.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white/10 text-indigo-300 flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold glass-pill hover:bg-[#C5A059]/15 text-[#997328] flex items-center gap-1.5 cursor-pointer"
             >
               {copied ? (
                 <>
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="text-emerald-300">Copied SQL</span>
+                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                  <span className="text-emerald-700">Copied SQL</span>
                 </>
               ) : (
                 <>
@@ -184,20 +184,20 @@ export default function DatabaseInspectorModal({ isOpen, onClose }) {
             </button>
           </div>
 
-          <pre className="p-4 rounded-2xl bg-slate-950/90 border border-white/10 text-[11px] font-mono text-slate-300 overflow-x-auto max-h-[420px] leading-relaxed select-all">
+          <pre className="p-4 rounded-2xl bg-stone-900 border border-[#C5A059]/30 text-[11px] font-mono text-amber-100/90 overflow-x-auto max-h-[420px] leading-relaxed select-all shadow-inner">
             {SCHEMA_SQL}
           </pre>
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-white/10 bg-slate-900/60 flex items-center justify-end">
+        <div className="p-4 border-t border-[#C5A059]/20 bg-amber-50/40 flex items-center justify-end">
           <button
             type="button"
             onClick={() => {
               sounds.playTap();
               onClose();
             }}
-            className="px-4 py-2 rounded-xl text-xs font-semibold glass-pill hover:bg-white/10 text-slate-300"
+            className="px-4 py-2 rounded-xl text-xs font-semibold glass-pill hover:bg-stone-200 text-stone-700"
           >
             Close
           </button>

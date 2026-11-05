@@ -21,27 +21,27 @@ export default function EvidencePanel({ item }) {
   return (
     <div className="space-y-4">
       {/* Rule header card */}
-      <div className="glass-panel-subtle rounded-xl p-4 border border-white/10 space-y-2">
+      <div className="glass-panel-subtle rounded-xl p-4 border border-[#C5A059]/25 space-y-2 bg-white/80">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-slate-400">Rule Identifier</span>
-          <span className="text-xs font-mono text-indigo-300 font-semibold">
+          <span className="text-xs text-stone-500 font-medium">Rule Identifier</span>
+          <span className="text-xs font-mono text-[#8B6508] font-bold">
             {item.rule_id || 'onetap_canonical_v2'}
           </span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-xs text-slate-400">Rule Engine Version</span>
-          <span className="text-xs font-mono text-slate-300">
+          <span className="text-xs text-stone-500 font-medium">Rule Engine Version</span>
+          <span className="text-xs font-mono text-stone-800 font-semibold">
             One Tap {item.rule_version || '2.4.1'}
           </span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-xs text-slate-400">Scan Timestamp</span>
-          <span className="text-xs font-mono text-slate-300">
+          <span className="text-xs text-stone-500 font-medium">Scan Timestamp</span>
+          <span className="text-xs font-mono text-stone-800">
             {item.last_scanned_at ? new Date(item.last_scanned_at).toLocaleString() : 'Pending'}
           </span>
         </div>
-        <div className="flex items-center justify-between pt-1 border-t border-white/5">
-          <span className="text-xs text-slate-400">Provenance</span>
+        <div className="flex items-center justify-between pt-1 border-t border-[#C5A059]/15">
+          <span className="text-xs text-stone-500 font-medium">Provenance</span>
           <SourceBadge source={item.status_source} />
         </div>
       </div>
@@ -49,7 +49,7 @@ export default function EvidencePanel({ item }) {
       {/* Preflight Checks Breakdown */}
       {checks.length > 0 && (
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-[#8B6508] mb-2">
             Local Preflight Verifications
           </h4>
           <div className="space-y-2">
@@ -58,18 +58,18 @@ export default function EvidencePanel({ item }) {
                 key={check.id}
                 className={`p-3 rounded-xl border flex items-start gap-3 ${
                   check.passed
-                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
-                    : 'bg-rose-500/10 border-rose-500/20 text-rose-300'
+                    ? 'bg-emerald-50/80 border-emerald-300 text-emerald-950'
+                    : 'bg-rose-50 border-rose-300 text-rose-950'
                 }`}
               >
                 {check.passed ? (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 ) : (
-                  <XCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                  <XCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                 )}
                 <div className="text-xs">
-                  <div className="font-semibold text-slate-200">{check.name}</div>
-                  <div className="text-slate-400 mt-0.5 font-mono">{check.detail}</div>
+                  <div className="font-bold text-stone-900">{check.name}</div>
+                  <div className="text-stone-600 mt-0.5 font-mono">{check.detail}</div>
                 </div>
               </div>
             ))}
@@ -80,14 +80,14 @@ export default function EvidencePanel({ item }) {
       {/* Matched safe folders list */}
       {evidence.matched_folders && evidence.matched_folders.length > 0 && (
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
-            <FolderTree className="w-3.5 h-3.5 text-indigo-400" />
+          <h4 className="text-xs font-bold uppercase tracking-wider text-[#8B6508] mb-2 flex items-center gap-1.5">
+            <FolderTree className="w-3.5 h-3.5 text-[#B8860B]" />
             Verified Folder Structures
           </h4>
-          <div className="glass-panel-subtle rounded-xl p-3 border border-white/10 space-y-1.5">
+          <div className="glass-panel-subtle rounded-xl p-3 border border-[#C5A059]/25 space-y-1.5 bg-white/80">
             {evidence.matched_folders.map((folder, idx) => (
-              <div key={idx} className="flex items-center gap-2 text-xs font-mono text-slate-300">
-                <span className="text-indigo-400">✓</span>
+              <div key={idx} className="flex items-center gap-2 text-xs font-mono text-stone-800">
+                <span className="text-[#B8860B] font-bold">✓</span>
                 <span className="truncate">{folder}</span>
               </div>
             ))}
@@ -98,17 +98,17 @@ export default function EvidencePanel({ item }) {
       {/* Output verification record if rendered */}
       {evidence.rendered_file && (
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2 flex items-center gap-1.5">
-            <FileCheck className="w-3.5 h-3.5" />
+          <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-900 mb-2 flex items-center gap-1.5">
+            <FileCheck className="w-3.5 h-3.5 text-emerald-600" />
             Verified Output Artifact
           </h4>
-          <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-xl p-3 text-xs space-y-1.5 font-mono">
-            <div className="text-emerald-200 break-all font-semibold">{evidence.rendered_file}</div>
+          <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-3 text-xs space-y-1.5 font-mono">
+            <div className="text-emerald-950 break-all font-bold">{evidence.rendered_file}</div>
             {evidence.checksum && (
-              <div className="text-slate-400 text-[11px]">Checksum: {evidence.checksum}</div>
+              <div className="text-stone-600 text-[11px]">Checksum: {evidence.checksum}</div>
             )}
             {evidence.file_size_gb && (
-              <div className="text-slate-400 text-[11px]">Master Size: {evidence.file_size_gb} GB</div>
+              <div className="text-stone-600 text-[11px]">Master Size: {evidence.file_size_gb} GB</div>
             )}
           </div>
         </div>
@@ -116,23 +116,18 @@ export default function EvidencePanel({ item }) {
 
       {/* Issue details if correction needed */}
       {evidence.issue_description && (
-        <div className="bg-rose-500/10 border border-rose-500/30 rounded-xl p-4">
-          <div className="flex items-center gap-2 text-rose-300 font-bold text-xs mb-1">
-            <AlertTriangle className="w-4 h-4 text-rose-400" />
+        <div className="bg-rose-50 border border-rose-300 rounded-xl p-4">
+          <div className="flex items-center gap-2 text-rose-800 font-bold text-xs mb-1">
+            <AlertTriangle className="w-4 h-4 text-rose-600" />
             Preflight Failure Summary
           </div>
-          <p className="text-xs text-rose-200 mb-2 leading-relaxed">
+          <p className="text-xs text-rose-900 mb-2 leading-relaxed">
             {evidence.issue_description}
           </p>
           {evidence.rule_finding && (
-            <div className="p-2.5 rounded-lg bg-black/40 border border-rose-500/20 text-[11px] font-mono text-rose-300">
+            <div className="p-2.5 rounded-lg bg-white/90 border border-rose-300 text-[11px] font-mono text-rose-950">
               {evidence.rule_finding}
             </div>
-          )}
-          {evidence.recommended_action && (
-            <p className="text-[11px] text-amber-300 mt-2 font-medium">
-              💡 Action: {evidence.recommended_action}
-            </p>
           )}
         </div>
       )}

@@ -38,16 +38,13 @@ export default function App() {
     triggerBridgeScan
   } = useApp();
 
-  // Navigation state: 'overview' | 'work' | 'corrections' | 'notifications'
   const [currentView, setCurrentView] = useState('overview');
 
-  // Filter & Search state
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAssignee, setSelectedAssignee] = useState('all');
   const [activeStage, setActiveStage] = useState(null);
   const [isMyWorkOnly, setIsMyWorkOnly] = useState(false);
 
-  // Modals state
   const [inspectedItem, setInspectedItem] = useState(null);
   const [renderItem, setRenderItem] = useState(null);
   const [correctionItem, setCorrectionItem] = useState(null);
@@ -57,25 +54,17 @@ export default function App() {
   const [isBridgeOpen, setIsBridgeOpen] = useState(false);
   const [isDbInspectorOpen, setIsDbInspectorOpen] = useState(false);
 
-  // Filtered items computation
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
-      // 1. My Work filter
       if (isMyWorkOnly && item.assigned_user_id !== currentUser.id) {
         return false;
       }
-
-      // 2. Assignee dropdown filter
       if (selectedAssignee !== 'all' && item.assigned_user_id !== selectedAssignee) {
         return false;
       }
-
-      // 3. Stage filter
       if (activeStage && item.status !== activeStage) {
         return false;
       }
-
-      // 4. Search query
       if (searchQuery.trim().length > 0) {
         const query = searchQuery.toLowerCase();
         const matchesLabel = item.display_label.toLowerCase().includes(query);
@@ -83,14 +72,13 @@ export default function App() {
         const matchesFile = item.evidence_summary?.project_file?.toLowerCase().includes(query);
         if (!matchesLabel && !matchesKey && !matchesFile) return false;
       }
-
       return true;
     });
   }, [items, isMyWorkOnly, currentUser.id, selectedAssignee, activeStage, searchQuery]);
 
   return (
     <GlassShell>
-      {/* Top Glass Sticky Header */}
+      {/* Top Sticky Glass Header */}
       <GlassTopBar
         currentView={currentView}
         onNavigate={setCurrentView}
@@ -101,7 +89,6 @@ export default function App() {
 
       {/* Main Content Layout with Desktop Sidebar Rail */}
       <div className="flex-1 max-w-7xl w-full mx-auto flex">
-        {/* Desktop Sidebar Rail */}
         <GlassNav
           currentView={currentView}
           onNavigate={setCurrentView}
@@ -116,19 +103,19 @@ export default function App() {
           {/* VIEW 1: OVERVIEW & PIPELINE DASHBOARD */}
           {currentView === 'overview' && (
             <div className="space-y-8 animate-fadeIn">
-              {/* Hero Banner with Quick One-Tap Actions */}
-              <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-white/10 relative overflow-hidden bg-gradient-to-r from-indigo-900/20 via-purple-900/10 to-transparent">
+              {/* Islamic Golden Hero Banner */}
+              <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-[#C5A059]/35 relative overflow-hidden bg-gradient-to-r from-amber-100/80 via-yellow-50/60 to-white/90 shadow-sm">
                 <div className="relative z-10 max-w-2xl">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold glass-pill text-cyan-300 border border-cyan-500/30 mb-3">
-                    <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>AnyShare • Anything Ecosystem Bridge</span>
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold glass-pill text-[#8B6508] border border-amber-300/80 bg-white/80 mb-3 shadow-xs">
+                    <Sparkles className="w-3.5 h-3.5 text-[#B8860B]" />
+                    <span>AnyShare • Islamic Golden Edition</span>
                   </div>
 
-                  <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight mb-2">
+                  <h2 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight leading-tight mb-2">
                     Production Status & Remote One Tap Bridge
                   </h2>
 
-                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6">
+                  <p className="text-xs sm:text-sm text-stone-600 leading-relaxed mb-6 font-medium">
                     Monitor edit stages, verify folder rules deterministically, and trigger hardware renders directly from your mobile device or desktop.
                   </p>
 
@@ -139,7 +126,7 @@ export default function App() {
                         sounds.playTap();
                         setIsNewProductionOpen(true);
                       }}
-                      className="px-5 py-2.5 rounded-xl text-xs font-bold glass-button-primary flex items-center gap-2 cursor-pointer"
+                      className="px-5 py-2.5 rounded-xl text-xs font-bold glass-button-primary flex items-center gap-2 cursor-pointer shadow-md shadow-amber-900/15"
                     >
                       <FolderPlus className="w-4 h-4" />
                       <span>+ New Production Session</span>
@@ -148,15 +135,15 @@ export default function App() {
                     <button
                       type="button"
                       onClick={() => triggerBridgeScan()}
-                      className="px-4 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white/10 text-slate-200 flex items-center gap-2 transition-colors cursor-pointer"
+                      className="px-4 py-2.5 rounded-xl text-xs font-bold glass-pill hover:bg-white text-stone-800 flex items-center gap-2 transition-colors cursor-pointer border border-[#C5A059]/35 shadow-xs"
                     >
-                      <FolderSync className="w-4 h-4 text-cyan-400" />
+                      <FolderSync className="w-4 h-4 text-[#B8860B]" />
                       <span>Rescan Workstation Folders</span>
                     </button>
                   </div>
                 </div>
 
-                <div className="absolute -right-8 -bottom-8 w-64 h-64 rounded-full bg-cyan-500/10 blur-3xl pointer-events-none" />
+                <div className="absolute -right-8 -bottom-8 w-64 h-64 rounded-full bg-amber-300/25 blur-3xl pointer-events-none" />
               </div>
 
               {/* Stage Summary Component */}
@@ -169,8 +156,8 @@ export default function App() {
               <div id="work-list-section" className="space-y-4">
                 <div className="flex items-center justify-between px-1">
                   <div>
-                    <h3 className="text-base font-bold text-white">Active Productions</h3>
-                    <p className="text-xs text-slate-400">
+                    <h3 className="text-base font-extrabold text-stone-900">Active Productions</h3>
+                    <p className="text-xs text-stone-500 font-medium">
                       Showing {filteredItems.length} of {items.length} items
                     </p>
                   </div>
@@ -183,7 +170,7 @@ export default function App() {
                           sounds.playTap();
                           setActiveStage(null);
                         }}
-                        className="text-xs text-indigo-400 hover:text-indigo-300 cursor-pointer font-medium"
+                        className="text-xs text-[#8B6508] hover:text-[#B8860B] cursor-pointer font-bold"
                       >
                         Reset Filter
                       </button>
@@ -195,9 +182,9 @@ export default function App() {
                         sounds.playTap();
                         setIsNewProductionOpen(true);
                       }}
-                      className="px-3 py-1.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white/10 text-cyan-300 flex items-center gap-1.5 cursor-pointer"
+                      className="px-3 py-1.5 rounded-xl text-xs font-bold glass-pill hover:bg-white text-[#8B6508] flex items-center gap-1.5 cursor-pointer border border-[#C5A059]/35 shadow-xs"
                     >
-                      <FolderPlus className="w-3.5 h-3.5" />
+                      <FolderPlus className="w-3.5 h-3.5 text-[#B8860B]" />
                       <span>+ Add Session</span>
                     </button>
                   </div>
@@ -232,10 +219,10 @@ export default function App() {
             <div className="space-y-6 animate-fadeIn">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-white">
+                  <h2 className="text-xl font-extrabold text-stone-900">
                     {isAdmin ? 'All Production Work' : 'My Assigned Work'}
                   </h2>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-stone-500 font-medium">
                     Deterministic One Tap workflow lifecycle tracking
                   </p>
                 </div>
@@ -246,7 +233,7 @@ export default function App() {
                     sounds.playTap();
                     setIsNewProductionOpen(true);
                   }}
-                  className="px-4 py-2 rounded-xl text-xs font-bold glass-button-primary flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-bold glass-button-primary flex items-center gap-1.5 cursor-pointer shadow-md shadow-amber-900/15"
                 >
                   <FolderPlus className="w-3.5 h-3.5" />
                   <span>+ New Production</span>
@@ -296,7 +283,6 @@ export default function App() {
         </main>
       </div>
 
-      {/* Mobile Bottom Thumb Navigation */}
       <MobileBottomNav
         currentView={currentView}
         onNavigate={setCurrentView}
@@ -304,10 +290,8 @@ export default function App() {
         onOpenAccount={() => setIsAccountOpen(true)}
       />
 
-      {/* Floating Scroll-to-Top Button */}
       <ScrollToTop />
 
-      {/* 1. Item Detail & Evidence Inspector Modal */}
       <WorkDetailModal
         item={inspectedItem}
         isOpen={Boolean(inspectedItem)}
@@ -316,34 +300,30 @@ export default function App() {
         onReviewCorrection={(item) => setCorrectionItem(item)}
       />
 
-      {/* 2. One Tap Remote Render Action Modal */}
       <RenderActionModal
         item={renderItem}
         isOpen={Boolean(renderItem)}
         onClose={() => setRenderItem(null)}
       />
 
-      {/* 3. Admin Correction Review Modal */}
       <CorrectionReviewModal
         item={correctionItem}
         isOpen={Boolean(correctionItem)}
         onClose={() => setCorrectionItem(null)}
       />
 
-      {/* 4. New Production Modal */}
       <NewProductionModal
         isOpen={isNewProductionOpen}
         onClose={() => setIsNewProductionOpen(false)}
       />
 
-      {/* 5. Notifications Modal */}
       {isNotificationsOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-          <div className="glass-panel w-full sm:max-w-2xl max-h-[85vh] rounded-t-3xl sm:rounded-3xl border border-white/20 shadow-2xl p-6 overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-900/40 backdrop-blur-md animate-fadeIn">
+          <div className="glass-panel w-full sm:max-w-2xl max-h-[85vh] rounded-t-3xl sm:rounded-3xl border border-[#C5A059]/40 shadow-2xl p-6 overflow-y-auto bg-[#FAF8F5]/95">
             <div className="flex justify-end mb-2">
               <button
                 onClick={() => setIsNotificationsOpen(false)}
-                className="text-slate-400 hover:text-white text-xs px-3 py-1 rounded-lg glass-pill cursor-pointer"
+                className="text-stone-600 hover:text-stone-900 text-xs px-3 py-1 rounded-lg glass-pill cursor-pointer border border-[#C5A059]/30"
               >
                 Close
               </button>
@@ -358,13 +338,11 @@ export default function App() {
         </div>
       )}
 
-      {/* 6. Node Telemetry & Bridge Health Modal */}
       <BridgeHealthModal
         isOpen={isBridgeOpen}
         onClose={() => setIsBridgeOpen(false)}
       />
 
-      {/* 7. Account & Retention Modal */}
       <AccountModal
         isOpen={isAccountOpen}
         onClose={() => setIsAccountOpen(false)}
@@ -374,7 +352,6 @@ export default function App() {
         }}
       />
 
-      {/* 8. Supabase Database Schema Inspector Modal */}
       <DatabaseInspectorModal
         isOpen={isDbInspectorOpen}
         onClose={() => setIsDbInspectorOpen(false)}

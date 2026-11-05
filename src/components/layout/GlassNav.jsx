@@ -46,15 +46,15 @@ export default function GlassNav({
       label: 'Correction Queue',
       icon: ShieldAlert,
       badge: correctionCount > 0 ? correctionCount : null,
-      badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/30'
+      badgeColor: 'bg-rose-500/15 text-rose-800 border-rose-400/40'
     }] : [])
   ];
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 glass-panel border-r border-white/10 p-5 shrink-0 select-none">
+    <aside className="hidden lg:flex flex-col w-64 glass-panel border-r border-[#C5A059]/25 p-5 shrink-0 select-none bg-white/70">
       {/* Navigation Group */}
-      <div className="space-y-1 mb-8">
-        <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 px-3 mb-2">
+      <div className="space-y-1.5 mb-8">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-stone-500 px-3 mb-2">
           Workspace Navigation
         </div>
         {navItems.map((item) => {
@@ -71,18 +71,18 @@ export default function GlassNav({
               }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                 isActive
-                  ? 'bg-indigo-600/25 text-white border border-indigo-500/40 shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent'
+                  ? 'bg-gradient-to-r from-amber-100/90 to-amber-50/70 text-[#785406] border border-amber-400/50 shadow-xs font-bold'
+                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100/60 border border-transparent'
               }`}
             >
               <div className="flex items-center gap-3">
-                <Icon className={`w-4 h-4 ${isActive ? 'text-indigo-400' : 'text-slate-400'}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'text-[#B8860B]' : 'text-stone-500'}`} />
                 <span>{item.label}</span>
               </div>
 
               {item.badge !== null && item.badge !== undefined && (
                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                  item.badgeColor || 'bg-slate-800 text-slate-300 border-white/5'
+                  item.badgeColor || 'bg-stone-200/80 text-stone-700 border-stone-300'
                 }`}>
                   {item.badge}
                 </span>
@@ -93,8 +93,8 @@ export default function GlassNav({
       </div>
 
       {/* Systems & Diagnostics Section */}
-      <div className="space-y-1 mb-auto">
-        <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 px-3 mb-2">
+      <div className="space-y-1.5 mb-auto">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-stone-500 px-3 mb-2">
           Systems & Hardware
         </div>
 
@@ -104,13 +104,13 @@ export default function GlassNav({
             sounds.playTap();
             onOpenBridge();
           }}
-          className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-all cursor-pointer"
+          className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-stone-600 hover:text-stone-900 hover:bg-stone-100/60 transition-all cursor-pointer"
         >
           <div className="flex items-center gap-3">
-            <Cpu className="w-4 h-4 text-emerald-400" />
+            <Cpu className="w-4 h-4 text-emerald-600" />
             <span>One Tap Node</span>
           </div>
-          <span className="w-2 h-2 rounded-full bg-emerald-400" />
+          <span className="w-2 h-2 rounded-full bg-emerald-500" />
         </button>
 
         <button
@@ -119,14 +119,14 @@ export default function GlassNav({
             sounds.playTap();
             onOpenNotifications();
           }}
-          className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-all cursor-pointer"
+          className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-stone-600 hover:text-stone-900 hover:bg-stone-100/60 transition-all cursor-pointer"
         >
           <div className="flex items-center gap-3">
-            <Bell className="w-4 h-4 text-indigo-400" />
+            <Bell className="w-4 h-4 text-[#B8860B]" />
             <span>Notification Feed</span>
           </div>
           {unreadCount > 0 && (
-            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
+            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/15 text-rose-800 border border-rose-300">
               {unreadCount}
             </span>
           )}
@@ -138,23 +138,23 @@ export default function GlassNav({
             sounds.playTap();
             onOpenDbInspector();
           }}
-          className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-all cursor-pointer"
+          className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-stone-600 hover:text-stone-900 hover:bg-stone-100/60 transition-all cursor-pointer"
         >
           <div className="flex items-center gap-3">
-            <Database className="w-4 h-4 text-cyan-400" />
+            <Database className="w-4 h-4 text-amber-700" />
             <span>Supabase DDL</span>
           </div>
         </button>
       </div>
 
       {/* Footer Workstation Card */}
-      <div className="p-3 rounded-2xl glass-panel-subtle border border-white/5 text-xs space-y-1">
+      <div className="p-3.5 rounded-2xl glass-panel-subtle border border-[#C5A059]/20 text-xs space-y-1 bg-amber-50/50">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] text-slate-400">Node</span>
-          <span className="text-[10px] font-mono text-emerald-300 font-bold">ONLINE</span>
+          <span className="text-[11px] text-stone-500 font-medium">Node</span>
+          <span className="text-[10px] font-mono text-emerald-700 font-bold">ONLINE</span>
         </div>
-        <div className="text-white font-bold truncate">Studio-PC-01</div>
-        <div className="text-[10px] text-slate-400 truncate">NVENC 4K UHD Encoder</div>
+        <div className="text-stone-900 font-bold truncate">Studio-PC-01</div>
+        <div className="text-[10px] text-stone-500 truncate">NVENC 4K UHD Master Encoder</div>
       </div>
     </aside>
   );

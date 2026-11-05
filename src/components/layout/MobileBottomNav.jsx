@@ -24,7 +24,7 @@ export default function MobileBottomNav({
   const correctionCount = items.filter(i => i.status === 'correction_needed').length;
 
   return (
-    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 glass-panel border-t border-white/10 px-3 py-2 pb-safe backdrop-blur-2xl">
+    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 glass-panel border-t border-[#C5A059]/30 px-3 py-2 pb-safe backdrop-blur-2xl bg-white/90 shadow-lg">
       <div className="flex items-center justify-around">
         {/* 1. Overview */}
         <button
@@ -35,8 +35,8 @@ export default function MobileBottomNav({
           }}
           className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all cursor-pointer ${
             currentView === 'overview'
-              ? 'text-indigo-400 font-bold'
-              : 'text-slate-400 hover:text-slate-200 font-medium'
+              ? 'text-[#B8860B] font-bold'
+              : 'text-stone-500 hover:text-stone-800 font-medium'
           }`}
         >
           <LayoutDashboard className="w-5 h-5 mb-0.5" />
@@ -52,15 +52,15 @@ export default function MobileBottomNav({
           }}
           className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all cursor-pointer ${
             currentView === 'work'
-              ? 'text-indigo-400 font-bold'
-              : 'text-slate-400 hover:text-slate-200 font-medium'
+              ? 'text-[#B8860B] font-bold'
+              : 'text-stone-500 hover:text-stone-800 font-medium'
           }`}
         >
           <Briefcase className="w-5 h-5 mb-0.5" />
           <span className="text-[10px]">{isAdmin ? 'Work' : 'My Work'}</span>
         </button>
 
-        {/* 3. Corrections (if admin or if items require review) */}
+        {/* 3. Corrections */}
         {isAdmin && (
           <button
             type="button"
@@ -70,8 +70,8 @@ export default function MobileBottomNav({
             }}
             className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all cursor-pointer relative ${
               currentView === 'corrections'
-                ? 'text-rose-400 font-bold'
-                : 'text-slate-400 hover:text-slate-200 font-medium'
+                ? 'text-rose-700 font-bold'
+                : 'text-stone-500 hover:text-stone-800 font-medium'
             }`}
           >
             <ShieldAlert className="w-5 h-5 mb-0.5" />
@@ -91,14 +91,14 @@ export default function MobileBottomNav({
           }}
           className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all cursor-pointer relative ${
             currentView === 'notifications'
-              ? 'text-indigo-400 font-bold'
-              : 'text-slate-400 hover:text-slate-200 font-medium'
+              ? 'text-[#B8860B] font-bold'
+              : 'text-stone-500 hover:text-stone-800 font-medium'
           }`}
         >
           <Bell className="w-5 h-5 mb-0.5" />
           <span className="text-[10px]">Alerts</span>
           {unreadCount > 0 && (
-            <span className="absolute top-1 right-2 min-w-3.5 h-3.5 px-1 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center">
+            <span className="absolute top-1 right-2 min-w-3.5 h-3.5 px-1 rounded-full bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center">
               {unreadCount}
             </span>
           )}
@@ -111,7 +111,7 @@ export default function MobileBottomNav({
             sounds.playTap();
             onOpenAccount();
           }}
-          className="flex flex-col items-center justify-center p-2 rounded-xl text-slate-400 hover:text-slate-200 font-medium transition-all cursor-pointer"
+          className="flex flex-col items-center justify-center p-2 rounded-xl text-stone-500 hover:text-stone-800 font-medium transition-all cursor-pointer"
         >
           <User className="w-5 h-5 mb-0.5" />
           <span className="text-[10px]">Account</span>

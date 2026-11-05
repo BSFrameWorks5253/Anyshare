@@ -50,22 +50,22 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-900/40 backdrop-blur-md animate-fadeIn">
       <div 
-        className="glass-panel w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl border border-rose-500/30 shadow-2xl flex flex-col overflow-hidden text-left"
+        className="glass-panel w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl border border-rose-500/30 shadow-2xl flex flex-col overflow-hidden text-left bg-white/95"
         role="dialog"
       >
         {/* Header */}
-        <div className="p-5 border-b border-white/10 flex items-start justify-between gap-3 bg-rose-500/5">
+        <div className="p-5 border-b border-[#C5A059]/20 flex items-start justify-between gap-3 bg-gradient-to-r from-rose-50/70 to-amber-50/40">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-rose-500/20 border border-rose-500/30 text-rose-400">
+            <div className="p-2.5 rounded-2xl bg-rose-100 border border-rose-300 text-rose-700">
               <ShieldAlert className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">
+              <h2 className="text-base font-bold text-stone-900">
                 Admin Correction Review
               </h2>
-              <p className="text-xs text-rose-300 font-mono truncate max-w-[260px]">
+              <p className="text-xs text-rose-700 font-mono truncate max-w-[260px] font-semibold">
                 {item.display_label}
               </p>
             </div>
@@ -76,7 +76,7 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
               sounds.playTap();
               onClose();
             }}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-xl text-stone-400 hover:text-stone-800 hover:bg-[#C5A059]/10 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -85,23 +85,23 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
         {/* Body */}
         <div className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
           {/* Finding explanation */}
-          <div className="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-4 space-y-2">
-            <div className="flex items-center gap-2 text-rose-300 font-bold text-xs uppercase tracking-wider">
-              <AlertTriangle className="w-4 h-4 text-rose-400" />
+          <div className="bg-rose-50/80 border border-rose-300/60 rounded-2xl p-4 space-y-2">
+            <div className="flex items-center gap-2 text-rose-800 font-bold text-xs uppercase tracking-wider">
+              <AlertTriangle className="w-4 h-4 text-rose-600" />
               One Tap Rule Finding
             </div>
-            <p className="text-xs text-rose-200 leading-relaxed font-medium">
+            <p className="text-xs text-rose-900 leading-relaxed font-medium">
               {evidence.issue_description || 'Preflight checks detected ambiguous or conflicting file structures.'}
             </p>
             {evidence.rule_finding && (
-              <div className="p-2.5 rounded-xl bg-black/50 border border-rose-500/20 text-xs font-mono text-rose-300">
+              <div className="p-2.5 rounded-xl bg-white border border-rose-200 text-xs font-mono text-rose-800 shadow-sm">
                 {evidence.rule_finding}
               </div>
             )}
           </div>
 
           {/* Action selection tabs */}
-          <div className="grid grid-cols-2 gap-2 p-1 bg-slate-900/80 rounded-2xl border border-white/5">
+          <div className="grid grid-cols-2 gap-2 p-1 bg-amber-50/70 rounded-2xl border border-[#C5A059]/30">
             <button
               type="button"
               onClick={() => {
@@ -112,7 +112,7 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
               className={`py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 actionTab === 'confirm'
                   ? 'bg-emerald-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
+                  : 'text-stone-600 hover:text-stone-900'
               }`}
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
@@ -127,8 +127,8 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
               }}
               className={`py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 actionTab === 'correct'
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-[#997328] text-white shadow-sm'
+                  : 'text-stone-600 hover:text-stone-900'
               }`}
             >
               <Edit3 className="w-3.5 h-3.5" />
@@ -138,11 +138,11 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
 
           {/* TAB 1: Confirm Details */}
           {actionTab === 'confirm' && (
-            <div className="glass-panel-subtle rounded-2xl p-4 border border-white/10 space-y-3 text-xs text-slate-300">
+            <div className="bg-white/80 rounded-2xl p-4 border border-[#C5A059]/20 space-y-3 text-xs text-stone-700">
               <p className="leading-relaxed">
                 Confirming indicates you have manually verified the workstation folder assets and wish to approve this item as valid.
               </p>
-              <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300">
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-50 border border-emerald-500/25 text-emerald-800">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>Next state will transition to: <strong>Ready to Render</strong></span>
               </div>
@@ -153,13 +153,13 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
           {actionTab === 'correct' && (
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-600 mb-1.5">
                   Select Target Status
                 </label>
                 <select
                   value={selectedStatus}
                   onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="w-full bg-slate-900 border border-white/10 text-xs text-slate-200 rounded-xl p-2.5 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-white border border-[#C5A059]/30 text-xs text-stone-900 rounded-xl p-2.5 focus:outline-none focus:border-[#C5A059]"
                 >
                   <option value="pending_edit_1">Pending Edit 1</option>
                   <option value="edit_1">Edit 1</option>
@@ -174,8 +174,8 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                  Mandatory Audit Reason <span className="text-rose-400">*</span>
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-600 mb-1.5">
+                  Mandatory Audit Reason <span className="text-rose-500">*</span>
                 </label>
                 <textarea
                   value={reason}
@@ -185,7 +185,7 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
                   }}
                   rows={3}
                   placeholder="Explain why this status is being corrected (e.g., 'Deleted obsolete duplicate prproj and verified audio files on drive D')..."
-                  className="w-full bg-slate-900 border border-white/10 text-xs text-slate-200 rounded-xl p-3 focus:outline-none focus:border-indigo-500 placeholder-slate-500"
+                  className="w-full bg-white border border-[#C5A059]/30 text-xs text-stone-900 rounded-xl p-3 focus:outline-none focus:border-[#C5A059] placeholder-stone-400"
                 />
               </div>
             </div>
@@ -193,19 +193,19 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
 
           {/* Error Message */}
           {errorMsg && (
-            <div className="p-3 rounded-xl bg-rose-500/20 border border-rose-500/40 text-xs text-rose-200 flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+            <div className="p-3 rounded-xl bg-rose-50 border border-rose-300 text-xs text-rose-800 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0" />
               <span>{errorMsg}</span>
             </div>
           )}
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 border-t border-white/10 bg-slate-900/60 flex items-center justify-between gap-3">
+        <div className="p-4 border-t border-[#C5A059]/20 bg-amber-50/40 flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={handleRescan}
-            className="px-3.5 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white/10 text-indigo-300 flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-[#C5A059]/15 text-[#997328] flex items-center gap-1.5 cursor-pointer"
             title="Request fresh scan from One Tap"
           >
             <RefreshCw className="w-3.5 h-3.5" />
@@ -219,7 +219,7 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
                 sounds.playTap();
                 onClose();
               }}
-              className="px-4 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white/10 text-slate-300"
+              className="px-4 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-stone-200 text-stone-700"
             >
               Cancel
             </button>
@@ -228,7 +228,7 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
               <button
                 type="button"
                 onClick={handleConfirm}
-                className="px-5 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-950/40 transition-all cursor-pointer flex items-center gap-1.5"
+                className="px-5 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition-all cursor-pointer flex items-center gap-1.5"
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>Confirm Finding</span>
@@ -237,7 +237,7 @@ export default function CorrectionReviewModal({ item, isOpen, onClose }) {
               <button
                 type="button"
                 onClick={handleCorrect}
-                className="px-5 py-2.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-950/40 transition-all cursor-pointer flex items-center gap-1.5"
+                className="px-5 py-2.5 rounded-xl text-xs font-bold glass-button-primary text-white shadow-md transition-all cursor-pointer flex items-center gap-1.5"
               >
                 <Edit3 className="w-3.5 h-3.5" />
                 <span>Apply Correction</span>

@@ -36,22 +36,22 @@ export default function NewProductionModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-900/40 backdrop-blur-md animate-fadeIn">
       <div 
-        className="glass-panel w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl border border-white/20 shadow-2xl flex flex-col overflow-hidden text-left"
+        className="glass-panel w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl border border-[#C5A059]/40 shadow-2xl flex flex-col overflow-hidden text-left bg-[#FAF8F5]/95"
         role="dialog"
       >
         {/* Header */}
-        <div className="p-5 border-b border-white/10 flex items-start justify-between gap-3">
+        <div className="p-5 border-b border-[#C5A059]/20 flex items-start justify-between gap-3 bg-gradient-to-r from-amber-100/60 to-transparent">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 text-indigo-400">
-              <FolderPlus className="w-5 h-5" />
+            <div className="p-2.5 rounded-2xl bg-amber-500/20 border border-amber-400 text-amber-900">
+              <FolderPlus className="w-5 h-5 text-[#B8860B]" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">
+              <h2 className="text-base font-extrabold text-stone-900">
                 New Production Session
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-stone-500">
                 Register a verified Safar or editing session
               </p>
             </div>
@@ -62,7 +62,7 @@ export default function NewProductionModal({ isOpen, onClose }) {
               sounds.playTap();
               onClose();
             }}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-xl text-stone-400 hover:text-stone-800 hover:bg-stone-200/50 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -71,8 +71,8 @@ export default function NewProductionModal({ isOpen, onClose }) {
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-5 space-y-4 text-xs">
           <div>
-            <label className="block text-slate-300 font-semibold mb-1">
-              Production Title <span className="text-rose-400">*</span>
+            <label className="block text-stone-800 font-bold mb-1">
+              Production Title <span className="text-rose-600">*</span>
             </label>
             <input
               type="text"
@@ -85,12 +85,12 @@ export default function NewProductionModal({ isOpen, onClose }) {
                 }
               }}
               placeholder="e.g. Safar 2026 — Karbala Day 01 (Grand Procession)"
-              className="w-full bg-slate-900 border border-white/10 rounded-xl p-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+              className="w-full bg-white border border-[#C5A059]/30 rounded-xl p-3 text-stone-900 placeholder-stone-400 focus:outline-none focus:border-amber-500 font-medium"
             />
           </div>
 
           <div>
-            <label className="block text-slate-300 font-semibold mb-1">
+            <label className="block text-stone-800 font-bold mb-1">
               Stable Folder Identifier / External Key
             </label>
             <input
@@ -98,40 +98,40 @@ export default function NewProductionModal({ isOpen, onClose }) {
               value={externalKey}
               onChange={(e) => setExternalKey(e.target.value)}
               placeholder="e.g. safar_2026_karbala_day01"
-              className="w-full bg-slate-900 border border-white/10 rounded-xl p-3 text-slate-200 font-mono text-xs placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+              className="w-full bg-white border border-[#C5A059]/30 rounded-xl p-3 text-stone-800 font-mono text-xs placeholder-stone-400 focus:outline-none focus:border-amber-500 font-semibold"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-300 font-semibold mb-1">
+              <label className="block text-stone-800 font-bold mb-1">
                 Verified Raw Clips
               </label>
               <input
                 type="number"
                 value={rawClipsCount}
                 onChange={(e) => setRawClipsCount(e.target.value)}
-                className="w-full bg-slate-900 border border-white/10 rounded-xl p-3 text-slate-200 focus:outline-none focus:border-indigo-500 font-mono"
+                className="w-full bg-white border border-[#C5A059]/30 rounded-xl p-3 text-stone-800 focus:outline-none focus:border-amber-500 font-mono font-bold"
               />
             </div>
             <div>
-              <label className="block text-slate-300 font-semibold mb-1">
+              <label className="block text-stone-800 font-bold mb-1">
                 Assigned Lead
               </label>
-              <div className="w-full bg-slate-900 border border-white/10 rounded-xl p-3 text-slate-300 truncate">
+              <div className="w-full bg-stone-100 border border-[#C5A059]/20 rounded-xl p-3 text-stone-800 font-semibold truncate">
                 {currentUser.name}
               </div>
             </div>
           </div>
 
           <div>
-            <label className="block text-slate-300 font-semibold mb-1">
+            <label className="block text-stone-800 font-bold mb-1">
               Render Output Preset
             </label>
             <select
               value={targetPreset}
               onChange={(e) => setTargetPreset(e.target.value)}
-              className="w-full bg-slate-900 border border-white/10 rounded-xl p-3 text-slate-200 focus:outline-none focus:border-indigo-500"
+              className="w-full bg-white border border-[#C5A059]/30 rounded-xl p-3 text-stone-800 focus:outline-none focus:border-amber-500 font-medium"
             >
               <option value="YouTube 4K UHD 59.94fps Master Rec.709">YouTube 4K UHD 59.94fps Master Rec.709</option>
               <option value="ProRes 422 HQ Master Archive">ProRes 422 HQ Master Archive</option>
@@ -141,14 +141,14 @@ export default function NewProductionModal({ isOpen, onClose }) {
           </div>
 
           {/* Action buttons */}
-          <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-3">
+          <div className="pt-3 border-t border-[#C5A059]/20 flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={() => {
                 sounds.playTap();
                 onClose();
               }}
-              className="px-4 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white/10 text-slate-300"
+              className="px-4 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white text-stone-700"
             >
               Cancel
             </button>

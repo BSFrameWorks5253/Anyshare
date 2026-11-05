@@ -36,12 +36,11 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
   const isRendering = item.status === 'rendering';
   const isChecking = item.status === 'checking' || item.status === 'render_requested';
   const isCorrection = item.status === 'correction_needed';
-  const isDone = item.status === 'done';
 
   const progressPercent = item.evidence_summary?.render_progress || 0;
 
   return (
-    <div className="glass-card rounded-2xl p-5 border border-white/10 relative overflow-hidden flex flex-col justify-between group">
+    <div className="glass-card rounded-2xl p-5 border border-[#C5A059]/25 relative overflow-hidden flex flex-col justify-between group bg-white/80 shadow-sm hover:shadow-md transition-all">
       {/* Top row: Status & Source */}
       <div>
         <div className="flex items-center justify-between gap-2 mb-3">
@@ -55,28 +54,28 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
             sounds.playTap();
             onInspect(item);
           }}
-          className="text-base font-bold text-white group-hover:text-indigo-300 transition-colors line-clamp-2 cursor-pointer mb-1 leading-snug"
+          className="text-base font-extrabold text-stone-900 group-hover:text-[#996515] transition-colors line-clamp-2 cursor-pointer mb-1 leading-snug"
         >
           {item.display_label}
         </h3>
 
         <div className="flex items-center gap-2 mb-3">
-          <span className="text-xs font-mono text-slate-400 truncate max-w-[220px]" title={item.external_key}>
+          <span className="text-xs font-mono text-stone-500 truncate max-w-[220px]" title={item.external_key}>
             {item.external_key}
           </span>
           {item.is_stale && (
-            <span className="text-[10px] font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/30 px-1.5 py-0.5 rounded">
+            <span className="text-[10px] font-bold text-amber-800 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded">
               Stale Scan
             </span>
           )}
         </div>
 
         {/* Evidence preview snippet */}
-        <div className="glass-panel-subtle rounded-xl p-3 mb-4 text-xs text-slate-300 space-y-1.5">
+        <div className="glass-panel-subtle rounded-xl p-3 mb-4 text-xs text-stone-700 space-y-1.5 bg-amber-50/40 border border-[#C5A059]/15">
           {item.evidence_summary?.project_file && (
             <div className="flex items-center justify-between">
-              <span className="text-slate-400">Premiere Project:</span>
-              <span className="font-mono text-slate-200 truncate max-w-[160px]">
+              <span className="text-stone-500">Premiere Project:</span>
+              <span className="font-mono text-stone-800 truncate max-w-[160px] font-medium">
                 {item.evidence_summary.project_file}
               </span>
             </div>
@@ -84,8 +83,8 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
 
           {item.evidence_summary?.raw_clips_count !== undefined && (
             <div className="flex items-center justify-between">
-              <span className="text-slate-400">Raw Media Clips:</span>
-              <span className="font-semibold text-slate-200">
+              <span className="text-stone-500">Raw Media Clips:</span>
+              <span className="font-semibold text-stone-800">
                 {item.evidence_summary.raw_clips_count} verified clips
               </span>
             </div>
@@ -93,20 +92,20 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
 
           {item.evidence_summary?.rendered_file && (
             <div className="flex items-center justify-between">
-              <span className="text-slate-400">Master Output:</span>
-              <span className="font-mono text-emerald-300 truncate max-w-[160px]">
+              <span className="text-stone-500">Master Output:</span>
+              <span className="font-mono text-emerald-800 font-semibold truncate max-w-[160px]">
                 {item.evidence_summary.rendered_file.split('/').pop()}
               </span>
             </div>
           )}
 
           {isCorrection && (
-            <div className="text-rose-300 bg-rose-500/10 p-2 rounded-lg border border-rose-500/20">
-              <p className="font-semibold flex items-center gap-1.5 mb-0.5">
-                <AlertTriangle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+            <div className="text-rose-900 bg-rose-50 p-2.5 rounded-lg border border-rose-300">
+              <p className="font-bold flex items-center gap-1.5 mb-0.5 text-rose-800">
+                <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
                 Action Required
               </p>
-              <p className="text-[11px] text-rose-200 line-clamp-2">
+              <p className="text-[11px] text-rose-800 line-clamp-2">
                 {item.evidence_summary?.issue_description || 'Preflight detected conflicting project files or missing assets.'}
               </p>
             </div>
@@ -115,16 +114,16 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
           {/* Active rendering live progress */}
           {isRendering && (
             <div className="space-y-1.5 pt-1">
-              <div className="flex items-center justify-between text-xs font-semibold">
-                <span className="text-amber-300 flex items-center gap-1">
-                  <Cpu className="w-3.5 h-3.5 animate-spin text-amber-400" />
+              <div className="flex items-center justify-between text-xs font-bold">
+                <span className="text-amber-800 flex items-center gap-1">
+                  <Cpu className="w-3.5 h-3.5 animate-spin text-amber-600" />
                   NVENC GPU Encoding
                 </span>
-                <span className="font-mono text-amber-200">{progressPercent}%</span>
+                <span className="font-mono text-amber-900">{progressPercent}%</span>
               </div>
-              <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden border border-white/5">
+              <div className="w-full h-2 rounded-full bg-stone-200 overflow-hidden border border-amber-300/40">
                 <div
-                  className="h-full bg-gradient-to-r from-amber-500 to-indigo-500 rounded-full transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full transition-all duration-300"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
@@ -133,8 +132,8 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
 
           {/* Checking status */}
           {isChecking && (
-            <div className="flex items-center gap-2 text-xs text-indigo-300 py-1">
-              <span className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-indigo-400 border-t-transparent" />
+            <div className="flex items-center gap-2 text-xs text-amber-800 py-1 font-semibold">
+              <span className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-amber-600 border-t-transparent" />
               <span>One Tap Bridge running preflight checks...</span>
             </div>
           )}
@@ -142,36 +141,34 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
       </div>
 
       {/* Bottom section: Assignee, Scan Time & Primary Button */}
-      <div className="pt-3 border-t border-white/10 space-y-3">
-        <div className="flex items-center justify-between text-xs text-slate-400">
-          {/* Assigned user avatar & name */}
+      <div className="pt-3 border-t border-[#C5A059]/20 space-y-3">
+        <div className="flex items-center justify-between text-xs text-stone-500">
           <div className="flex items-center gap-2">
             {assignedUser?.avatar ? (
               <img
                 src={assignedUser.avatar}
                 alt={assignedUser.name}
-                className="w-5 h-5 rounded-full object-cover border border-white/20"
+                className="w-5 h-5 rounded-full object-cover border border-amber-300"
               />
             ) : (
-              <div className="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center text-[10px] text-slate-300">
+              <div className="w-5 h-5 rounded-full bg-stone-200 flex items-center justify-center text-[10px] text-stone-600">
                 <User className="w-3 h-3" />
               </div>
             )}
-            <span className={`truncate max-w-[110px] ${isAssignedToCurrent ? 'text-indigo-300 font-semibold' : 'text-slate-300'}`}>
+            <span className={`truncate max-w-[110px] ${isAssignedToCurrent ? 'text-amber-900 font-bold' : 'text-stone-700'}`}>
               {assignedUser ? assignedUser.name : 'Unassigned'}
             </span>
           </div>
 
-          {/* Freshness / Scan age */}
           <div className="flex items-center gap-1 text-[11px]" title={`Last checked: ${item.last_scanned_at}`}>
-            <Clock className="w-3 h-3 text-slate-500" />
+            <Clock className="w-3 h-3 text-stone-400" />
             <span>{timeAgo(item.last_scanned_at)}</span>
           </div>
         </div>
 
         {/* Action Button Row */}
         <div className="flex items-center gap-2">
-          {/* 1. START RENDER (The prominent One Tap mobile trigger) */}
+          {/* 1. START RENDER (Islamic Royal Gold button) */}
           {isEligibleForRender && (
             <button
               type="button"
@@ -180,7 +177,7 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
                 sounds.playTap();
                 onStartRender(item);
               }}
-              className="flex-1 py-2.5 px-3 rounded-xl text-xs font-bold glass-button-primary flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:border-slate-700"
+              className="flex-1 py-2.5 px-3 rounded-xl text-xs font-bold glass-button-primary flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               title={!bridge.is_online ? 'Disabled: One Tap Bridge workstation is offline' : 'Start One Tap Render'}
             >
               <Play className="w-3.5 h-3.5 fill-current" />
@@ -196,7 +193,7 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
                 sounds.playTap();
                 onReviewCorrection(item);
               }}
-              className="flex-1 py-2.5 px-3 rounded-xl text-xs font-bold bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              className="flex-1 py-2.5 px-3 rounded-xl text-xs font-bold bg-rose-100 hover:bg-rose-200 text-rose-900 border border-rose-300 flex items-center justify-center gap-2 transition-colors cursor-pointer"
             >
               <AlertTriangle className="w-3.5 h-3.5" />
               <span>{isAdmin ? 'Review & Correct' : 'View Issue'}</span>
@@ -211,14 +208,14 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
                 sounds.playTap();
                 onInspect(item);
               }}
-              className="flex-1 py-2.5 px-3 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center gap-2 cursor-pointer"
+              className="flex-1 py-2.5 px-3 rounded-xl text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <Cpu className="w-3.5 h-3.5 animate-pulse" />
+              <Cpu className="w-3.5 h-3.5 animate-pulse text-amber-700" />
               <span>View Progress</span>
             </button>
           )}
 
-          {/* 4. COMPLETED OR OTHER STAGE */}
+          {/* 4. COMPLETED OR INSPECT */}
           {!isEligibleForRender && !isCorrection && !isRendering && (
             <button
               type="button"
@@ -226,9 +223,9 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
                 sounds.playTap();
                 onInspect(item);
               }}
-              className="flex-1 py-2.5 px-3 rounded-xl text-xs font-semibold glass-pill hover:bg-white/10 text-slate-200 flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              className="flex-1 py-2.5 px-3 rounded-xl text-xs font-bold glass-pill hover:bg-white text-stone-800 flex items-center justify-center gap-2 transition-colors cursor-pointer border border-[#C5A059]/30"
             >
-              <FileSearch className="w-3.5 h-3.5 text-indigo-400" />
+              <FileSearch className="w-3.5 h-3.5 text-[#B8860B]" />
               <span>Inspect Details</span>
             </button>
           )}

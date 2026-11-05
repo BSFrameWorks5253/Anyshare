@@ -4,17 +4,17 @@ import { Cpu, CheckCircle2, Edit3, Shield } from 'lucide-react';
 export default function SourceBadge({ source }) {
   if (source === 'onetap_detected' || source === 'onetap') {
     return (
-      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-md">
-        <Cpu className="w-3 h-3 text-indigo-400" />
-        Detected by One Tap
+      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-900 bg-amber-100/80 border border-amber-300/80 px-2 py-0.5 rounded-md">
+        <Cpu className="w-3 h-3 text-[#B8860B]" />
+        One Tap Detected
       </span>
     );
   }
 
   if (source === 'admin_confirmed') {
     return (
-      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md">
-        <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-900 bg-emerald-100/80 border border-emerald-300/80 px-2 py-0.5 rounded-md">
+        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
         Admin Confirmed
       </span>
     );
@@ -22,16 +22,16 @@ export default function SourceBadge({ source }) {
 
   if (source === 'admin_corrected') {
     return (
-      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-300 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md">
-        <Edit3 className="w-3 h-3 text-amber-400" />
+      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-950 bg-amber-200/70 border border-amber-400 px-2 py-0.5 rounded-md">
+        <Edit3 className="w-3 h-3 text-amber-700" />
         Admin Corrected
       </span>
     );
   }
 
   return (
-    <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-400 bg-slate-800/40 border border-slate-700/50 px-2 py-0.5 rounded-md">
-      <Shield className="w-3 h-3 text-slate-400" />
+    <span className="inline-flex items-center gap-1 text-[11px] font-medium text-stone-700 bg-stone-100 border border-stone-300 px-2 py-0.5 rounded-md">
+      <Shield className="w-3 h-3 text-stone-500" />
       System
     </span>
   );

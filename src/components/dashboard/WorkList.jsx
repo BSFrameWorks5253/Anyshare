@@ -13,14 +13,14 @@ export default function WorkList({
 }) {
   if (items.length === 0) {
     return (
-      <div className="glass-panel rounded-3xl p-10 sm:p-14 text-center border border-white/10 my-6 max-w-xl mx-auto space-y-5">
-        <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-indigo-600/30 via-purple-600/20 to-cyan-500/30 border border-white/15 text-indigo-300 flex items-center justify-center mx-auto shadow-xl shadow-indigo-950/40">
-          <Layers className="w-8 h-8" />
+      <div className="glass-panel rounded-3xl p-10 sm:p-14 text-center border border-[#C5A059]/30 my-6 max-w-xl mx-auto space-y-5 bg-white/80 shadow-sm">
+        <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-[#D4AF37]/25 via-amber-100 to-amber-50 border border-[#C5A059]/40 text-[#997328] flex items-center justify-center mx-auto shadow-md">
+          <Layers className="w-8 h-8 text-[#997328]" />
         </div>
 
         <div>
-          <h3 className="text-lg font-bold text-white mb-1.5">No Active Production Items</h3>
-          <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
+          <h3 className="text-lg font-bold text-stone-900 mb-1.5">No Active Production Items</h3>
+          <p className="text-xs text-stone-600 max-w-md mx-auto leading-relaxed">
             There are currently no productions loaded. You can trigger a folder scan from your One Tap workstation or create a new production session directly.
           </p>
         </div>
@@ -47,9 +47,9 @@ export default function WorkList({
                 sounds.playTap();
                 onRefreshScan();
               }}
-              className="px-4 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white/10 text-slate-200 flex items-center gap-2 transition-colors cursor-pointer"
+              className="px-4 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-stone-200 text-stone-700 flex items-center gap-2 transition-colors cursor-pointer"
             >
-              <RefreshCw className="w-4 h-4 text-indigo-400" />
+              <RefreshCw className="w-4 h-4 text-[#997328]" />
               <span>Scan Workstation</span>
             </button>
           )}

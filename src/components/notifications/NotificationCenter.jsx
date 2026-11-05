@@ -60,15 +60,15 @@ export default function NotificationCenter({ onSelectItem }) {
   const getKindIcon = (kind) => {
     switch (kind) {
       case 'render_completed':
-        return <CheckCircle2 className="w-4 h-4 text-emerald-400" />;
+        return <CheckCircle2 className="w-4 h-4 text-emerald-600" />;
       case 'render_started':
-        return <Play className="w-4 h-4 text-amber-400" />;
+        return <Play className="w-4 h-4 text-[#C5A059]" />;
       case 'correction_needed':
-        return <AlertTriangle className="w-4 h-4 text-rose-400" />;
+        return <AlertTriangle className="w-4 h-4 text-rose-500" />;
       case 'assigned':
-        return <Send className="w-4 h-4 text-indigo-400" />;
+        return <Send className="w-4 h-4 text-[#997328]" />;
       default:
-        return <Bell className="w-4 h-4 text-slate-400" />;
+        return <Bell className="w-4 h-4 text-stone-500" />;
     }
   };
 
@@ -86,20 +86,20 @@ export default function NotificationCenter({ onSelectItem }) {
   return (
     <div className="space-y-6">
       {/* Header card with Web Push Toggle */}
-      <div className="glass-panel rounded-3xl p-6 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="glass-panel rounded-3xl p-6 border border-[#C5A059]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/80">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Bell className="w-5 h-5 text-indigo-400" />
+            <h2 className="text-xl font-bold text-stone-900 flex items-center gap-2">
+              <Bell className="w-5 h-5 text-[#997328]" />
               Notifications Inbox
             </h2>
             {unreadCount > 0 && (
-              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-[#997328] border border-[#C5A059]/40">
                 {unreadCount} unread
               </span>
             )}
           </div>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-stone-600">
             Real-time verified status alerts from One Tap workstation. Retained for 30 days.
           </p>
         </div>
@@ -111,8 +111,8 @@ export default function NotificationCenter({ onSelectItem }) {
             onClick={handleTogglePush}
             className={`px-4 py-2.5 rounded-xl text-xs font-semibold border flex items-center gap-2 transition-all cursor-pointer ${
               pushEnabled
-                ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
-                : 'glass-pill text-slate-400 hover:text-slate-200'
+                ? 'bg-emerald-50 border-emerald-500/30 text-emerald-800'
+                : 'glass-pill text-stone-600 hover:text-stone-900'
             }`}
           >
             <BellRing className="w-4 h-4" />
@@ -123,9 +123,9 @@ export default function NotificationCenter({ onSelectItem }) {
             <button
               type="button"
               onClick={markAllNotificationsRead}
-              className="px-3.5 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white/10 text-slate-300 flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-2.5 rounded-xl text-xs font-semibold glass-pill hover:bg-stone-200 text-stone-700 flex items-center gap-1.5 cursor-pointer"
             >
-              <CheckCheck className="w-4 h-4 text-indigo-400" />
+              <CheckCheck className="w-4 h-4 text-[#997328]" />
               <span className="hidden sm:inline">Mark all read</span>
             </button>
           )}
@@ -143,8 +143,8 @@ export default function NotificationCenter({ onSelectItem }) {
             }}
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 transition-colors cursor-pointer capitalize ${
               filterKind === k
-                ? 'bg-indigo-600 text-white'
-                : 'glass-panel-subtle text-slate-400 hover:text-slate-200'
+                ? 'bg-[#997328] text-white shadow-sm'
+                : 'bg-white/70 border border-[#C5A059]/20 text-stone-600 hover:text-stone-900'
             }`}
           >
             {k === 'all' ? 'All Alerts' : k.replace('_', ' ')}
@@ -154,12 +154,12 @@ export default function NotificationCenter({ onSelectItem }) {
 
       {/* Notifications List */}
       {filteredNotifications.length === 0 ? (
-        <div className="glass-panel rounded-3xl p-12 text-center border border-white/10">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto mb-4">
+        <div className="glass-panel rounded-3xl p-12 text-center border border-[#C5A059]/25 bg-white/80">
+          <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-[#C5A059]/30 text-[#997328] flex items-center justify-center mx-auto mb-4">
             <Bell className="w-6 h-6" />
           </div>
-          <h3 className="text-base font-bold text-white mb-1">Inbox Zero</h3>
-          <p className="text-xs text-slate-400 max-w-sm mx-auto">
+          <h3 className="text-base font-bold text-stone-900 mb-1">Inbox Zero</h3>
+          <p className="text-xs text-stone-600 max-w-sm mx-auto">
             You have no notifications in this category. Render completions and correction requests will show up here.
           </p>
         </div>
@@ -181,33 +181,33 @@ export default function NotificationCenter({ onSelectItem }) {
                 }}
                 className={`glass-panel rounded-2xl p-4 border transition-all cursor-pointer flex items-start gap-4 ${
                   isUnread
-                    ? 'border-indigo-500/40 bg-indigo-500/5 hover:bg-indigo-500/10'
-                    : 'border-white/10 hover:bg-white/5 opacity-80'
+                    ? 'border-[#C5A059] bg-amber-50/70 hover:bg-amber-50 shadow-sm'
+                    : 'border-[#C5A059]/20 bg-white/80 hover:bg-white/95'
                 }`}
               >
-                <div className="p-2.5 rounded-xl bg-slate-900 border border-white/10 shrink-0 mt-0.5">
+                <div className="p-2.5 rounded-xl bg-amber-50/80 border border-[#C5A059]/30 shrink-0 mt-0.5">
                   {getKindIcon(notif.kind)}
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <h4 className={`text-sm font-bold truncate ${isUnread ? 'text-white' : 'text-slate-300'}`}>
+                    <h4 className={`text-sm font-bold truncate ${isUnread ? 'text-stone-900' : 'text-stone-800'}`}>
                       {notif.title}
                     </h4>
-                    <span className="text-[11px] text-slate-400 shrink-0 flex items-center gap-1 font-mono">
-                      <Clock className="w-3 h-3 text-slate-500" />
+                    <span className="text-[11px] text-stone-500 shrink-0 flex items-center gap-1 font-mono">
+                      <Clock className="w-3 h-3 text-[#997328]" />
                       {timeAgo(notif.created_at)}
                     </span>
                   </div>
 
-                  <p className="text-xs text-slate-300 leading-relaxed mb-2">
+                  <p className="text-xs text-stone-600 leading-relaxed mb-2">
                     {notif.message}
                   </p>
 
-                  <div className="flex items-center gap-3 text-[11px] text-slate-400">
-                    <span className="capitalize">Channel: <strong className="text-slate-300">{notif.delivery_state}</strong></span>
+                  <div className="flex items-center gap-3 text-[11px] text-stone-500">
+                    <span className="capitalize">Channel: <strong className="text-stone-700">{notif.delivery_state}</strong></span>
                     {relatedItem && (
-                      <span className="text-indigo-300 font-mono underline truncate max-w-[200px]">
+                      <span className="text-[#997328] font-mono underline truncate max-w-[200px]">
                         {relatedItem.display_label}
                       </span>
                     )}
@@ -215,7 +215,7 @@ export default function NotificationCenter({ onSelectItem }) {
                 </div>
 
                 {isUnread && (
-                  <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 shrink-0 mt-2" title="Unread" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#D4AF37] shrink-0 mt-2" title="Unread" />
                 )}
               </div>
             );

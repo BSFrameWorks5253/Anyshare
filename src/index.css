@@ -2,43 +2,53 @@
 
 @layer base {
   :root {
-    --bg-base: #070a13;
-    --glass-bg: rgba(15, 23, 42, 0.65);
-    --glass-bg-subtle: rgba(255, 255, 255, 0.03);
-    --glass-bg-hover: rgba(255, 255, 255, 0.07);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --glass-border-subtle: rgba(255, 255, 255, 0.05);
-    --glass-inner-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    --glass-shadow: 0 12px 40px -10px rgba(0, 0, 0, 0.5);
-    --glass-blur: blur(20px) saturate(140%);
+    --bg-base: #FAF8F5;
+    --bg-subtle: #F5EFEB;
+    --gold-primary: #C5A059;
+    --gold-bright: #E6C665;
+    --gold-deep: #996515;
+    --gold-border: rgba(197, 160, 89, 0.35);
+    --gold-border-subtle: rgba(197, 160, 89, 0.18);
+    --gold-glow: rgba(212, 175, 55, 0.2);
+    
+    --glass-bg: rgba(255, 255, 255, 0.78);
+    --glass-bg-subtle: rgba(255, 255, 255, 0.55);
+    --glass-bg-hover: rgba(255, 255, 255, 0.92);
+    --glass-border: rgba(197, 160, 89, 0.3);
+    --glass-border-subtle: rgba(197, 160, 89, 0.15);
+    --glass-inner-highlight: inset 0 1px 1px rgba(255, 255, 255, 0.95), inset 0 0 12px rgba(212, 175, 55, 0.06);
+    --glass-shadow: 0 14px 36px -8px rgba(180, 130, 40, 0.12), 0 4px 12px rgba(0, 0, 0, 0.04);
+    --glass-blur: blur(20px) saturate(160%);
   }
 
   html {
     scroll-behavior: smooth;
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     -webkit-tap-highlight-color: transparent;
+    background-color: var(--bg-base);
+    color: #1e1b18;
   }
 
-  /* Custom Sleek Glass Scrollbar */
+  /* Custom Sleek Islamic Gold Glass Scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: rgba(7, 10, 19, 0.6);
+    background: rgba(245, 239, 235, 0.8);
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.18);
+    background: rgba(197, 160, 89, 0.45);
     border-radius: 9999px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.6);
     transition: background 0.2s ease;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(99, 102, 241, 0.45);
+    background: rgba(184, 134, 11, 0.75);
   }
 }
 
-/* Liquid Glass Utilities */
+/* Islamic Golden & Pearl White Liquid Glass Utilities */
 .glass-panel {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
@@ -48,55 +58,60 @@
 }
 
 .glass-panel-subtle {
-  background: rgba(15, 23, 42, 0.45);
-  backdrop-filter: blur(14px) saturate(130%);
-  -webkit-backdrop-filter: blur(14px) saturate(130%);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
   border: 1px solid var(--glass-border-subtle);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .glass-card {
-  background: rgba(18, 26, 47, 0.6);
-  backdrop-filter: blur(16px) saturate(135%);
-  -webkit-backdrop-filter: blur(16px) saturate(135%);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 8px 30px rgba(0, 0, 0, 0.35);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid rgba(197, 160, 89, 0.25);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.95), 0 8px 24px -4px rgba(180, 130, 40, 0.08);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-card:hover {
-  background: rgba(24, 34, 60, 0.75);
-  border-color: rgba(99, 102, 241, 0.35);
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(197, 160, 89, 0.55);
   transform: translateY(-2px);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 14px 40px rgba(79, 70, 229, 0.15);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 1), 0 16px 36px -6px rgba(180, 130, 40, 0.18);
 }
 
 .glass-pill {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.65);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(197, 160, 89, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 2px 6px rgba(180, 130, 40, 0.05);
+  color: #382c16;
   transition: all 0.2s ease;
 }
 
 .glass-pill:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(197, 160, 89, 0.55);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 1), 0 4px 12px rgba(180, 130, 40, 0.12);
 }
 
+/* Islamic 24K Royal Gold Button */
 .glass-button-primary {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.85) 0%, rgba(139, 92, 246, 0.85) 100%);
+  background: linear-gradient(135deg, #E6C665 0%, #D4AF37 40%, #B8860B 100%);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 8px 24px rgba(99, 102, 241, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8), 0 8px 24px rgba(197, 160, 89, 0.35);
+  color: #2D1F04;
+  font-weight: 700;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-button-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(129, 140, 248, 0.95) 0%, rgba(167, 139, 250, 0.95) 100%);
+  background: linear-gradient(135deg, #F3D98A 0%, #E6C665 45%, #C5A059 100%);
   transform: translateY(-1px);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 12px 30px rgba(99, 102, 241, 0.5);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.95), 0 12px 30px rgba(197, 160, 89, 0.45);
 }
 
 .glass-button-primary:active:not(:disabled) {
@@ -115,7 +130,7 @@
 
 @supports not (backdrop-filter: blur(10px)) {
   .glass-panel, .glass-card, .glass-pill, .glass-panel-subtle {
-    background: #0f172a !important;
+    background: #FFFFFF !important;
   }
 }
 
@@ -133,20 +148,20 @@
   padding-top: max(1rem, env(safe-area-inset-top));
 }
 
-/* Ambient glow animations */
-@keyframes ambient-glow {
+/* Ambient Islamic Gold glow animations */
+@keyframes ambient-gold-glow {
   0%, 100% {
     transform: translate(0, 0) scale(1);
-    opacity: 0.25;
+    opacity: 0.35;
   }
   50% {
-    transform: translate(30px, -20px) scale(1.08);
-    opacity: 0.35;
+    transform: translate(30px, -20px) scale(1.1);
+    opacity: 0.55;
   }
 }
 
-.ambient-orb {
-  animation: ambient-glow 16s ease-in-out infinite alternate;
+.ambient-gold-orb {
+  animation: ambient-gold-glow 14s ease-in-out infinite alternate;
 }
 
 /* Hide scrollbar for clean horizontal scrolls */
