@@ -40,7 +40,7 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
   const progressPercent = item.evidence_summary?.render_progress || 0;
 
   return (
-    <div className="glass-card rounded-2xl p-5 border border-[#C5A059]/25 relative overflow-hidden flex flex-col justify-between group bg-white/80 shadow-sm hover:shadow-md transition-all">
+    <div className="card-luxury rounded-2xl p-5 border border-[#C5A059]/35 relative overflow-hidden flex flex-col justify-between group bg-white/90 shadow-sm hover:shadow-lg transition-all">
       {/* Top row: Status & Source */}
       <div>
         <div className="flex items-center justify-between gap-2 mb-3">
@@ -54,28 +54,28 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
             sounds.playTap();
             onInspect(item);
           }}
-          className="text-base font-extrabold text-stone-900 group-hover:text-[#996515] transition-colors line-clamp-2 cursor-pointer mb-1 leading-snug"
+          className="text-base font-black text-stone-950 group-hover:text-[#8A6614] transition-colors line-clamp-2 cursor-pointer mb-1 leading-snug"
         >
           {item.display_label}
         </h3>
 
         <div className="flex items-center gap-2 mb-3">
-          <span className="text-xs font-mono text-stone-500 truncate max-w-[220px]" title={item.external_key}>
+          <span className="text-xs font-mono font-bold text-[#785005] truncate max-w-[220px]" title={item.external_key}>
             {item.external_key}
           </span>
           {item.is_stale && (
-            <span className="text-[10px] font-bold text-amber-800 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded">
+            <span className="text-[10px] font-extrabold text-amber-950 bg-amber-200 border border-amber-400 px-1.5 py-0.5 rounded">
               Stale Scan
             </span>
           )}
         </div>
 
         {/* Evidence preview snippet */}
-        <div className="glass-panel-subtle rounded-xl p-3 mb-4 text-xs text-stone-700 space-y-1.5 bg-amber-50/40 border border-[#C5A059]/15">
+        <div className="rounded-xl p-3 mb-4 text-xs text-stone-800 space-y-1.5 bg-amber-50/70 border border-[#C5A059]/25">
           {item.evidence_summary?.project_file && (
             <div className="flex items-center justify-between">
-              <span className="text-stone-500">Premiere Project:</span>
-              <span className="font-mono text-stone-800 truncate max-w-[160px] font-medium">
+              <span className="text-stone-600 font-medium">Premiere Project:</span>
+              <span className="font-mono text-stone-950 truncate max-w-[160px] font-bold">
                 {item.evidence_summary.project_file}
               </span>
             </div>
@@ -83,8 +83,8 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
 
           {item.evidence_summary?.raw_clips_count !== undefined && (
             <div className="flex items-center justify-between">
-              <span className="text-stone-500">Raw Media Clips:</span>
-              <span className="font-semibold text-stone-800">
+              <span className="text-stone-600 font-medium">Raw Media Clips:</span>
+              <span className="font-extrabold text-stone-950">
                 {item.evidence_summary.raw_clips_count} verified clips
               </span>
             </div>
@@ -92,20 +92,20 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
 
           {item.evidence_summary?.rendered_file && (
             <div className="flex items-center justify-between">
-              <span className="text-stone-500">Master Output:</span>
-              <span className="font-mono text-emerald-800 font-semibold truncate max-w-[160px]">
+              <span className="text-stone-600 font-medium">Master Output:</span>
+              <span className="font-mono text-emerald-950 font-bold truncate max-w-[160px]">
                 {item.evidence_summary.rendered_file.split('/').pop()}
               </span>
             </div>
           )}
 
           {isCorrection && (
-            <div className="text-rose-900 bg-rose-50 p-2.5 rounded-lg border border-rose-300">
-              <p className="font-bold flex items-center gap-1.5 mb-0.5 text-rose-800">
+            <div className="text-rose-950 bg-rose-50 p-2.5 rounded-lg border border-rose-300">
+              <p className="font-black flex items-center gap-1.5 mb-0.5 text-rose-800">
                 <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
                 Action Required
               </p>
-              <p className="text-[11px] text-rose-800 line-clamp-2">
+              <p className="text-[11px] text-rose-900 font-medium line-clamp-2">
                 {item.evidence_summary?.issue_description || 'Preflight detected conflicting project files or missing assets.'}
               </p>
             </div>
@@ -114,16 +114,16 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
           {/* Active rendering live progress */}
           {isRendering && (
             <div className="space-y-1.5 pt-1">
-              <div className="flex items-center justify-between text-xs font-bold">
-                <span className="text-amber-800 flex items-center gap-1">
-                  <Cpu className="w-3.5 h-3.5 animate-spin text-amber-600" />
+              <div className="flex items-center justify-between text-xs font-black">
+                <span className="text-amber-950 flex items-center gap-1">
+                  <Cpu className="w-3.5 h-3.5 animate-spin text-[#B8860B]" />
                   NVENC GPU Encoding
                 </span>
-                <span className="font-mono text-amber-900">{progressPercent}%</span>
+                <span className="font-mono text-stone-950">{progressPercent}%</span>
               </div>
-              <div className="w-full h-2 rounded-full bg-stone-200 overflow-hidden border border-amber-300/40">
+              <div className="w-full h-2.5 rounded-full bg-stone-200 overflow-hidden border border-amber-400">
                 <div
-                  className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-[#D4AF37] to-[#8A6614] rounded-full transition-all duration-300"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
@@ -132,8 +132,8 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
 
           {/* Checking status */}
           {isChecking && (
-            <div className="flex items-center gap-2 text-xs text-amber-800 py-1 font-semibold">
-              <span className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-amber-600 border-t-transparent" />
+            <div className="flex items-center gap-2 text-xs text-amber-950 py-1 font-bold">
+              <span className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-[#8A6614] border-t-transparent" />
               <span>One Tap Bridge running preflight checks...</span>
             </div>
           )}
@@ -141,27 +141,27 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
       </div>
 
       {/* Bottom section: Assignee, Scan Time & Primary Button */}
-      <div className="pt-3 border-t border-[#C5A059]/20 space-y-3">
-        <div className="flex items-center justify-between text-xs text-stone-500">
+      <div className="pt-3 border-t border-[#C5A059]/25 space-y-3">
+        <div className="flex items-center justify-between text-xs text-stone-600">
           <div className="flex items-center gap-2">
             {assignedUser?.avatar ? (
               <img
                 src={assignedUser.avatar}
                 alt={assignedUser.name}
-                className="w-5 h-5 rounded-full object-cover border border-amber-300"
+                className="w-5 h-5 rounded-full object-cover border border-[#C5A059]"
               />
             ) : (
-              <div className="w-5 h-5 rounded-full bg-stone-200 flex items-center justify-center text-[10px] text-stone-600">
+              <div className="w-5 h-5 rounded-full bg-stone-200 flex items-center justify-center text-[10px] text-stone-700">
                 <User className="w-3 h-3" />
               </div>
             )}
-            <span className={`truncate max-w-[110px] ${isAssignedToCurrent ? 'text-amber-900 font-bold' : 'text-stone-700'}`}>
+            <span className={`truncate max-w-[110px] ${isAssignedToCurrent ? 'text-amber-950 font-black' : 'text-stone-900 font-bold'}`}>
               {assignedUser ? assignedUser.name : 'Unassigned'}
             </span>
           </div>
 
-          <div className="flex items-center gap-1 text-[11px]" title={`Last checked: ${item.last_scanned_at}`}>
-            <Clock className="w-3 h-3 text-stone-400" />
+          <div className="flex items-center gap-1 text-[11px] font-semibold text-stone-600" title={`Last checked: ${item.last_scanned_at}`}>
+            <Clock className="w-3 h-3 text-[#8A6614]" />
             <span>{timeAgo(item.last_scanned_at)}</span>
           </div>
         </div>
@@ -177,7 +177,7 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
                 sounds.playTap();
                 onStartRender(item);
               }}
-              className="flex-1 py-2.5 px-3 rounded-xl text-xs font-bold glass-button-primary flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-2.5 px-3 rounded-xl text-xs font-black glass-button-primary flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
               title={!bridge.is_online ? 'Disabled: One Tap Bridge workstation is offline' : 'Start One Tap Render'}
             >
               <Play className="w-3.5 h-3.5 fill-current" />
@@ -193,7 +193,7 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
                 sounds.playTap();
                 onReviewCorrection(item);
               }}
-              className="flex-1 py-2.5 px-3 rounded-xl text-xs font-bold bg-rose-100 hover:bg-rose-200 text-rose-900 border border-rose-300 flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              className="flex-1 py-2.5 px-3 rounded-xl text-xs font-black bg-rose-100 hover:bg-rose-200 text-rose-950 border border-rose-300 flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs"
             >
               <AlertTriangle className="w-3.5 h-3.5" />
               <span>{isAdmin ? 'Review & Correct' : 'View Issue'}</span>
@@ -208,9 +208,9 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
                 sounds.playTap();
                 onInspect(item);
               }}
-              className="flex-1 py-2.5 px-3 rounded-xl text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300 flex items-center justify-center gap-2 cursor-pointer"
+              className="flex-1 py-2.5 px-3 rounded-xl text-xs font-black bg-amber-200 text-stone-950 border border-amber-400 flex items-center justify-center gap-2 cursor-pointer shadow-xs animate-pulse"
             >
-              <Cpu className="w-3.5 h-3.5 animate-pulse text-amber-700" />
+              <Cpu className="w-3.5 h-3.5 animate-pulse text-[#8A6614]" />
               <span>View Progress</span>
             </button>
           )}
@@ -223,9 +223,9 @@ export default function WorkCard({ item, onInspect, onStartRender, onReviewCorre
                 sounds.playTap();
                 onInspect(item);
               }}
-              className="flex-1 py-2.5 px-3 rounded-xl text-xs font-bold glass-pill hover:bg-white text-stone-800 flex items-center justify-center gap-2 transition-colors cursor-pointer border border-[#C5A059]/30"
+              className="flex-1 py-2.5 px-3 rounded-xl text-xs font-bold glass-pill hover:bg-white text-stone-900 flex items-center justify-center gap-2 transition-colors cursor-pointer border border-[#C5A059]/40 shadow-xs"
             >
-              <FileSearch className="w-3.5 h-3.5 text-[#B8860B]" />
+              <FileSearch className="w-3.5 h-3.5 text-[#8A6614]" />
               <span>Inspect Details</span>
             </button>
           )}

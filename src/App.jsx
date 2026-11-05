@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useApp } from './lib/store';
+import { PIPELINE_MILESTONES } from './lib/mockData';
 import GlassShell from './components/layout/GlassShell';
 import GlassTopBar from './components/layout/GlassTopBar';
 import GlassNav from './components/layout/GlassNav';
@@ -26,7 +27,9 @@ import {
   ArrowRight,
   ShieldAlert,
   FolderSync,
-  FolderPlus
+  FolderPlus,
+  ArrowUp,
+  Activity
 } from 'lucide-react';
 
 export default function App() {
@@ -42,8 +45,10 @@ export default function App() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAssignee, setSelectedAssignee] = useState('all');
+  const [activeMilestone, setActiveMilestone] = useState(null);
   const [activeStage, setActiveStage] = useState(null);
   const [isMyWorkOnly, setIsMyWorkOnly] = useState(false);
+  const [showScrollHUD, setShowScrollHUD] = useState(false);
 
   const [inspectedItem, setInspectedItem] = useState(null);
   const [renderItem, setRenderItem] = useState(null);
@@ -54,6 +59,17 @@ export default function App() {
   const [isBridgeOpen, setIsBridgeOpen] = useState(false);
   const [isDbInspectorOpen, setIsDbInspectorOpen] = useState(false);
 
+  // Scroll listener for Floating Luxury HUD
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollHUD(window.scrollY > 280);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const renderingCount = items.filter(i => i.status === 'rendering').length;
+
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
       if (isMyWorkOnly && item.assigned_user_id !== currentUser.id) {
@@ -61,6 +77,12 @@ export default function App() {
       }
       if (selectedAssignee !== 'all' && item.assigned_user_id !== selectedAssignee) {
         return false;
+      }
+      if (activeMilestone) {
+        const milestoneObj = PIPELINE_MILESTONES.find(m => m.key === activeMilestone);
+        if (milestoneObj && !milestoneObj.statuses.includes(item.status)) {
+          return false;
+        }
       }
       if (activeStage && item.status !== activeStage) {
         return false;
@@ -74,7 +96,7 @@ export default function App() {
       }
       return true;
     });
-  }, [items, isMyWorkOnly, currentUser.id, selectedAssignee, activeStage, searchQuery]);
+  }, [items, isMyWorkOnly, currentUser.id, selectedAssignee, activeMilestone, activeStage, searchQuery]);
 
   return (
     <GlassShell>
@@ -99,23 +121,23 @@ export default function App() {
         />
 
         {/* Dynamic Main View Area */}
-        <main className="flex-1 p-4 sm:p-8 pb-28 sm:pb-12 overflow-x-hidden">
+        <main className="flex-1 p-4 sm:p-8 pb-32 sm:pb-16 overflow-x-hidden">
           {/* VIEW 1: OVERVIEW & PIPELINE DASHBOARD */}
           {currentView === 'overview' && (
             <div className="space-y-8 animate-fadeIn">
               {/* Islamic Golden Hero Banner */}
-              <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-[#C5A059]/35 relative overflow-hidden bg-gradient-to-r from-amber-100/80 via-yellow-50/60 to-white/90 shadow-sm">
+              <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-[#C5A059]/40 relative overflow-hidden bg-gradient-to-r from-amber-100/90 via-yellow-50/70 to-white shadow-sm">
                 <div className="relative z-10 max-w-2xl">
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold glass-pill text-[#8B6508] border border-amber-300/80 bg-white/80 mb-3 shadow-xs">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-black glass-pill text-[#785005] border border-amber-400 bg-white/95 mb-3 shadow-xs">
                     <Sparkles className="w-3.5 h-3.5 text-[#B8860B]" />
                     <span>AnyShare • Islamic Golden Edition</span>
                   </div>
 
-                  <h2 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight leading-tight mb-2">
+                  <h2 className="text-2xl sm:text-3xl font-black text-stone-950 tracking-tight leading-tight mb-2 font-serif">
                     Production Status & Remote One Tap Bridge
                   </h2>
 
-                  <p className="text-xs sm:text-sm text-stone-600 leading-relaxed mb-6 font-medium">
+                  <p className="text-xs sm:text-sm text-stone-700 leading-relaxed mb-6 font-semibold">
                     Monitor edit stages, verify folder rules deterministically, and trigger hardware renders directly from your mobile device or desktop.
                   </p>
 
@@ -126,7 +148,7 @@ export default function App() {
                         sounds.playTap();
                         setIsNewProductionOpen(true);
                       }}
-                      className="px-5 py-2.5 rounded-xl text-xs font-bold glass-button-primary flex items-center gap-2 cursor-pointer shadow-md shadow-amber-900/15"
+                      className="px-5 py-2.5 rounded-xl text-xs font-black glass-button-primary flex items-center gap-2 cursor-pointer shadow-md shadow-amber-900/15"
                     >
                       <FolderPlus className="w-4 h-4" />
                       <span>+ New Production Session</span>
@@ -135,44 +157,45 @@ export default function App() {
                     <button
                       type="button"
                       onClick={() => triggerBridgeScan()}
-                      className="px-4 py-2.5 rounded-xl text-xs font-bold glass-pill hover:bg-white text-stone-800 flex items-center gap-2 transition-colors cursor-pointer border border-[#C5A059]/35 shadow-xs"
+                      className="px-4 py-2.5 rounded-xl text-xs font-bold glass-pill hover:bg-white text-stone-900 flex items-center gap-2 transition-colors cursor-pointer border border-[#C5A059]/40 shadow-xs"
                     >
-                      <FolderSync className="w-4 h-4 text-[#B8860B]" />
+                      <FolderSync className="w-4 h-4 text-[#8A6614]" />
                       <span>Rescan Workstation Folders</span>
                     </button>
                   </div>
                 </div>
 
-                <div className="absolute -right-8 -bottom-8 w-64 h-64 rounded-full bg-amber-300/25 blur-3xl pointer-events-none" />
+                <div className="absolute -right-8 -bottom-8 w-64 h-64 rounded-full bg-amber-300/30 blur-3xl pointer-events-none" />
               </div>
 
-              {/* Stage Summary Component */}
+              {/* 5-Step Streamlined Pipeline Pulse */}
               <StageSummary
-                activeStage={activeStage}
-                onSelectStage={setActiveStage}
+                activeMilestone={activeMilestone}
+                onSelectMilestone={setActiveMilestone}
               />
 
               {/* Work Section with Filters and Cards */}
               <div id="work-list-section" className="space-y-4">
                 <div className="flex items-center justify-between px-1">
                   <div>
-                    <h3 className="text-base font-extrabold text-stone-900">Active Productions</h3>
-                    <p className="text-xs text-stone-500 font-medium">
+                    <h3 className="text-base font-black text-stone-950">Active Productions</h3>
+                    <p className="text-xs text-stone-600 font-semibold">
                       Showing {filteredItems.length} of {items.length} items
                     </p>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {activeStage && (
+                    {(activeMilestone || activeStage) && (
                       <button
                         type="button"
                         onClick={() => {
                           sounds.playTap();
+                          setActiveMilestone(null);
                           setActiveStage(null);
                         }}
-                        className="text-xs text-[#8B6508] hover:text-[#B8860B] cursor-pointer font-bold"
+                        className="text-xs text-[#785005] hover:text-[#B8860B] cursor-pointer font-extrabold"
                       >
-                        Reset Filter
+                        Reset All Filters
                       </button>
                     )}
 
@@ -182,7 +205,7 @@ export default function App() {
                         sounds.playTap();
                         setIsNewProductionOpen(true);
                       }}
-                      className="px-3 py-1.5 rounded-xl text-xs font-bold glass-pill hover:bg-white text-[#8B6508] flex items-center gap-1.5 cursor-pointer border border-[#C5A059]/35 shadow-xs"
+                      className="px-3 py-1.5 rounded-xl text-xs font-black glass-pill hover:bg-white text-[#785005] flex items-center gap-1.5 cursor-pointer border border-[#C5A059]/40 shadow-xs"
                     >
                       <FolderPlus className="w-3.5 h-3.5 text-[#B8860B]" />
                       <span>+ Add Session</span>
@@ -195,6 +218,8 @@ export default function App() {
                   onSearchChange={setSearchQuery}
                   selectedAssignee={selectedAssignee}
                   onAssigneeChange={setSelectedAssignee}
+                  activeMilestone={activeMilestone}
+                  onClearMilestone={() => setActiveMilestone(null)}
                   activeStage={activeStage}
                   onClearStage={() => setActiveStage(null)}
                   isMyWorkOnly={isMyWorkOnly}
@@ -219,10 +244,10 @@ export default function App() {
             <div className="space-y-6 animate-fadeIn">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-extrabold text-stone-900">
+                  <h2 className="text-xl font-black text-stone-950 font-serif">
                     {isAdmin ? 'All Production Work' : 'My Assigned Work'}
                   </h2>
-                  <p className="text-xs text-stone-500 font-medium">
+                  <p className="text-xs text-stone-600 font-semibold">
                     Deterministic One Tap workflow lifecycle tracking
                   </p>
                 </div>
@@ -233,7 +258,7 @@ export default function App() {
                     sounds.playTap();
                     setIsNewProductionOpen(true);
                   }}
-                  className="px-4 py-2 rounded-xl text-xs font-bold glass-button-primary flex items-center gap-1.5 cursor-pointer shadow-md shadow-amber-900/15"
+                  className="px-4 py-2 rounded-xl text-xs font-black glass-button-primary flex items-center gap-1.5 cursor-pointer shadow-md shadow-amber-900/15"
                 >
                   <FolderPlus className="w-3.5 h-3.5" />
                   <span>+ New Production</span>
@@ -245,6 +270,8 @@ export default function App() {
                 onSearchChange={setSearchQuery}
                 selectedAssignee={selectedAssignee}
                 onAssigneeChange={setSelectedAssignee}
+                activeMilestone={activeMilestone}
+                onClearMilestone={() => setActiveMilestone(null)}
                 activeStage={activeStage}
                 onClearStage={() => setActiveStage(null)}
                 isMyWorkOnly={isMyWorkOnly}
@@ -282,6 +309,56 @@ export default function App() {
           )}
         </main>
       </div>
+
+      {/* Floating Luxury HUD (reveals on scroll past hero) */}
+      {showScrollHUD && (
+        <aside 
+          aria-label="Workstation Status HUD"
+          className="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-40 px-4 py-2.5 rounded-2xl glass-panel border border-[#C5A059]/45 shadow-xl bg-white/95 backdrop-blur-2xl flex items-center gap-3 animate-fadeIn transition-all select-none"
+        >
+          <div className="flex items-center gap-2 pr-2 border-r border-[#C5A059]/25">
+            <span className={`w-2 h-2 rounded-full ${bridge.is_online ? 'bg-emerald-600 animate-pulse' : 'bg-rose-500'}`} />
+            <span className="text-xs font-black text-stone-950 font-mono">
+              {bridge.is_online ? 'Node Active' : 'Offline'}
+            </span>
+          </div>
+
+          {renderingCount > 0 ? (
+            <div className="flex items-center gap-1.5 text-xs font-black text-amber-950 bg-amber-200/80 px-2.5 py-1 rounded-lg border border-amber-400">
+              <Cpu className="w-3.5 h-3.5 animate-spin text-[#8A6614]" />
+              <span>{renderingCount} Rendering</span>
+            </div>
+          ) : (
+            <span className="text-xs text-stone-700 font-semibold hidden sm:inline">
+              {items.length} Productions Loaded
+            </span>
+          )}
+
+          <div className="flex items-center gap-1.5 pl-1">
+            <button
+              type="button"
+              onClick={() => {
+                sounds.playTap();
+                setIsNewProductionOpen(true);
+              }}
+              className="px-3 py-1 rounded-xl text-xs font-black glass-button-primary shadow-xs cursor-pointer"
+            >
+              + New
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                sounds.playTap();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="p-1.5 rounded-xl glass-pill hover:bg-white text-stone-800 hover:text-stone-950 border border-[#C5A059]/35 cursor-pointer"
+              title="Scroll to top"
+            >
+              <ArrowUp className="w-3.5 h-3.5 text-[#8A6614]" />
+            </button>
+          </div>
+        </aside>
+      )}
 
       <MobileBottomNav
         currentView={currentView}

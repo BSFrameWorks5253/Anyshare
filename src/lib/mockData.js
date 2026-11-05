@@ -1,13 +1,76 @@
 // AnyShare Ecosystem Data & Stage Models (Islamic Golden & White Edition)
 
+// 5 Unified Executive Pipeline Milestones (Streamlined from 14 micro-stages)
+export const PIPELINE_MILESTONES = [
+  {
+    key: 'editing',
+    title: 'In Editing',
+    shortTitle: '1. Editing',
+    description: 'Assembly & Fine Cut',
+    stepNumber: '01',
+    icon: 'FileEdit',
+    statuses: ['pending_edit_1', 'edit_1', 'pending_edit_2', 'edit_2'],
+    color: 'amber',
+    badgeClass: 'bg-amber-100 text-amber-950 font-bold border-amber-300'
+  },
+  {
+    key: 'ready',
+    title: 'Ready to Render',
+    shortTitle: '2. Ready',
+    description: 'Preflight Cleared',
+    stepNumber: '02',
+    icon: 'Zap',
+    statuses: ['ready_to_render', 'render_requested'],
+    color: 'gold',
+    badgeClass: 'bg-amber-200 text-stone-950 font-extrabold border-amber-400'
+  },
+  {
+    key: 'rendering',
+    title: 'Node Rendering',
+    shortTitle: '3. Rendering',
+    description: 'Active Workstation GPU',
+    stepNumber: '03',
+    icon: 'Cpu',
+    statuses: ['checking', 'rendering'],
+    color: 'gold',
+    badgeClass: 'bg-gradient-to-r from-amber-300 to-yellow-400 text-stone-950 font-extrabold border-amber-500 shadow-sm'
+  },
+  {
+    key: 'review',
+    title: 'QA & Review',
+    shortTitle: '4. QA Review',
+    description: 'Integrity & Corrections',
+    stepNumber: '04',
+    icon: 'ShieldCheck',
+    statuses: ['rendered', 'correction_needed'],
+    color: 'emerald',
+    badgeClass: 'bg-emerald-100 text-emerald-950 font-extrabold border-emerald-400'
+  },
+  {
+    key: 'delivered',
+    title: 'Delivered',
+    shortTitle: '5. Delivered',
+    description: 'Uploaded & Done',
+    stepNumber: '05',
+    icon: 'Sparkles',
+    statuses: ['pending_upload', 'uploaded', 'given_to_jamey', 'done'],
+    color: 'emerald',
+    badgeClass: 'bg-emerald-100 text-emerald-950 font-bold border-emerald-300'
+  }
+];
+
+export function getMilestoneForStatus(status) {
+  return PIPELINE_MILESTONES.find(m => m.statuses.includes(status)) || PIPELINE_MILESTONES[0];
+}
+
 export const STAGE_CONFIG = {
   pending_edit_1: {
     label: 'Pending Edit 1',
     shortLabel: 'Pending E1',
     color: 'amber',
-    border: 'border-amber-700/20',
-    bg: 'bg-amber-500/10',
-    text: 'text-amber-900',
+    border: 'border-amber-400',
+    bg: 'bg-amber-100',
+    text: 'text-amber-950 font-black',
     dot: 'bg-amber-600',
     icon: 'Clock'
   },
@@ -15,9 +78,9 @@ export const STAGE_CONFIG = {
     label: 'Edit 1',
     shortLabel: 'Edit 1',
     color: 'sky',
-    border: 'border-sky-600/25',
-    bg: 'bg-sky-500/10',
-    text: 'text-sky-950',
+    border: 'border-sky-400',
+    bg: 'bg-sky-100',
+    text: 'text-sky-950 font-black',
     dot: 'bg-sky-600',
     icon: 'FileEdit'
   },
@@ -25,9 +88,9 @@ export const STAGE_CONFIG = {
     label: 'Pending Edit 2',
     shortLabel: 'Pending E2',
     color: 'amber',
-    border: 'border-amber-700/20',
-    bg: 'bg-amber-500/10',
-    text: 'text-amber-900',
+    border: 'border-amber-400',
+    bg: 'bg-amber-100',
+    text: 'text-amber-950 font-black',
     dot: 'bg-amber-600',
     icon: 'Layers'
   },
@@ -35,9 +98,9 @@ export const STAGE_CONFIG = {
     label: 'Edit 2',
     shortLabel: 'Edit 2',
     color: 'cyan',
-    border: 'border-cyan-600/25',
-    bg: 'bg-cyan-500/10',
-    text: 'text-cyan-950',
+    border: 'border-cyan-400',
+    bg: 'bg-cyan-100',
+    text: 'text-cyan-950 font-black',
     dot: 'bg-cyan-600',
     icon: 'Sliders'
   },
@@ -45,49 +108,49 @@ export const STAGE_CONFIG = {
     label: 'Ready to Render',
     shortLabel: 'Ready',
     color: 'gold',
-    border: 'border-amber-500/40',
-    bg: 'bg-amber-100/70',
-    text: 'text-amber-950 font-bold',
-    dot: 'bg-amber-500',
+    border: 'border-amber-400',
+    bg: 'bg-amber-200',
+    text: 'text-stone-950 font-black',
+    dot: 'bg-amber-600',
     icon: 'Zap'
   },
   render_requested: {
     label: 'Render Requested',
     shortLabel: 'Requested',
     color: 'gold',
-    border: 'border-amber-500/35',
-    bg: 'bg-amber-100/60',
-    text: 'text-amber-900',
-    dot: 'bg-amber-500',
+    border: 'border-amber-400',
+    bg: 'bg-amber-200',
+    text: 'text-stone-950 font-black',
+    dot: 'bg-amber-600',
     icon: 'Send'
   },
   checking: {
     label: 'Checking Preflight',
     shortLabel: 'Checking',
     color: 'amber',
-    border: 'border-amber-600/30',
-    bg: 'bg-amber-100/60',
-    text: 'text-amber-900',
-    dot: 'bg-amber-500 animate-pulse',
+    border: 'border-amber-400',
+    bg: 'bg-amber-100',
+    text: 'text-stone-950 font-black',
+    dot: 'bg-amber-600 animate-pulse',
     icon: 'ShieldAlert'
   },
   rendering: {
     label: 'Rendering',
     shortLabel: 'Rendering',
     color: 'gold',
-    border: 'border-amber-600/40',
-    bg: 'bg-amber-200/50',
-    text: 'text-amber-950 font-bold',
-    dot: 'bg-amber-600 animate-ping',
+    border: 'border-amber-500',
+    bg: 'bg-gradient-to-r from-amber-300 to-yellow-300',
+    text: 'text-stone-950 font-black',
+    dot: 'bg-amber-700 animate-ping',
     icon: 'Cpu'
   },
   rendered: {
     label: 'Rendered',
     shortLabel: 'Rendered',
     color: 'emerald',
-    border: 'border-emerald-600/30',
-    bg: 'bg-emerald-500/10',
-    text: 'text-emerald-950 font-semibold',
+    border: 'border-emerald-400',
+    bg: 'bg-emerald-100',
+    text: 'text-emerald-950 font-black',
     dot: 'bg-emerald-600',
     icon: 'CheckCircle2'
   },
@@ -95,9 +158,9 @@ export const STAGE_CONFIG = {
     label: 'Pending Upload',
     shortLabel: 'To Upload',
     color: 'amber',
-    border: 'border-amber-700/20',
-    bg: 'bg-amber-500/10',
-    text: 'text-amber-900',
+    border: 'border-amber-400',
+    bg: 'bg-amber-100',
+    text: 'text-amber-950 font-black',
     dot: 'bg-amber-600',
     icon: 'UploadCloud'
   },
@@ -105,9 +168,9 @@ export const STAGE_CONFIG = {
     label: 'Uploaded',
     shortLabel: 'Uploaded',
     color: 'emerald',
-    border: 'border-emerald-600/30',
-    bg: 'bg-emerald-500/10',
-    text: 'text-emerald-900 font-semibold',
+    border: 'border-emerald-400',
+    bg: 'bg-emerald-100',
+    text: 'text-emerald-950 font-black',
     dot: 'bg-emerald-600',
     icon: 'CheckCheck'
   },
@@ -115,9 +178,9 @@ export const STAGE_CONFIG = {
     label: 'Given to Jamey',
     shortLabel: 'To Jamey',
     color: 'emerald',
-    border: 'border-emerald-600/35',
-    bg: 'bg-emerald-500/15',
-    text: 'text-emerald-950 font-bold',
+    border: 'border-emerald-400',
+    bg: 'bg-emerald-100',
+    text: 'text-emerald-950 font-black',
     dot: 'bg-emerald-600',
     icon: 'UserCheck'
   },
@@ -125,9 +188,9 @@ export const STAGE_CONFIG = {
     label: 'Done',
     shortLabel: 'Done',
     color: 'emerald',
-    border: 'border-emerald-600/40',
-    bg: 'bg-emerald-500/15',
-    text: 'text-emerald-950 font-bold',
+    border: 'border-emerald-400',
+    bg: 'bg-emerald-100',
+    text: 'text-emerald-950 font-black',
     dot: 'bg-emerald-600',
     icon: 'Sparkles'
   },
@@ -135,9 +198,9 @@ export const STAGE_CONFIG = {
     label: 'Correction Needed',
     shortLabel: 'Needs Review',
     color: 'rose',
-    border: 'border-rose-600/40',
-    bg: 'bg-rose-500/10',
-    text: 'text-rose-950 font-bold',
+    border: 'border-rose-400',
+    bg: 'bg-rose-100',
+    text: 'text-rose-950 font-black',
     dot: 'bg-rose-600 animate-ping',
     icon: 'AlertTriangle'
   },
@@ -145,9 +208,9 @@ export const STAGE_CONFIG = {
     label: 'Failed',
     shortLabel: 'Failed',
     color: 'rose',
-    border: 'border-rose-600/30',
-    bg: 'bg-rose-500/10',
-    text: 'text-rose-900',
+    border: 'border-rose-400',
+    bg: 'bg-rose-100',
+    text: 'text-rose-950 font-black',
     dot: 'bg-rose-600',
     icon: 'XCircle'
   },
@@ -155,9 +218,9 @@ export const STAGE_CONFIG = {
     label: 'Cancelled',
     shortLabel: 'Cancelled',
     color: 'stone',
-    border: 'border-stone-500/20',
-    bg: 'bg-stone-500/10',
-    text: 'text-stone-700',
+    border: 'border-stone-400',
+    bg: 'bg-stone-200',
+    text: 'text-stone-900 font-black',
     dot: 'bg-stone-500',
     icon: 'Ban'
   }

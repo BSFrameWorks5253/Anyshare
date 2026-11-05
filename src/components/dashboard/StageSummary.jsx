@@ -1,83 +1,43 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { useApp } from '../../lib/store';
-import { STAGE_CONFIG } from '../../lib/mockData';
+import { PIPELINE_MILESTONES, getMilestoneForStatus } from '../../lib/mockData';
 import { sounds } from '../../lib/sound';
 import {
-  Clock,
   FileEdit,
-  Layers,
-  Sliders,
   Zap,
-  Send,
-  ShieldAlert,
   Cpu,
-  CheckCircle2,
-  UploadCloud,
-  CheckCheck,
-  UserCheck,
+  ShieldCheck,
   Sparkles,
-  AlertTriangle,
-  ChevronLeft,
-  ChevronRight
+  Layers,
+  Activity
 } from 'lucide-react';
 
-const ICON_MAP = {
-  Clock,
+const MILESTONE_ICONS = {
   FileEdit,
-  Layers,
-  Sliders,
   Zap,
-  Send,
-  ShieldAlert,
   Cpu,
-  CheckCircle2,
-  UploadCloud,
-  CheckCheck,
-  UserCheck,
-  Sparkles,
-  AlertTriangle
+  ShieldCheck,
+  Sparkles
 };
 
-const ORDERED_STAGES = [
-  'pending_edit_1',
-  'edit_1',
-  'pending_edit_2',
-  'edit_2',
-  'ready_to_render',
-  'rendering',
-  'rendered',
-  'pending_upload',
-  'uploaded',
-  'given_to_jamey',
-  'correction_needed',
-  'done'
-];
-
-export default function StageSummary({ activeStage, onSelectStage }) {
+export default function StageSummary({ activeMilestone, onSelectMilestone }) {
   const { items } = useApp();
-  const scrollContainerRef = useRef(null);
 
-  const counts = ORDERED_STAGES.reduce((acc, stage) => {
-    acc[stage] = items.filter(item => item.status === stage).length;
+  // Calculate count per milestone
+  const milestoneCounts = PIPELINE_MILESTONES.reduce((acc, milestone) => {
+    acc[milestone.key] = items.filter(item => milestone.statuses.includes(item.status)).length;
     return acc;
   }, {});
 
   const totalActive = items.filter(item => item.status !== 'done' && item.status !== 'cancelled').length;
+  const isAnyRendering = (milestoneCounts['rendering'] || 0) > 0;
 
-  const scroll = (direction) => {
+  const handleMilestoneClick = (milestoneKey) => {
     sounds.playTap();
-    if (scrollContainerRef.current) {
-      const scrollAmount = direction === 'left' ? -240 : 240;
-      scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
-  };
-
-  const handleStageClick = (stageKey) => {
-    sounds.playTap();
-    if (activeStage === stageKey) {
-      onSelectStage(null);
+    if (activeMilestone === milestoneKey) {
+      onSelectMilestone(null);
     } else {
-      onSelectStage(stageKey);
+      onSelectMilestone(milestoneKey);
       const listEl = document.getElementById('work-list-section');
       if (listEl) {
         listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -87,101 +47,114 @@ export default function StageSummary({ activeStage, onSelectStage }) {
 
   return (
     <section className="relative mb-8">
-      <div className="flex items-center justify-between mb-3 px-1">
+      {/* Masthead Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 px-1">
         <div>
-          <h2 className="text-xs font-bold tracking-wider uppercase text-[#8B6508] flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
-            Pipeline Pulse
-          </h2>
-          <p className="text-xs text-stone-500">
-            {totalActive} active productions in One Tap lifecycle
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#B8860B] animate-pulse" />
+            <h2 className="text-xs font-extrabold tracking-widest uppercase text-[#785005] font-mono">
+              Workstation Pipeline Pulse
+            </h2>
+            {isAnyRendering && (
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-400 text-stone-950 shadow-sm animate-pulse">
+                Node GPU Active
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-stone-700 font-medium mt-0.5">
+            <strong className="text-stone-950 font-bold">{totalActive} Active</strong> of {items.length} total productions across 5 studio phases
           </p>
         </div>
 
-        <div className="flex items-center gap-1.5 hidden md:flex">
-          <button
-            onClick={() => scroll('left')}
-            className="p-1.5 rounded-lg glass-pill hover:bg-white text-stone-600 hover:text-stone-900 transition-colors border border-[#C5A059]/30"
-            aria-label="Scroll left"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => scroll('right')}
-            className="p-1.5 rounded-lg glass-pill hover:bg-white text-stone-600 hover:text-stone-900 transition-colors border border-[#C5A059]/30"
-            aria-label="Scroll right"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
+        {/* Reset / All filter button */}
+        <button
+          type="button"
+          onClick={() => {
+            sounds.playTap();
+            onSelectMilestone(null);
+          }}
+          className={`self-start sm:self-auto px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer flex items-center gap-1.5 ${
+            activeMilestone === null
+              ? 'bg-stone-900 text-[#F5E6C8] border-stone-800 shadow-sm'
+              : 'bg-white/80 text-stone-700 border-[#C5A059]/30 hover:bg-white hover:text-stone-950'
+          }`}
+        >
+          <Layers className="w-3.5 h-3.5 text-[#B8860B]" />
+          <span>Show All Productions ({items.length})</span>
+        </button>
       </div>
 
-      <div className="relative group">
-        <div
-          ref={scrollContainerRef}
-          className="flex items-stretch gap-3 overflow-x-auto pb-3 pt-1 px-1 no-scrollbar scroll-smooth snap-x snap-mandatory"
-        >
-          {/* Total All Pill */}
-          <button
-            type="button"
-            onClick={() => {
-              sounds.playTap();
-              onSelectStage(null);
-            }}
-            className={`snap-start shrink-0 min-w-[130px] p-3 rounded-2xl text-left transition-all border cursor-pointer ${
-              activeStage === null
-                ? 'bg-gradient-to-tr from-amber-100 to-amber-50 border-amber-400 text-stone-900 shadow-md shadow-amber-900/10'
-                : 'glass-panel-subtle hover:bg-white border-[#C5A059]/20'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-semibold text-stone-500">Total</span>
-              <span className="w-2 h-2 rounded-full bg-[#D4AF37]" />
-            </div>
-            <div className="text-2xl font-black text-stone-900 mb-0.5">{items.length}</div>
-            <div className="text-[11px] text-stone-500 font-medium truncate">All Records</div>
-          </button>
+      {/* 5-Step Connected Luxury Pipeline Grid */}
+      <div className="glass-panel rounded-3xl p-3 sm:p-5 border border-[#C5A059]/40 bg-white/85 shadow-md relative overflow-hidden">
+        {/* Continuous Golden Laser Connector Line (visible on desktop) */}
+        <div className="hidden lg:block absolute top-[45px] left-12 right-12 h-1 bg-gradient-to-r from-amber-200 via-[#C5A059]/40 to-emerald-200 z-0">
+          {isAnyRendering && (
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent animate-gold-beam" />
+          )}
+        </div>
 
-          {ORDERED_STAGES.map((stageKey) => {
-            const config = STAGE_CONFIG[stageKey];
-            const count = counts[stageKey] || 0;
-            const Icon = ICON_MAP[config.icon] || Clock;
-            const isSelected = activeStage === stageKey;
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 relative z-10">
+          {PIPELINE_MILESTONES.map((milestone, idx) => {
+            const count = milestoneCounts[milestone.key] || 0;
+            const Icon = MILESTONE_ICONS[milestone.icon] || FileEdit;
+            const isSelected = activeMilestone === milestone.key;
+            const isRenderPhase = milestone.key === 'rendering';
+            const hasActiveWork = count > 0;
 
             return (
-              <button
-                key={stageKey}
-                type="button"
-                onClick={() => handleStageClick(stageKey)}
-                className={`snap-start shrink-0 min-w-[145px] p-3 rounded-2xl text-left transition-all border cursor-pointer relative overflow-hidden group/item ${
+              <div
+                key={milestone.key}
+                onClick={() => handleMilestoneClick(milestone.key)}
+                className={`card-luxury rounded-2xl p-4 text-left transition-all border cursor-pointer flex flex-col justify-between select-none ${
                   isSelected
-                    ? `${config.bg} ${config.border} ring-2 ring-amber-400/60 shadow-md shadow-amber-900/10`
-                    : 'glass-card border-[#C5A059]/25 hover:border-amber-400'
-                } ${stageKey === 'correction_needed' && count > 0 ? 'border-rose-400/60 bg-rose-50/70' : ''}`}
+                    ? 'bg-gradient-to-br from-amber-50 via-white to-amber-100/60 border-[#B8860B] ring-2 ring-[#B8860B]/40 shadow-lg -translate-y-1'
+                    : 'bg-white/90 border-[#C5A059]/25 hover:border-[#B8860B]/60 hover:bg-white hover:-translate-y-0.5 shadow-xs'
+                } ${isRenderPhase && hasActiveWork ? 'ring-2 ring-amber-400/80 bg-amber-50/90' : ''}`}
               >
-                <div className="flex items-center justify-between mb-1.5">
-                  <div className={`p-1.5 rounded-lg ${config.bg} ${config.text}`}>
-                    <Icon className="w-3.5 h-3.5 text-[#B8860B]" />
+                {/* Header: Step Number & Icon */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-mono font-bold text-[#8A6614] bg-amber-100/80 px-2 py-0.5 rounded-md border border-[#C5A059]/30">
+                      STEP {milestone.stepNumber}
+                    </span>
                   </div>
-                  <span className={`w-2 h-2 rounded-full ${config.dot}`} />
+
+                  <div className={`p-2 rounded-xl transition-colors ${
+                    isRenderPhase && hasActiveWork
+                      ? 'bg-amber-400 text-stone-950 animate-bounce'
+                      : isSelected
+                        ? 'bg-[#8A6614] text-amber-100'
+                        : 'bg-amber-50 text-[#8A6614] border border-[#C5A059]/30'
+                  }`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
                 </div>
 
-                <div className="flex items-baseline gap-1.5 mb-0.5">
-                  <span className={`text-2xl font-black ${count > 0 ? 'text-stone-900' : 'text-stone-400'}`}>
+                {/* Milestone Title & Description */}
+                <div className="mb-3">
+                  <h3 className="text-sm font-black text-stone-950 tracking-tight flex items-center gap-1.5">
+                    {milestone.title}
+                  </h3>
+                  <p className="text-[11px] text-stone-600 font-medium truncate mt-0.5">
+                    {milestone.description}
+                  </p>
+                </div>
+
+                {/* Bottom Row: Item Count Pill */}
+                <div className="pt-2 border-t border-[#C5A059]/20 flex items-center justify-between">
+                  <span className={`text-2xl font-black ${hasActiveWork ? 'text-stone-950' : 'text-stone-400'}`}>
                     {count}
                   </span>
-                  {stageKey === 'rendering' && count > 0 && (
-                    <span className="text-[10px] text-amber-700 font-bold animate-pulse">Live</span>
-                  )}
-                  {stageKey === 'correction_needed' && count > 0 && (
-                    <span className="text-[10px] text-rose-700 font-bold uppercase tracking-wider">Alert</span>
-                  )}
-                </div>
 
-                <div className="text-xs font-bold text-stone-800 truncate" title={config.label}>
-                  {config.shortLabel || config.label}
+                  <span className={`text-[11px] font-extrabold px-2.5 py-1 rounded-full border transition-all ${
+                    hasActiveWork
+                      ? milestone.badgeClass
+                      : 'bg-stone-100 text-stone-500 border-stone-200'
+                  }`}>
+                    {count === 1 ? '1 Job' : `${count} Jobs`}
+                  </span>
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>

@@ -27,9 +27,9 @@ export default function GlassTopBar({
   ).length;
 
   return (
-    <header className="sticky top-0 z-30 w-full glass-panel border-b border-[#C5A059]/25 px-4 sm:px-8 py-3 transition-all backdrop-blur-2xl bg-white/80 shadow-xs">
+    <header className="sticky top-0 z-30 w-full glass-panel border-b border-[#C5A059]/35 px-4 sm:px-8 py-3 transition-all backdrop-blur-2xl bg-white/90 shadow-sm">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-        {/* Brand / Logo */}
+        {/* Brand / Logo with Islamic Khatam Star Crest */}
         <div 
           onClick={() => {
             sounds.playTap();
@@ -37,24 +37,29 @@ export default function GlassTopBar({
           }}
           className="flex items-center gap-3 cursor-pointer group shrink-0"
         >
-          {/* Islamic Golden AnyShare Monogram */}
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#D4AF37] via-[#F7E7A9] to-[#B8860B] p-0.5 shadow-md shadow-amber-900/15 group-hover:scale-105 transition-transform flex items-center justify-center">
-            <div className="w-full h-full bg-[#FAF8F5] rounded-[10px] flex items-center justify-center relative overflow-hidden border border-[#D4AF37]/30">
-              <Zap className="w-4 h-4 text-[#B8860B] fill-[#D4AF37]/40" />
+          {/* Islamic Golden AnyShare Monogram with animated Khatam star */}
+          <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#D4AF37] via-[#F7E7A9] to-[#8A6614] p-0.5 shadow-md shadow-amber-900/15 group-hover:scale-105 transition-transform flex items-center justify-center">
+            <div className="w-full h-full bg-[#FAF8F5] rounded-[14px] flex items-center justify-center relative overflow-hidden border border-[#D4AF37]/40">
+              {/* Islamic 8-pointed star rotating watermark */}
+              <svg className="absolute inset-0 w-full h-full p-1 opacity-25 animate-khatam-spin text-[#8A6614]" viewBox="0 0 100 100" fill="currentColor">
+                <rect x="25" y="25" width="50" height="50" transform="rotate(0 50 50)" />
+                <rect x="25" y="25" width="50" height="50" transform="rotate(45 50 50)" />
+              </svg>
+              <Zap className="w-4 h-4 text-[#8A6614] fill-[#D4AF37] relative z-10" />
             </div>
           </div>
 
           <div>
-            <div className="flex items-center gap-1.5">
-              <h1 className="text-sm font-extrabold text-stone-900 tracking-tight group-hover:text-[#B8860B] transition-colors">
+            <div className="flex items-center gap-2">
+              <h1 className="text-base font-black tracking-tight text-stone-950 group-hover:text-[#8A6614] transition-colors font-serif">
                 AnyShare
               </h1>
-              <span className="hidden sm:inline-block text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-100 text-[#8B6508] border border-amber-300/60 font-bold">
-                One Tap Bridge
+              <span className="hidden sm:inline-block text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-100 text-stone-950 border border-amber-300 font-extrabold">
+                One Tap Nexus
               </span>
             </div>
-            <p className="text-[10px] text-stone-500 hidden sm:block">
-              One Tap production status & remote render command hub
+            <p className="text-[11px] text-stone-600 font-medium hidden sm:block">
+              One Tap production status & remote render bridge
             </p>
           </div>
         </div>
@@ -73,13 +78,13 @@ export default function GlassTopBar({
               sounds.playTap();
               onOpenAccount();
             }}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white text-stone-800 transition-colors cursor-pointer border border-[#C5A059]/30"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold glass-pill hover:bg-white text-stone-900 transition-colors cursor-pointer border border-[#C5A059]/40 shadow-xs"
             title="Ecosystem Identity & Username Settings"
           >
-            <AtSign className="w-3.5 h-3.5 text-[#B8860B]" />
-            <span className="font-mono text-[#8B6508] font-bold">@{currentUser.username || 'creator'}</span>
-            <span className={`text-[10px] uppercase font-bold px-1.5 py-0.2 rounded ${
-              isAdmin ? 'bg-amber-500/20 text-[#8B6508]' : 'bg-stone-200 text-stone-700'
+            <AtSign className="w-3.5 h-3.5 text-[#8A6614]" />
+            <span className="font-mono text-[#785005] font-extrabold">@{currentUser.username || 'creator'}</span>
+            <span className={`text-[10px] uppercase font-black px-1.5 py-0.5 rounded ${
+              isAdmin ? 'bg-amber-200 text-stone-950 border border-amber-400' : 'bg-stone-200 text-stone-900'
             }`}>
               {isAdmin ? 'Admin' : 'Member'}
             </span>
@@ -92,12 +97,12 @@ export default function GlassTopBar({
               sounds.playTap();
               onOpenNotifications();
             }}
-            className="relative p-2 rounded-xl glass-pill hover:bg-white text-stone-700 hover:text-stone-900 transition-colors cursor-pointer border border-[#C5A059]/30"
+            className="relative p-2.5 rounded-xl glass-pill hover:bg-white text-stone-800 hover:text-stone-950 transition-colors cursor-pointer border border-[#C5A059]/40 shadow-xs"
             aria-label="Notifications"
           >
-            <Bell className="w-4 h-4 text-[#B8860B]" />
+            <Bell className="w-4 h-4 text-[#8A6614]" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-600 text-white text-[10px] font-extrabold flex items-center justify-center shadow-xs">
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-600 text-white text-[10px] font-black flex items-center justify-center shadow-xs">
                 {unreadCount}
               </span>
             )}
