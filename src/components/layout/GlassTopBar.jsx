@@ -11,7 +11,8 @@ import {
   Smartphone,
   CalendarDays,
   Users,
-  Briefcase
+  Briefcase,
+  Layers
 } from 'lucide-react';
 
 export default function GlassTopBar({
@@ -87,6 +88,18 @@ export default function GlassTopBar({
               <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-neutral-200 text-neutral-800 font-bold">
                 {items.length}
               </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => { sounds.playTap(); onNavigate('tracker'); }}
+              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                currentView === 'tracker'
+                  ? 'bg-white text-neutral-950 shadow-xs font-bold'
+                  : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/60'
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5 text-neutral-600" />
+              <span>Task Tracker</span>
             </button>
             <button
               type="button"

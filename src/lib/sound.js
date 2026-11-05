@@ -69,6 +69,43 @@ class SoundManager {
     } catch (e) {}
   }
 
+  playChime() {
+    if (!this.enabled) return;
+    try {
+      this.init();
+      if (!this.ctx) return;
+      if (this.ctx.state === 'suspended') {
+        this.ctx.resume();
+      }
+      const now = this.ctx.currentTime;
+      // High-grade Apple chime (F#5 -> C#6)
+      const osc1 = this.ctx.createOscillator();
+      const osc2 = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc1.type = 'sine';
+      osc2.type = 'sine';
+      osc1.frequency.setValueAtTime(739.99, now); // F#5
+      osc2.frequency.setValueAtTime(1108.73, now + 0.09); // C#6
+
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc1.start(now);
+      osc1.stop(now + 0.18);
+      osc2.start(now + 0.08);
+      osc2.stop(now + 0.55);
+
+      if ('vibrate' in navigator) {
+        navigator.vibrate([30, 50, 40]);
+      }
+    } catch (e) {}
+  }
+
   playAlert() {
     if (!this.enabled) return;
     try {

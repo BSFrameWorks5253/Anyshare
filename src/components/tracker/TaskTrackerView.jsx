@@ -1,0 +1,643 @@
+import React, { useState, useMemo } from 'react';
+import { useApp } from '../../lib/store';
+import { TRACKER_STAGE_CONFIG } from '../../lib/mockData';
+import { sounds } from '../../lib/sound';
+import {
+  CheckCircle2,
+  Clock,
+  HardDrive,
+  Calendar,
+  Search,
+  Filter,
+  Layers,
+  ChevronDown,
+  ChevronUp,
+  Archive,
+  RefreshCw,
+  Bell,
+  Cpu,
+  Sparkles,
+  ArrowRight,
+  ShieldCheck,
+  CheckCheck,
+  UploadCloud,
+  FileCheck2,
+  ExternalLink
+} from 'lucide-react';
+
+const STAGE_KEYS = [
+  'editing_pending',
+  'editing',
+  'review',
+  'upload_pending',
+  'uploaded',
+  'submitted'
+];
+
+export default function TaskTrackerView() {
+  const {
+    safarCampaigns,
+    isAdmin,
+    bridge,
+    toggleSafarDone,
+    markTaskStatus,
+    markAllSafarDatesStatus,
+    desktopPermission,
+    requestDesktopNotificationPermission
+  } = useApp();
+
+  const [activeTab, setActiveTab] = useState('active'); // 'active' | 'archived' | 'all'
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDrive, setSelectedDrive] = useState('all'); // 'all' | 'F:\' | 'E:\' | 'D:\'
+  const [expandedSafarIds, setExpandedSafarIds] = useState(() => {
+    // Expand active Safars by default
+    const set = new Set();
+    safarCampaigns.forEach(c => {
+      if (!c.is_archived && !c.is_safar_done) set.add(c.id);
+    });
+    return set;
+  });
+
+  const toggleExpand = (safarId) => {
+    sounds.playTap();
+    setExpandedSafarIds(prev => {
+      const next = new Set(prev);
+      if (next.has(safarId)) {
+        next.delete(safarId);
+      } else {
+        next.add(safarId);
+      }
+      return next;
+    });
+  };
+
+  // Extract unique drive roots
+  const driveRoots = useMemo(() => {
+    const drives = new Set();
+    safarCampaigns.forEach(c => {
+      if (c.driveRoot) drives.add(c.driveRoot);
+    });
+    return Array.from(drives);
+  }, [safarCampaigns]);
+
+  // Aggregate Metrics & Deliverable Counts
+  const metrics = useMemo(() => {
+    let totalDays = 0;
+    const stageCounts = {
+      editing_pending: 0,
+      editing: 0,
+      review: 0,
+      upload_pending: 0,
+      uploaded: 0,
+      submitted: 0
+    };
+
+    safarCampaigns.forEach(c => {
+      c.dates.forEach(d => {
+        totalDays++;
+        if (stageCounts[d.status] !== undefined) {
+          stageCounts[d.status]++;
+        } else {
+          stageCounts.editing_pending++;
+        }
+      });
+    });
+
+    const completedDeliverables = stageCounts.submitted;
+    const progressPercent = totalDays > 0 ? Math.round((completedDeliverables / totalDays) * 100) : 0;
+
+    return {
+      totalSafars: safarCampaigns.length,
+      totalDays,
+      stageCounts,
+      completedDeliverables,
+      progressPercent
+    };
+  }, [safarCampaigns]);
+
+  // Filtered Safars based on tab, search, drive
+  const filteredSafars = useMemo(() => {
+    return safarCampaigns.filter(safar => {
+      const isDoneOrArchived = safar.is_archived || safar.is_safar_done;
+
+      // Tab filter
+      if (activeTab === 'active' && isDoneOrArchived) return false;
+      if (activeTab === 'archived' && !isDoneOrArchived) return false;
+
+      // Drive filter
+      if (selectedDrive !== 'all' && safar.driveRoot !== selectedDrive) {
+        return false;
+      }
+
+      // Search query
+      if (searchQuery.trim().length > 0) {
+        const q = searchQuery.toLowerCase();
+        const matchesName = (safar.safarName || safar.name || '').toLowerCase().includes(q);
+        const matchesCity = (safar.city || '').toLowerCase().includes(q);
+        const matchesSerial = (safar.serialNumber || '').toLowerCase().includes(q);
+        const matchesDrive = (safar.driveRoot || '').toLowerCase().includes(q);
+        const matchesDate = safar.dates.some(d =>
+          (d.dateFolder || '').toLowerCase().includes(q) ||
+          (d.dateLabel || '').toLowerCase().includes(q) ||
+          (d.title || '').toLowerCase().includes(q)
+        );
+        if (!matchesName && !matchesCity && !matchesSerial && !matchesDrive && !matchesDate) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [safarCampaigns, activeTab, selectedDrive, searchQuery]);
+
+  return (
+    <div className="space-y-6 animate-fadeIn pb-12">
+      {/* 1. Header Banner & Realtime Status */}
+      <div className="glass-panel rounded-3xl p-6 border border-black/[0.08] bg-white/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2.5 mb-1.5">
+            <div className="w-8 h-8 rounded-xl bg-neutral-950 text-white flex items-center justify-center shadow-xs">
+              <Layers className="w-4 h-4 fill-white" />
+            </div>
+            <h2 className="text-xl font-black text-neutral-950 tracking-tight">
+              Task Tracker & Workstation Companion
+            </h2>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+              Nexus Live
+            </span>
+          </div>
+          <p className="text-xs text-neutral-600 font-medium max-w-2xl">
+            Real-time delivery progress paired with One Tap workstations. Batch render completions auto-transition tasks to Upload Pending.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2.5">
+          {desktopPermission !== 'granted' && (
+            <button
+              type="button"
+              onClick={() => {
+                sounds.playTap();
+                requestDesktopNotificationPermission();
+              }}
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold glass-pill hover:bg-neutral-100 text-neutral-800 flex items-center gap-1.5 cursor-pointer border border-black/[0.08] shadow-xs"
+              title="Enable OS Desktop Sound & Banner Alerts"
+            >
+              <Bell className="w-3.5 h-3.5 text-neutral-600" />
+              <span>Enable Alerts</span>
+            </button>
+          )}
+
+          <div className="px-3 py-1.5 rounded-xl text-xs font-bold bg-neutral-100 text-neutral-800 border border-black/[0.06] flex items-center gap-2">
+            <Cpu className="w-3.5 h-3.5 text-neutral-600" />
+            <span>{bridge.label?.split(' (')[0] || 'Studio-PC-01'}</span>
+            <span className={`w-2 h-2 rounded-full ${bridge.is_online ? 'bg-emerald-500' : 'bg-neutral-400'}`} />
+          </div>
+        </div>
+      </div>
+
+      {/* 2. KPI Bar (Total Safars, Total Days, 6 Stage Counts & % Delivered) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        {STAGE_KEYS.map((stageKey) => {
+          const cfg = TRACKER_STAGE_CONFIG[stageKey];
+          const count = metrics.stageCounts[stageKey] || 0;
+          return (
+            <div
+              key={stageKey}
+              className="glass-panel p-3.5 rounded-2xl border border-black/[0.06] bg-white/70 shadow-xs flex flex-col justify-between"
+            >
+              <div className="flex items-center justify-between gap-1 mb-1.5">
+                <span className="text-[11px] font-bold text-neutral-500 truncate">
+                  {cfg.shortLabel}
+                </span>
+                <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
+              </div>
+              <div className="flex items-baseline justify-between">
+                <span className="text-xl font-black text-neutral-950 font-mono">
+                  {count}
+                </span>
+                <span className="text-[10px] font-semibold text-neutral-400">
+                  {metrics.totalDays > 0 ? `${Math.round((count / metrics.totalDays) * 100)}%` : '0%'}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Workstation Overall Delivery Progress Bar */}
+      <div className="glass-panel p-4 rounded-2xl border border-black/[0.06] bg-white/80 shadow-xs">
+        <div className="flex items-center justify-between text-xs font-semibold text-neutral-700 mb-2">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-neutral-950">Workstation Delivery Progress</span>
+            <span className="text-neutral-400">({metrics.completedDeliverables} of {metrics.totalDays} Days 100% Submitted)</span>
+          </div>
+          <span className="font-mono font-black text-neutral-950">{metrics.progressPercent}%</span>
+        </div>
+        <div className="w-full h-2.5 bg-neutral-100 rounded-full overflow-hidden border border-black/[0.04]">
+          <div
+            className="h-full bg-neutral-950 transition-all duration-500 ease-out rounded-full"
+            style={{ width: `${metrics.progressPercent}%` }}
+          />
+        </div>
+      </div>
+
+      {/* 3. Filters & Lifecycle Tabs */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        {/* Segmented Control Tabs: Active, Archived, All */}
+        <div className="flex items-center gap-1 bg-neutral-100/90 p-1 rounded-2xl border border-black/[0.06] self-start">
+          <button
+            type="button"
+            onClick={() => { sounds.playTap(); setActiveTab('active'); }}
+            className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeTab === 'active'
+                ? 'bg-neutral-950 text-white shadow-xs'
+                : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/60'
+            }`}
+          >
+            Active Safars
+          </button>
+          <button
+            type="button"
+            onClick={() => { sounds.playTap(); setActiveTab('archived'); }}
+            className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeTab === 'archived'
+                ? 'bg-neutral-950 text-white shadow-xs'
+                : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/60'
+            }`}
+          >
+            Archived / Done
+          </button>
+          <button
+            type="button"
+            onClick={() => { sounds.playTap(); setActiveTab('all'); }}
+            className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeTab === 'all'
+                ? 'bg-neutral-950 text-white shadow-xs'
+                : 'text-neutral-600 hover:text-neutral-950 hover:bg-white/60'
+            }`}
+          >
+            All Safars ({safarCampaigns.length})
+          </button>
+        </div>
+
+        {/* Search & Drive Filter */}
+        <div className="flex items-center gap-2">
+          {/* Drive Root Filter */}
+          <div className="relative">
+            <select
+              value={selectedDrive}
+              onChange={(e) => {
+                sounds.playTap();
+                setSelectedDrive(e.target.value);
+              }}
+              className="appearance-none pl-8 pr-8 py-1.5 rounded-xl text-xs font-semibold bg-white border border-black/[0.08] text-neutral-800 focus:outline-none focus:ring-1 focus:ring-neutral-900 cursor-pointer shadow-2xs"
+            >
+              <option value="all">All Drives</option>
+              {driveRoots.map(dr => (
+                <option key={dr} value={dr}>{dr}</option>
+              ))}
+            </select>
+            <HardDrive className="w-3.5 h-3.5 text-neutral-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-neutral-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+
+          {/* Search Box */}
+          <div className="relative flex-1 sm:w-64">
+            <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search Safar, date, serial..."
+              className="w-full pl-8 pr-3 py-1.5 rounded-xl text-xs bg-white border border-black/[0.08] text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-1 focus:ring-neutral-900 shadow-2xs"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Safar Cards & Stepper Rows */}
+      {filteredSafars.length === 0 ? (
+        <div className="glass-panel rounded-3xl p-12 text-center border border-black/[0.06] bg-white/70">
+          <Layers className="w-8 h-8 text-neutral-400 mx-auto mb-3" />
+          <h3 className="text-base font-bold text-neutral-950 mb-1">No Safars Found</h3>
+          <p className="text-xs text-neutral-500 max-w-sm mx-auto">
+            {searchQuery
+              ? `No matching campaigns found for "${searchQuery}". Try adjusting your filters.`
+              : activeTab === 'archived'
+              ? 'No archived Safars. When all dates of a Safar are completed, admins can mark it Done & Archived.'
+              : 'No active Safar campaigns.'}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {filteredSafars.map((safar) => {
+            const isExpanded = expandedSafarIds.has(safar.id);
+            const isDoneOrArchived = safar.is_archived || safar.is_safar_done;
+
+            // Deliverables stats for this Safar
+            const total = safar.dates.length;
+            const submittedCount = safar.dates.filter(d => d.status === 'submitted').length;
+            const uploadedCount = safar.dates.filter(d => d.status === 'uploaded' || d.status === 'submitted').length;
+            const safarPercent = total > 0 ? Math.round((submittedCount / total) * 100) : 0;
+
+            return (
+              <div
+                key={safar.id}
+                className="glass-panel rounded-3xl border border-black/[0.08] bg-white/85 shadow-sm overflow-hidden transition-all"
+              >
+                {/* Safar Header Bar */}
+                <div className="p-5 sm:p-6 border-b border-black/[0.06]">
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    {/* Left: Safar Title, Badges & Drive */}
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-lg font-black text-neutral-950 tracking-tight">
+                          {safar.safarName || safar.name}
+                        </h3>
+                        {safar.city && (
+                          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-neutral-100 text-neutral-800 border border-neutral-200">
+                            {safar.city}
+                          </span>
+                        )}
+                        {safar.serialNumber && (
+                          <span className="px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-neutral-100 text-neutral-700 border border-neutral-200">
+                            {safar.serialNumber}
+                          </span>
+                        )}
+                        {safar.driveRoot && (
+                          <span className="px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-neutral-950 text-white flex items-center gap-1">
+                            <HardDrive className="w-3 h-3 text-neutral-300" />
+                            {safar.driveRoot}
+                          </span>
+                        )}
+                        {isDoneOrArchived && (
+                          <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-100 text-emerald-950 border border-emerald-300 flex items-center gap-1">
+                            <CheckCheck className="w-3.5 h-3.5 text-emerald-700" />
+                            100% Done & Archived
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-500 font-medium">
+                        <span>{safar.venue || 'Central Complex'}</span>
+                        <span>•</span>
+                        <span className="font-mono">{safar.baseDirectory || 'Root Drive'}</span>
+                        <span>•</span>
+                        <span className="font-bold text-neutral-800">
+                          {submittedCount} of {total} Days Delivered ({safarPercent}%)
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Right: Admin Quick Action Group & Expand Toggle */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      {isAdmin && (
+                        <div className="flex items-center gap-1.5">
+                          {/* Mark Done & Archive / Restore */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              toggleSafarDone({
+                                safarName: safar.safarName || safar.name,
+                                isDone: !isDoneOrArchived,
+                                isArchived: !isDoneOrArchived
+                              });
+                            }}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-xs ${
+                              isDoneOrArchived
+                                ? 'bg-neutral-100 text-neutral-800 hover:bg-neutral-200 border border-neutral-300'
+                                : 'bg-neutral-950 text-white hover:bg-neutral-800'
+                            }`}
+                          >
+                            <Archive className="w-3.5 h-3.5" />
+                            <span>{isDoneOrArchived ? 'Restore to Active' : 'Mark Safar Done & Archive'}</span>
+                          </button>
+
+                          {/* Bulk Actions */}
+                          {!isDoneOrArchived && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  markAllSafarDatesStatus({
+                                    safarName: safar.safarName || safar.name,
+                                    status: 'uploaded'
+                                  });
+                                }}
+                                className="px-2.5 py-1.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white text-neutral-800 cursor-pointer border border-black/[0.08] shadow-xs"
+                                title="Mark all days as uploaded to Vault"
+                              >
+                                Mark All Uploaded
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  markAllSafarDatesStatus({
+                                    safarName: safar.safarName || safar.name,
+                                    status: 'submitted'
+                                  });
+                                }}
+                                className="px-2.5 py-1.5 rounded-xl text-xs font-semibold glass-pill hover:bg-white text-neutral-800 cursor-pointer border border-black/[0.08] shadow-xs"
+                                title="Mark all days as submitted to AlJamea"
+                              >
+                                Mark All Submitted
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Expand / Collapse Button */}
+                      <button
+                        type="button"
+                        onClick={() => toggleExpand(safar.id)}
+                        className="p-1.5 rounded-xl glass-pill hover:bg-white text-neutral-700 cursor-pointer border border-black/[0.08] shadow-xs"
+                        aria-label={isExpanded ? 'Collapse dates' : 'Expand dates'}
+                      >
+                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Safar Sub-progress Bar */}
+                  <div className="w-full h-1.5 bg-neutral-100 rounded-full overflow-hidden mt-4 border border-black/[0.04]">
+                    <div
+                      className="h-full bg-neutral-950 transition-all duration-300 rounded-full"
+                      style={{ width: `${safarPercent}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Expanded Date Deliverables Table & 6-Stage Stepper */}
+                {isExpanded && (
+                  <div className="p-4 sm:p-6 space-y-3 bg-neutral-50/50">
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 px-1 mb-2">
+                      Daily Video Deliverables ({safar.dates.length} Days)
+                    </div>
+
+                    <div className="space-y-3">
+                      {safar.dates.map((dateItem) => (
+                        <DateDeliverableRow
+                          key={dateItem.id}
+                          safarName={safar.safarName || safar.name}
+                          dateItem={dateItem}
+                          isAdmin={isAdmin}
+                          onMarkStatus={(status) => {
+                            markTaskStatus({
+                              safarName: safar.safarName || safar.name,
+                              dateFolder: dateItem.dateFolder || dateItem.dateLabel,
+                              status
+                            });
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Single Date Deliverable Row with 6-Stage Stepper
+function DateDeliverableRow({ safarName, dateItem, isAdmin, onMarkStatus }) {
+  const currentStageIndex = STAGE_KEYS.indexOf(dateItem.status);
+  const currentConfig = TRACKER_STAGE_CONFIG[dateItem.status] || TRACKER_STAGE_CONFIG.editing_pending;
+
+  return (
+    <div className="p-4 rounded-2xl bg-white border border-black/[0.06] shadow-xs flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+      {/* Date Item Details */}
+      <div className="space-y-1 min-w-[220px]">
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-xs font-bold text-neutral-950 px-2 py-0.5 rounded bg-neutral-100 border border-neutral-200/80">
+            {dateItem.dateFolder || dateItem.dateLabel}
+          </span>
+          <span className="text-xs font-bold text-neutral-900 truncate">
+            {dateItem.title}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2 text-[11px] text-neutral-500">
+          <span>{dateItem.hijriDate}</span>
+          <span>•</span>
+          <span className="font-mono">{dateItem.file_size_gb || 40} GB Master</span>
+          {dateItem.assignedEditor && (
+            <>
+              <span>•</span>
+              <span className="font-mono">@{dateItem.assignedEditor}</span>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* 6-Stage Interactive Stepper */}
+      <div className="flex-1 max-w-2xl py-2">
+        <div className="relative flex items-center justify-between">
+          {/* Track Line */}
+          <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 h-0.5 bg-neutral-200 z-0" />
+          <div
+            className="absolute top-1/2 left-0 -translate-y-1/2 h-0.5 bg-neutral-950 transition-all duration-300 z-0"
+            style={{
+              width: `${(Math.max(0, currentStageIndex) / (STAGE_KEYS.length - 1)) * 100}%`
+            }}
+          />
+
+          {STAGE_KEYS.map((stageKey, idx) => {
+            const isCompleted = idx < currentStageIndex;
+            const isCurrent = idx === currentStageIndex;
+            const cfg = TRACKER_STAGE_CONFIG[stageKey];
+
+            return (
+              <div
+                key={stageKey}
+                onClick={() => {
+                  if (isAdmin) {
+                    sounds.playTap();
+                    onMarkStatus(stageKey);
+                  }
+                }}
+                className={`relative z-10 flex flex-col items-center group ${
+                  isAdmin ? 'cursor-pointer' : 'cursor-default'
+                }`}
+                title={`${cfg.label} (${cfg.description})${isAdmin ? ' — Click to override stage' : ''}`}
+              >
+                {/* Stepper Node Circle */}
+                <div
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold font-mono transition-all ${
+                    isCurrent
+                      ? 'bg-neutral-950 text-white ring-4 ring-neutral-200 scale-110 shadow-xs'
+                      : isCompleted
+                      ? 'bg-neutral-800 text-white'
+                      : 'bg-white border-2 border-neutral-300 text-neutral-400 group-hover:border-neutral-500'
+                  }`}
+                >
+                  {isCompleted ? (
+                    <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                  ) : (
+                    cfg.stepNumber
+                  )}
+                </div>
+
+                {/* Stage Short Label */}
+                <span
+                  className={`text-[9px] font-bold mt-1.5 truncate max-w-[65px] text-center ${
+                    isCurrent
+                      ? 'text-neutral-950 font-extrabold'
+                      : isCompleted
+                      ? 'text-neutral-700'
+                      : 'text-neutral-400'
+                  }`}
+                >
+                  {cfg.shortLabel}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Admin Quick Action Stage Overrides */}
+      {isAdmin && (
+        <div className="flex items-center gap-1.5 shrink-0 self-end xl:self-center">
+          {dateItem.status !== 'upload_pending' && dateItem.status !== 'uploaded' && dateItem.status !== 'submitted' && (
+            <button
+              type="button"
+              onClick={() => onMarkStatus('upload_pending')}
+              className="px-2 py-1 rounded-lg text-[11px] font-bold bg-neutral-100 hover:bg-neutral-200 text-neutral-800 border border-neutral-200 cursor-pointer shadow-2xs"
+              title="Workstation render complete, awaiting NAS upload"
+            >
+              Upload Pending
+            </button>
+          )}
+
+          {dateItem.status !== 'uploaded' && (
+            <button
+              type="button"
+              onClick={() => onMarkStatus('uploaded')}
+              className="px-2 py-1 rounded-lg text-[11px] font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 cursor-pointer shadow-2xs"
+              title="Confirm file copied to central storage vault"
+            >
+              Mark Uploaded
+            </button>
+          )}
+
+          {dateItem.status !== 'submitted' && (
+            <button
+              type="button"
+              onClick={() => onMarkStatus('submitted')}
+              className="px-2 py-1 rounded-lg text-[11px] font-bold bg-neutral-950 hover:bg-neutral-800 text-white cursor-pointer shadow-2xs"
+              title="Official sign-off & deliver to AlJamea"
+            >
+              Mark Submitted
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

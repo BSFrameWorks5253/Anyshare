@@ -21,6 +21,8 @@ import NewProductionModal from './components/dashboard/NewProductionModal';
 import QRScannerModal from './components/auth/QRScannerModal';
 import UserManagementView from './components/users/UserManagementView';
 import SafarHubView from './components/safar/SafarHubView';
+import TaskTrackerView from './components/tracker/TaskTrackerView';
+import RealtimeToastContainer from './components/common/RealtimeToastContainer';
 import ProductionDashboardTemplate from './components/template/ProductionDashboardTemplate';
 import LoginModal from './components/auth/LoginModal';
 import ScrollToTop from './components/common/ScrollToTop';
@@ -275,6 +277,13 @@ export default function App() {
           )}
 
                     {/* VIEW: TEAM & USER INTELLIGENCE */}
+          {/* VIEW: TASK TRACKER & REALTIME COMPANION (PRD v1.0.0) */}
+          {currentView === 'tracker' && (
+            <div className="animate-fadeIn">
+              <TaskTrackerView />
+            </div>
+          )}
+
           {/* VIEW: SAFAR HUB & UPLOAD MATRIX */}
           {currentView === 'safar' && (
             <div className="animate-fadeIn">
@@ -308,6 +317,7 @@ export default function App() {
             <div className="animate-fadeIn">
               <NotificationCenter
                 onSelectItem={(item) => setInspectedItem(item)}
+                onNavigateToTracker={() => setCurrentView('tracker')}
               />
             </div>
           )}
@@ -438,10 +448,17 @@ export default function App() {
                 setIsNotificationsOpen(false);
                 setInspectedItem(item);
               }}
+              onNavigateToTracker={() => {
+                setIsNotificationsOpen(false);
+                setCurrentView('tracker');
+              }}
             />
           </div>
         </div>
       )}
+
+      {/* Realtime Floating Glass Toasts */}
+      <RealtimeToastContainer onNavigateToTracker={() => setCurrentView('tracker')} />
 
       <BridgeHealthModal
         isOpen={isBridgeOpen}

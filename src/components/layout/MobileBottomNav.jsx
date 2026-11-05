@@ -9,7 +9,8 @@ import {
   User,
   QrCode,
   Users,
-  CalendarDays
+  CalendarDays,
+  Layers
 } from 'lucide-react';
 
 export default function MobileBottomNav({
@@ -45,6 +46,23 @@ export default function MobileBottomNav({
         >
           <LayoutDashboard className="w-5 h-5 mb-0.5" />
           <span className="text-[10px]">Overview</span>
+        </button>
+
+        {/* 1.5 Task Tracker */}
+        <button
+          type="button"
+          onClick={() => {
+            sounds.playTap();
+            onNavigate('tracker');
+          }}
+          className={`flex flex-col items-center justify-center p-1.5 rounded-xl transition-all cursor-pointer ${
+            currentView === 'tracker'
+              ? 'text-neutral-950 font-bold'
+              : 'text-neutral-500 hover:text-neutral-800 font-medium'
+          }`}
+        >
+          <Layers className="w-5 h-5 mb-0.5" />
+          <span className="text-[10px]">Tracker</span>
         </button>
 
         {/* 2. My Work / All Work */}

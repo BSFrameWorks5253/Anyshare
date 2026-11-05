@@ -124,6 +124,52 @@ export function AppProvider({ children }) {
   const renderIntervalRef = useRef(null);
   const nexusChannelRef = useRef(null);
 
+  // Floating Glass Toasts & Desktop Notifications
+  const [toasts, setToasts] = useState([]);
+  const [desktopPermission, setDesktopPermission] = useState(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      return Notification.permission;
+    }
+    return 'default';
+  });
+
+  const addToast = (toast) => {
+    const newToast = {
+      id: 'toast_' + Date.now() + Math.random().toString(36).substring(2, 6),
+      createdAt: new Date().toISOString(),
+      ...toast
+    };
+    setToasts(prev => [newToast, ...prev].slice(0, 5));
+    return newToast.id;
+  };
+
+  const dismissToast = (id) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  };
+
+  const requestDesktopNotificationPermission = async () => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      try {
+        const perm = await Notification.requestPermission();
+        setDesktopPermission(perm);
+        return perm;
+      } catch (e) {
+        console.warn('Desktop notification request failed:', e);
+      }
+    }
+    return 'denied';
+  };
+
+  const sendDesktopNotification = ({ title, body, icon = '/favicon.ico' }) => {
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+      try {
+        new Notification(title, { body, icon });
+      } catch (e) {
+        console.warn('Desktop notification dispatch failed:', e);
+      }
+    }
+  };
+
   // Auto-probe One Tap Workstation Bridge on port 5253
   useEffect(() => {
     let isMounted = true;
@@ -324,6 +370,154 @@ export function AppProvider({ children }) {
         if (req?.id) {
           setSafarRequests(prev => prev.some(r => r.id === req.id) ? prev : [req, ...prev]);
         }
+      })
+      // -------------------------------------------------------------
+      // PRD Section 5.1 Realtime Inbound Handlers (Workstation -> Website)
+      // -------------------------------------------------------------
+      // 1. Batch Render Inbound Notification
+      .on('broadcast', { event: 'website_user_notification' }, ({ payload }) => {
+        if (!isSubscribed) return;
+        sounds.playChime();
+        const title = payload?.title || 'Workstation Render Complete';
+        const safarName = payload?.safarName || 'Active Safar';
+        const dateFolder = payload?.dateFolder || 'Deliverable';
+        const batchSize = payload?.batchSize || 1;
+        const message = payload?.message || `Rendered deliverables ready for ${safarName} (${dateFolder}).`;
+
+        const notif = {
+          id: 'notif_render_' + Date.now() + Math.random().toString(36).substring(2, 6),
+          recipient_user_id: 'all',
+          kind: 'batch_render_completed',
+          title,
+          message,
+          safarName,
+          dateFolder,
+          batchSize,
+          delivery_state: 'supabase_live',
+          read_at: null,
+          created_at: payload?.timestamp || new Date().toISOString()
+        };
+        setNotifications(prev => [notif, ...prev]);
+
+        addToast({
+          title,
+          message,
+          type: payload?.type || 'success',
+          safarName,
+          dateFolder,
+          batchSize
+        });
+
+        sendDesktopNotification({
+          title,
+          body: message
+        });
+      })
+      // 2. Batch Render Completed Event (Auto-advance to upload_pending)
+      .on('broadcast', { event: 'batch_render_completed' }, ({ payload }) => {
+        if (!isSubscribed) return;
+        sounds.playChime();
+        const title = 'Batch Render Complete';
+        const safarName = payload?.safarName || 'Active Safar';
+        const dateFolder = payload?.dateFolder || 'Deliverable';
+        const batchSize = payload?.batchSize || 1;
+        const message = `Workstation finished export of ${batchSize} deliverable(s) for ${safarName} (${dateFolder}). Status set to Upload Pending.`;
+
+        // Automatically move matching date deliverable to 'upload_pending'
+        setSafarCampaigns(prev => prev.map(c => {
+          const nameMatches = !payload?.safarName ||
+            (c.safarName && c.safarName.toLowerCase().includes(payload.safarName.toLowerCase())) ||
+            (c.name && c.name.toLowerCase().includes(payload.safarName.toLowerCase())) ||
+            (c.id === payload.safarName);
+          if (!nameMatches) return c;
+          return {
+            ...c,
+            dates: c.dates.map(d => {
+              const folderMatches = !payload?.dateFolder ||
+                (d.dateFolder && d.dateFolder.toLowerCase().includes(payload.dateFolder.toLowerCase())) ||
+                (d.dateLabel && d.dateLabel.toLowerCase().includes(payload.dateFolder.toLowerCase()));
+              if (!folderMatches) return d;
+              return {
+                ...d,
+                status: 'upload_pending',
+                rendered_at: payload?.timestamp || new Date().toISOString()
+              };
+            })
+          };
+        }));
+
+        const notif = {
+          id: 'notif_render_' + Date.now() + Math.random().toString(36).substring(2, 6),
+          recipient_user_id: 'all',
+          kind: 'batch_render_completed',
+          title,
+          message,
+          safarName,
+          dateFolder,
+          batchSize,
+          delivery_state: 'supabase_live',
+          read_at: null,
+          created_at: payload?.timestamp || new Date().toISOString()
+        };
+        setNotifications(prev => [notif, ...prev]);
+
+        addToast({
+          title,
+          message,
+          type: 'success',
+          safarName,
+          dateFolder,
+          batchSize
+        });
+
+        sendDesktopNotification({
+          title,
+          body: message
+        });
+      })
+      // 3. Deliverable Status Update
+      .on('broadcast', { event: 'task_status_updated' }, ({ payload }) => {
+        if (!isSubscribed || !payload) return;
+        const { safarName, dateFolder, status, timestamp } = payload;
+        setSafarCampaigns(prev => prev.map(c => {
+          const nameMatches = !safarName ||
+            (c.safarName && c.safarName.toLowerCase().includes(safarName.toLowerCase())) ||
+            (c.name && c.name.toLowerCase().includes(safarName.toLowerCase())) ||
+            (c.id === safarName);
+          if (!nameMatches) return c;
+          return {
+            ...c,
+            dates: c.dates.map(d => {
+              const folderMatches = !dateFolder ||
+                (d.dateFolder && d.dateFolder.toLowerCase().includes(dateFolder.toLowerCase())) ||
+                (d.dateLabel && d.dateLabel.toLowerCase().includes(dateFolder.toLowerCase()));
+              if (!folderMatches) return d;
+              return {
+                ...d,
+                status: status || d.status,
+                updated_at: timestamp || new Date().toISOString()
+              };
+            })
+          };
+        }));
+      })
+      // 4. Safar Archive / Done Change
+      .on('broadcast', { event: 'safar_status_changed' }, ({ payload }) => {
+        if (!isSubscribed || !payload) return;
+        const { safarName, isDone, isArchived, timestamp } = payload;
+        setSafarCampaigns(prev => prev.map(c => {
+          const nameMatches = !safarName ||
+            (c.safarName && c.safarName.toLowerCase().includes(safarName.toLowerCase())) ||
+            (c.name && c.name.toLowerCase().includes(safarName.toLowerCase())) ||
+            (c.id === safarName);
+          if (!nameMatches) return c;
+          return {
+            ...c,
+            is_safar_done: isDone !== undefined ? Boolean(isDone) : c.is_safar_done,
+            is_archived: isArchived !== undefined ? Boolean(isArchived) : c.is_archived,
+            updated_at: timestamp || new Date().toISOString()
+          };
+        }));
       })
       .subscribe();
 
@@ -1369,6 +1563,164 @@ export function AppProvider({ children }) {
     return { success: true };
   };
 
+  // -------------------------------------------------------------
+  // PRD Section 5.1 Outbound Bi-Directional Actions (Website -> Workstation)
+  // -------------------------------------------------------------
+  // 1. Toggle Safar Archive / Done
+  const toggleSafarDone = async ({ safarName, isDone, isArchived }) => {
+    sounds.playTap();
+    const timestamp = new Date().toISOString();
+
+    // Optimistic UI state update
+    setSafarCampaigns(prev => prev.map(c => {
+      const match = (c.safarName && c.safarName.toLowerCase() === safarName.toLowerCase()) ||
+                    (c.name && c.name.toLowerCase() === safarName.toLowerCase()) ||
+                    (c.id === safarName);
+      if (!match) return c;
+      return {
+        ...c,
+        is_safar_done: Boolean(isDone),
+        is_archived: Boolean(isArchived),
+        updated_at: timestamp
+      };
+    }));
+
+    // Broadcast to Supabase Realtime Nexus (One Tap receives this)
+    if (nexusChannelRef.current) {
+      nexusChannelRef.current.send({
+        type: 'broadcast',
+        event: 'safar_mark_done',
+        payload: { safarName, isDone: Boolean(isDone), isArchived: Boolean(isArchived), timestamp }
+      }).catch(() => {});
+    }
+
+    // Direct LAN Workstation HTTP Bridge fallback (Port 5253)
+    try {
+      fetch('http://127.0.0.1:5253/api/safar/toggle-done', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ safarName, isDone: Boolean(isDone), isArchived: Boolean(isArchived) })
+      }).catch(() => {});
+    } catch (e) {}
+
+    addToast({
+      title: isDone ? 'Safar Marked Done & Archived' : 'Safar Restored to Active',
+      message: `${safarName} is now ${isDone ? 'archived and 100% delivered' : 'active in task tracker'}.`,
+      type: 'success',
+      safarName
+    });
+
+    sounds.playSuccess();
+    return { success: true };
+  };
+
+  // 2. Mark Individual Task Deliverable Status
+  const markTaskStatus = async ({ safarName, dateFolder, status }) => {
+    sounds.playTap();
+    const timestamp = new Date().toISOString();
+
+    // Optimistic UI state update
+    setSafarCampaigns(prev => prev.map(c => {
+      const match = (c.safarName && c.safarName.toLowerCase() === safarName.toLowerCase()) ||
+                    (c.name && c.name.toLowerCase() === safarName.toLowerCase()) ||
+                    (c.id === safarName);
+      if (!match) return c;
+      return {
+        ...c,
+        dates: c.dates.map(d => {
+          const folderMatch = (d.dateFolder && d.dateFolder.toLowerCase() === dateFolder.toLowerCase()) ||
+                              (d.dateLabel && d.dateLabel.toLowerCase() === dateFolder.toLowerCase()) ||
+                              (d.id === dateFolder);
+          if (!folderMatch) return d;
+          return {
+            ...d,
+            status,
+            updated_at: timestamp,
+            ...(status === 'uploaded' ? { uploaded_at: timestamp, uploaded_by: currentUser.username || 'admin' } : {}),
+            ...(status === 'submitted' ? { submitted_at: timestamp, submitted_by: currentUser.username || 'admin' } : {})
+          };
+        })
+      };
+    }));
+
+    // Broadcast to Supabase Realtime Nexus
+    if (nexusChannelRef.current) {
+      nexusChannelRef.current.send({
+        type: 'broadcast',
+        event: 'task_mark_done',
+        payload: { safarName, dateFolder, status, timestamp }
+      }).catch(() => {});
+    }
+
+    // Direct LAN Workstation HTTP Bridge fallback
+    try {
+      fetch('http://127.0.0.1:5253/api/tasks/mark-done', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ safarName, dateFolder, status })
+      }).catch(() => {});
+    } catch (e) {}
+
+    addToast({
+      title: `Status: ${status.replace('_', ' ').toUpperCase()}`,
+      message: `${safarName} — ${dateFolder} updated to ${status.replace('_', ' ')}.`,
+      type: 'info',
+      safarName,
+      dateFolder
+    });
+
+    return { success: true };
+  };
+
+  // 3. Mark All Dates in Safar
+  const markAllSafarDatesStatus = async ({ safarName, status }) => {
+    sounds.playTap();
+    const timestamp = new Date().toISOString();
+
+    setSafarCampaigns(prev => prev.map(c => {
+      const match = (c.safarName && c.safarName.toLowerCase() === safarName.toLowerCase()) ||
+                    (c.name && c.name.toLowerCase() === safarName.toLowerCase()) ||
+                    (c.id === safarName);
+      if (!match) return c;
+      return {
+        ...c,
+        dates: c.dates.map(d => ({
+          ...d,
+          status,
+          updated_at: timestamp,
+          ...(status === 'uploaded' ? { uploaded_at: timestamp, uploaded_by: currentUser.username || 'admin' } : {}),
+          ...(status === 'submitted' ? { submitted_at: timestamp, submitted_by: currentUser.username || 'admin' } : {})
+        }))
+      };
+    }));
+
+    if (nexusChannelRef.current) {
+      nexusChannelRef.current.send({
+        type: 'broadcast',
+        event: 'task_mark_done',
+        payload: { safarName, dateFolder: 'ALL', status, timestamp }
+      }).catch(() => {});
+    }
+
+    try {
+      fetch('http://127.0.0.1:5253/api/tasks/mark-done', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ safarName, dateFolder: 'ALL', status })
+      }).catch(() => {});
+    } catch (e) {}
+
+    addToast({
+      title: `All Dates Marked ${status.replace('_', ' ').toUpperCase()}`,
+      message: `All deliverables for ${safarName} set to ${status.replace('_', ' ')}.`,
+      type: 'success',
+      safarName
+    });
+
+    sounds.playSuccess();
+    return { success: true };
+  };
+
   return (
     <AppContext.Provider value={{
       currentUser,
@@ -1383,6 +1735,12 @@ export function AppProvider({ children }) {
       setBridge,
       pushEnabled,
       setPushEnabled,
+      toasts,
+      addToast,
+      dismissToast,
+      desktopPermission,
+      requestDesktopNotificationPermission,
+      sendDesktopNotification,
       canInstallPWA: Boolean(deferredInstallPrompt),
       installPWA,
       updateEcosystemUser,
@@ -1404,7 +1762,10 @@ export function AppProvider({ children }) {
       markSafarDateUploaded,
       createSafarCampaign,
       submitSafarRequest,
-      reviewSafarRequest
+      reviewSafarRequest,
+      toggleSafarDone,
+      markTaskStatus,
+      markAllSafarDatesStatus
     }}>
       {children}
     </AppContext.Provider>

@@ -38,6 +38,13 @@ export default function GlassNav({
       badge: null
     },
     {
+      id: 'tracker',
+      label: 'Task Tracker',
+      icon: CalendarDays,
+      badge: 'Nexus',
+      badgeColor: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold'
+    },
+    {
       id: 'work',
       label: isAdmin ? 'Production Queue' : 'My Assigned Work',
       icon: Briefcase,
@@ -48,7 +55,7 @@ export default function GlassNav({
       label: 'Safar Hub & Uploads',
       icon: CalendarDays,
       badge: 'Matrix',
-      badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200 font-bold'
+      badgeColor: 'bg-neutral-100 text-neutral-700 border-neutral-200'
     },
     {
       id: 'users',

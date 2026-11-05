@@ -11,10 +11,13 @@ import {
   Sliders,
   Send,
   Trash2,
-  Clock
+  Clock,
+  Cpu,
+  Layers,
+  ArrowRight
 } from 'lucide-react';
 
-export default function NotificationCenter({ onSelectItem }) {
+export default function NotificationCenter({ onSelectItem, onNavigateToTracker }) {
   const {
     notifications,
     currentUser,
@@ -27,7 +30,7 @@ export default function NotificationCenter({ onSelectItem }) {
 
   // Filter notifications for this user (or all if admin)
   const userNotifications = notifications.filter(
-    n => n.recipient_user_id === currentUser.id || currentUser.role === 'admin'
+    n => n.recipient_user_id === currentUser.id || n.recipient_user_id === 'all' || currentUser.role === 'admin'
   );
 
   const filteredNotifications = filterKind === 'all'
@@ -38,10 +41,12 @@ export default function NotificationCenter({ onSelectItem }) {
 
   const getKindIcon = (kind) => {
     switch (kind) {
+      case 'batch_render_completed':
+        return <Cpu className="w-4 h-4 text-emerald-600" />;
       case 'render_completed':
         return <CheckCircle2 className="w-4 h-4 text-emerald-600" />;
       case 'render_started':
-        return <Play className="w-4 h-4 text-[rgba(0,0,0,0.08)]" />;
+        return <Play className="w-4 h-4 text-neutral-800" />;
       case 'correction_needed':
         return <AlertTriangle className="w-4 h-4 text-rose-500" />;
       case 'assigned':
@@ -174,6 +179,41 @@ export default function NotificationCenter({ onSelectItem }) {
                   <p className="text-xs text-neutral-800 font-medium leading-relaxed mb-2">
                     {notif.message}
                   </p>
+
+                  {(notif.safarName || notif.dateFolder) && (
+                    <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
+                      {notif.safarName && (
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-800 border border-neutral-200/80 font-mono">
+                          {notif.safarName}
+                        </span>
+                      )}
+                      {notif.dateFolder && (
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-800 border border-neutral-200/80 font-mono">
+                          {notif.dateFolder}
+                        </span>
+                      )}
+                      {notif.batchSize && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200/60">
+                          {notif.batchSize} Deliverables
+                        </span>
+                      )}
+                      {onNavigateToTracker && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            sounds.playTap();
+                            if (isUnread) markNotificationRead(notif.id);
+                            onNavigateToTracker();
+                          }}
+                          className="inline-flex items-center gap-1 text-[10px] font-bold text-neutral-950 bg-neutral-200/80 hover:bg-neutral-300 px-2 py-0.5 rounded-md transition-colors"
+                        >
+                          <span>View in Tracker</span>
+                          <ArrowRight className="w-2.5 h-2.5" />
+                        </button>
+                      )}
+                    </div>
+                  )}
 
                   <div className="flex items-center gap-3 text-[11px] text-neutral-600 font-semibold">
                     <span>Source: <strong className="text-neutral-950">Supabase Channel</strong></span>
