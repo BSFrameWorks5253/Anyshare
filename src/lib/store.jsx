@@ -528,6 +528,47 @@ export function AppProvider({ children }) {
           sounds.playSuccess();
         }
       })
+      .on('broadcast', { event: 'safar_detected' }, ({ payload }) => {
+        if (!isSubscribed || !payload) return;
+        const targetPath = payload.folderPath || payload.safarPath;
+        if (!targetPath) return;
+
+        const parsed = parseSafarPath(targetPath, {
+          safarName: payload.safarName,
+          city: payload.city,
+          hijriYear: payload.hijriYear,
+          totalDays: payload.totalDays || 10,
+          defaultDrive: payload.driveRoot || 'F:\\',
+          username: 'onetap_workstation'
+        });
+
+        if (parsed) {
+          const campId = 'safar_' + parsed.safarName.toLowerCase().replace(/[^a-z0-9_]/g, '_');
+          const camp = {
+            id: campId,
+            safarName: parsed.safarName,
+            name: parsed.safarName,
+            hijriYear: parsed.hijriYear,
+            city: parsed.city,
+            serialNumber: `SN-${Date.now().toString().slice(-4)}`,
+            driveRoot: parsed.driveRoot,
+            venue: 'Main Complex',
+            baseDirectory: parsed.safarBasePath,
+            serverDestination: `//aljamea-nas.local/Central_Vault/${parsed.safarName.replace(/[^a-zA-Z0-9_]/g, '_')}`,
+            totalDays: parsed.totalDays,
+            is_archived: false,
+            is_safar_done: false,
+            detected_by: 'onetap_workstation',
+            detected_at: new Date().toISOString(),
+            created_at: new Date().toISOString(),
+            created_by: 'onetap_workstation',
+            dates: parsed.dates,
+            auto_date_injected: parsed.isAutoDateAdded,
+            lastDetectedPath: parsed.resolvedDatePath
+          };
+          setSafarCampaigns(prev => prev.some(c => c.id === camp.id || c.safarName === camp.safarName) ? prev : [camp, ...prev]);
+        }
+      })
       .on('broadcast', { event: 'safar_campaign_created' }, payload => {
         if (!isSubscribed) return;
         const camp = payload.payload;
