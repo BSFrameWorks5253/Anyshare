@@ -13,7 +13,8 @@ import {
   Users,
   Briefcase,
   Layers,
-  ChevronDown
+  ChevronDown,
+  Menu
 } from 'lucide-react';
 
 export default function GlassTopBar({
@@ -22,6 +23,7 @@ export default function GlassTopBar({
   onOpenBridge,
   onOpenQRScanner,
   onOpenLogin,
+  onOpenMobileMenu,
   currentView,
   onNavigate
 }) {
@@ -215,6 +217,20 @@ export default function GlassTopBar({
                 {isAdmin ? 'Admin' : 'Member'}
               </span>
             </div>
+          </button>
+
+          {/* Mobile Hamburger Menu Trigger */}
+          <button
+            type="button"
+            onClick={() => {
+              sounds.playTap();
+              if (onOpenMobileMenu) onOpenMobileMenu();
+            }}
+            className="lg:hidden p-1.5 rounded-lg text-slate-700 hover:text-slate-950 hover:bg-slate-100/90 border border-slate-200/80 transition-colors cursor-pointer shadow-2xs ml-0.5"
+            aria-label="Open Navigation Menu"
+            title="Open Menu"
+          >
+            <Menu className="w-4 h-4 text-slate-800" />
           </button>
         </div>
       </div>

@@ -5,6 +5,7 @@ import GlassShell from './components/layout/GlassShell';
 import GlassTopBar from './components/layout/GlassTopBar';
 import GlassNav from './components/layout/GlassNav';
 import MobileBottomNav from './components/layout/MobileBottomNav';
+import MobileMenuDrawer from './components/layout/MobileMenuDrawer';
 import StageSummary from './components/dashboard/StageSummary';
 import WorkFilters from './components/dashboard/WorkFilters';
 import WorkList from './components/dashboard/WorkList';
@@ -67,6 +68,7 @@ export default function App() {
   const [isDbInspectorOpen, setIsDbInspectorOpen] = useState(false);
   const [isQRScannerOpen, setIsQRScannerOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const renderingCount = items.filter(i => i.status === 'rendering').length;
 
@@ -109,6 +111,7 @@ export default function App() {
         onOpenBridge={() => setIsBridgeOpen(true)}
         onOpenQRScanner={() => setIsQRScannerOpen(true)}
         onOpenLogin={() => setIsLoginModalOpen(true)}
+        onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
       />
 
       {/* Main Content Layout with Desktop Sidebar Rail */}
@@ -316,8 +319,21 @@ export default function App() {
         currentView={currentView}
         onNavigate={setCurrentView}
         onOpenNotifications={() => setIsNotificationsOpen(true)}
+        onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
+      />
+
+      {/* Mobile Hamburger Navigation Drawer */}
+      <MobileMenuDrawer
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        currentView={currentView}
+        onNavigate={setCurrentView}
+        onOpenNotifications={() => setIsNotificationsOpen(true)}
         onOpenAccount={() => setIsAccountOpen(true)}
+        onOpenBridge={() => setIsBridgeOpen(true)}
         onOpenQRScanner={() => setIsQRScannerOpen(true)}
+        onOpenDbInspector={() => setIsDbInspectorOpen(true)}
+        onOpenLogin={() => setIsLoginModalOpen(true)}
       />
 
       <ScrollToTop />
