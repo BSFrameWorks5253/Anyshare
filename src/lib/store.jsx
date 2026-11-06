@@ -535,6 +535,41 @@ export function AppProvider({ children }) {
           setSafarCampaigns(prev => prev.some(c => c.id === camp.id) ? prev : [camp, ...prev]);
         }
       })
+      .on('broadcast', { event: 'safar_campaign_updated' }, ({ payload }) => {
+        if (!isSubscribed || !payload?.safarId) return;
+        setSafarCampaigns(prev => prev.map(c => c.id === payload.safarId ? { ...c, ...payload.updates } : c));
+      })
+      .on('broadcast', { event: 'safar_campaign_deleted' }, ({ payload }) => {
+        if (!isSubscribed || !payload?.safarId) return;
+        setSafarCampaigns(prev => prev.filter(c => c.id !== payload.safarId));
+      })
+      .on('broadcast', { event: 'team_user_updated' }, ({ payload }) => {
+        if (!isSubscribed || !payload?.id) return;
+        setUsers(prev => prev.map(u => u.id === payload.id ? { ...u, ...payload } : u));
+      })
+      .on('broadcast', { event: 'team_user_removed' }, ({ payload }) => {
+        if (!isSubscribed || !payload?.userId) return;
+        setUsers(prev => prev.filter(u => u.id !== payload.userId));
+      })
+      .on('broadcast', { event: 'deliverable_editor_updated' }, ({ payload }) => {
+        if (!isSubscribed || !payload) return;
+        const { safarId, safarName, dateFolder, dayNumber, assignedEditor } = payload;
+        setSafarCampaigns(prev => prev.map(c => {
+          const match = (safarId && c.id === safarId) ||
+                        (c.safarName && c.safarName.toLowerCase() === (safarName || '').toLowerCase()) ||
+                        (c.name && c.name.toLowerCase() === (safarName || '').toLowerCase());
+          if (!match) return c;
+          return {
+            ...c,
+            dates: c.dates.map(d => {
+              const matchDay = (dayNumber !== undefined && d.dayNumber === dayNumber) ||
+                               (dateFolder && (d.dateFolder === dateFolder || d.dateLabel === dateFolder));
+              if (!matchDay) return d;
+              return { ...d, assignedEditor };
+            })
+          };
+        }));
+      })
       .on('broadcast', { event: 'safar_request_submitted' }, payload => {
         if (!isSubscribed) return;
         const req = payload.payload;
@@ -1691,6 +1726,92 @@ export function AppProvider({ children }) {
     return { success: true, user: newUser };
   };
 
+  const updateTeamUser = (userId, { name, username, email, role, avatar }) => {
+    sounds.playTap();
+    const cleanUsername = username ? username.toLowerCase().replace(/[^a-z0-9_.-]/g, '') : undefined;
+    let updatedUser = null;
+
+    setUsers(prev => prev.map(u => {
+      if (u.id === userId) {
+        updatedUser = {
+          ...u,
+          name: name !== undefined ? name.trim() : u.name,
+          username: cleanUsername || u.username,
+          email: email !== undefined ? email.trim() : u.email,
+          role: role !== undefined ? role : u.role,
+          avatar: avatar || u.avatar
+        };
+        return updatedUser;
+      }
+      return u;
+    }));
+
+    if (currentUser.id === userId && updatedUser) {
+      setCurrentUser(updatedUser);
+      updateEcosystemUser(updatedUser);
+    }
+
+    if (nexusChannelRef.current && updatedUser) {
+      nexusChannelRef.current.send({
+        type: 'broadcast',
+        event: 'team_user_updated',
+        payload: updatedUser
+      }).catch(() => {});
+    }
+
+    addToast({
+      title: 'Editor Profile Updated',
+      message: `Editor "${updatedUser?.name || 'User'}" (@${updatedUser?.username}) saved.`,
+      type: 'success'
+    });
+
+    sounds.playSuccess();
+    return { success: true, user: updatedUser };
+  };
+
+  const removeTeamUser = (userId) => {
+    sounds.playTap();
+    const target = users.find(u => u.id === userId);
+    if (!target) return { success: false, error: 'User not found' };
+
+    if (users.length <= 1) {
+      addToast({
+        title: 'Cannot Remove',
+        message: 'At least one team member must remain active.',
+        type: 'error'
+      });
+      return { success: false, error: 'Cannot remove last user' };
+    }
+
+    setUsers(prev => prev.filter(u => u.id !== userId));
+
+    // If active user is removed, switch to another remaining user
+    if (currentUser.id === userId) {
+      const remaining = users.filter(u => u.id !== userId);
+      if (remaining.length > 0) {
+        setCurrentUser(remaining[0]);
+        updateEcosystemUser(remaining[0]);
+      }
+    }
+
+    if (nexusChannelRef.current) {
+      nexusChannelRef.current.send({
+        type: 'broadcast',
+        event: 'team_user_removed',
+        payload: { userId }
+      }).catch(() => {});
+    }
+
+    addToast({
+      title: 'Editor Removed',
+      message: `@${target.username || 'user'} has been removed from the team roster.`,
+      type: 'info'
+    });
+
+    sounds.playSuccess();
+    return { success: true };
+  };
+
   // ==========================================
   // SAFAR MATRIX, UPLOAD NOTIFICATIONS & ADMIN CREATION
   // ==========================================
@@ -2054,6 +2175,162 @@ export function AppProvider({ children }) {
     return { success: true };
   };
 
+  // Safar Update / Rename by Admin
+  const updateSafarCampaign = (safarId, updates) => {
+    sounds.playTap();
+    let updatedName = 'Safar';
+
+    setSafarCampaigns(prev => prev.map(c => {
+      if (c.id === safarId) {
+        const cleanName = updates.safarName || updates.name || c.safarName || c.name;
+        updatedName = cleanName;
+        const newTotalDays = updates.totalDays ? parseInt(updates.totalDays, 10) : c.totalDays;
+
+        let updatedDates = c.dates || [];
+        // If total days changed, adjust dates array
+        if (newTotalDays && newTotalDays !== updatedDates.length) {
+          if (newTotalDays > updatedDates.length) {
+            const addedDates = Array.from({ length: newTotalDays - updatedDates.length }, (_, idx) => {
+              const dayNum = updatedDates.length + idx + 1;
+              const formattedDay = dayNum < 10 ? `0${dayNum}` : `${dayNum}`;
+              const yearDigits = (updates.hijriYear || c.hijriYear || '1448').replace(/[^0-9]/g, '') || '1448';
+              const dateFolder = `${yearDigits}-02-${formattedDay}_Day_${formattedDay}`;
+              return {
+                id: `${c.id}_d${formattedDay}`,
+                dayNumber: dayNum,
+                dateLabel: `${yearDigits}-02-${formattedDay}`,
+                dateFolder,
+                datePath: `${updates.baseDirectory || c.baseDirectory || 'F:\\'}\\${dateFolder}`,
+                hijriDate: `${dayNum} Safar al-Muzaffar ${updates.hijriYear || c.hijriYear || '1448 H'}`,
+                title: `Majlis ${dayNum} — ${updates.city || c.city || 'Discourse'}`,
+                assignedEditor: currentUser.username || 'admin',
+                status: 'editing_pending',
+                uploaded_at: null,
+                uploaded_by: null,
+                file_size_gb: 40.0
+              };
+            });
+            updatedDates = [...updatedDates, ...addedDates];
+          } else {
+            updatedDates = updatedDates.slice(0, newTotalDays);
+          }
+        }
+
+        // If baseDirectory changed, update datePaths
+        if (updates.baseDirectory && updates.baseDirectory !== c.baseDirectory) {
+          updatedDates = updatedDates.map(d => ({
+            ...d,
+            datePath: `${updates.baseDirectory}\\${d.dateFolder}`
+          }));
+        }
+
+        return {
+          ...c,
+          ...updates,
+          safarName: cleanName,
+          name: cleanName,
+          city: updates.city || c.city,
+          hijriYear: updates.hijriYear || c.hijriYear,
+          driveRoot: updates.driveRoot || c.driveRoot,
+          venue: updates.venue || c.venue,
+          baseDirectory: updates.baseDirectory || c.baseDirectory,
+          serverDestination: updates.serverDestination || c.serverDestination,
+          totalDays: newTotalDays,
+          dates: updatedDates,
+          updated_at: new Date().toISOString()
+        };
+      }
+      return c;
+    }));
+
+    if (nexusChannelRef.current) {
+      nexusChannelRef.current.send({
+        type: 'broadcast',
+        event: 'safar_campaign_updated',
+        payload: { safarId, updates }
+      }).catch(() => {});
+    }
+
+    addToast({
+      title: 'Safar Updated',
+      message: `"${updatedName}" details saved successfully.`,
+      type: 'success',
+      safarName: updatedName
+    });
+
+    sounds.playSuccess();
+    return { success: true };
+  };
+
+  // Safar Removal / Deletion by Admin
+  const removeSafarCampaign = (safarId) => {
+    sounds.playTap();
+    const target = safarCampaigns.find(c => c.id === safarId);
+    const targetName = target?.safarName || target?.name || 'Safar';
+
+    setSafarCampaigns(prev => prev.filter(c => c.id !== safarId));
+
+    if (nexusChannelRef.current) {
+      nexusChannelRef.current.send({
+        type: 'broadcast',
+        event: 'safar_campaign_deleted',
+        payload: { safarId, safarName: targetName }
+      }).catch(() => {});
+    }
+
+    addToast({
+      title: 'Safar Removed',
+      message: `"${targetName}" has been removed.`,
+      type: 'info'
+    });
+
+    sounds.playSuccess();
+    return { success: true };
+  };
+
+  // Update Assigned Editor for a specific date deliverable
+  const updateDeliverableEditor = ({ safarName, safarId, dateFolder, dayNumber, assignedEditor }) => {
+    sounds.playTap();
+    const cleanEditor = (assignedEditor || '').trim().replace(/^@/, '');
+
+    setSafarCampaigns(prev => prev.map(c => {
+      const match = (safarId && c.id === safarId) ||
+                    (c.safarName && c.safarName.toLowerCase() === (safarName || '').toLowerCase()) ||
+                    (c.name && c.name.toLowerCase() === (safarName || '').toLowerCase());
+      if (!match) return c;
+
+      return {
+        ...c,
+        dates: (c.dates || []).map(d => {
+          const matchDay = (dayNumber !== undefined && d.dayNumber === dayNumber) ||
+                           (dateFolder && (d.dateFolder === dateFolder || d.dateLabel === dateFolder));
+          if (!matchDay) return d;
+          return {
+            ...d,
+            assignedEditor: cleanEditor
+          };
+        })
+      };
+    }));
+
+    if (nexusChannelRef.current) {
+      nexusChannelRef.current.send({
+        type: 'broadcast',
+        event: 'deliverable_editor_updated',
+        payload: { safarName, safarId, dateFolder, dayNumber, assignedEditor: cleanEditor }
+      }).catch(() => {});
+    }
+
+    addToast({
+      title: 'Editor Assigned',
+      message: `Assigned @${cleanEditor} to Day ${dayNumber || dateFolder || ''}.`,
+      type: 'success'
+    });
+
+    sounds.playSuccess();
+    return { success: true };
+  };
+
   return (
     <AppContext.Provider value={{
       currentUser,
@@ -2061,6 +2338,8 @@ export function AppProvider({ children }) {
       users,
       switchUser,
       addTeamUser,
+      updateTeamUser,
+      removeTeamUser,
       items,
       events,
       notifications,
@@ -2094,6 +2373,9 @@ export function AppProvider({ children }) {
       safarRequests,
       markSafarDateUploaded,
       createSafarCampaign,
+      updateSafarCampaign,
+      removeSafarCampaign,
+      updateDeliverableEditor,
       submitSafarRequest,
       reviewSafarRequest,
       toggleSafarDone,

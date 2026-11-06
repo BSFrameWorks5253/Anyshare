@@ -21,7 +21,9 @@ import {
   Check,
   X,
   ExternalLink,
-  ChevronDown
+  ChevronDown,
+  Edit3,
+  Trash2
 } from 'lucide-react';
 
 export default function SafarHubView() {
@@ -35,6 +37,8 @@ export default function SafarHubView() {
     safarRequests,
     markSafarDateUploaded,
     createSafarCampaign,
+    updateSafarCampaign,
+    removeSafarCampaign,
     submitSafarRequest,
     reviewSafarRequest
   } = useApp();
@@ -47,6 +51,8 @@ export default function SafarHubView() {
   
   // Modals state
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [requestTargetDate, setRequestTargetDate] = useState(null);
 
@@ -57,6 +63,14 @@ export default function SafarHubView() {
   const [newVenue, setNewVenue] = useState('');
   const [newTotalDays, setNewTotalDays] = useState(10);
   const [newServerDest, setNewServerDest] = useState('//aljamea-nas.local/Central_Vault');
+
+  // Form states for Admin Safar Editing
+  const [editName, setEditName] = useState('');
+  const [editHijri, setEditHijri] = useState('');
+  const [editCity, setEditCity] = useState('');
+  const [editVenue, setEditVenue] = useState('');
+  const [editTotalDays, setEditTotalDays] = useState(10);
+  const [editServerDest, setEditServerDest] = useState('');
 
   // Form state for User Upload Request
   const [requestNotes, setRequestNotes] = useState('');
@@ -181,6 +195,44 @@ export default function SafarHubView() {
     setNewCity('');
   };
 
+  const openEditModal = () => {
+    sounds.playTap();
+    setEditName(activeCampaign.name || activeCampaign.safarName || '');
+    setEditHijri(activeCampaign.hijriYear || '1448 H');
+    setEditCity(activeCampaign.city || '');
+    setEditVenue(activeCampaign.venue || '');
+    setEditTotalDays(activeCampaign.totalDays || activeCampaign.dates?.length || 10);
+    setEditServerDest(activeCampaign.serverDestination || '');
+    setShowEditModal(true);
+  };
+
+  const handleEditCampaignSubmit = (e) => {
+    e.preventDefault();
+    if (!editName.trim() || !editCity.trim()) return;
+
+    updateSafarCampaign(activeCampaign.id, {
+      name: editName.trim(),
+      safarName: editName.trim(),
+      hijriYear: editHijri.trim(),
+      city: editCity.trim(),
+      venue: editVenue.trim(),
+      totalDays: parseInt(editTotalDays, 10) || 10,
+      serverDestination: editServerDest.trim()
+    });
+
+    setShowEditModal(false);
+  };
+
+  const handleConfirmDelete = () => {
+    sounds.playTap();
+    removeSafarCampaign(activeCampaign.id);
+    setShowDeleteConfirm(false);
+    const remaining = safarCampaigns.filter(c => c.id !== activeCampaign.id);
+    if (remaining.length > 0) {
+      setSelectedCampaignId(remaining[0].id);
+    }
+  };
+
   return (
     <div className="space-y-8 animate-fadeIn text-left">
       {/* 1. Header: Apple Liquid Glass Executive Safar Banner */}
@@ -193,7 +245,7 @@ export default function SafarHubView() {
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <h2 className="text-2xl sm:text-3xl font-bold text-neutral-950 tracking-tight font-sans">
                 {activeCampaign.name}
               </h2>
@@ -215,6 +267,31 @@ export default function SafarHubView() {
                       </option>
                     ))}
                   </select>
+                </div>
+              )}
+
+              {/* Admin Edit & Delete buttons */}
+              {isAdmin && (
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={openEditModal}
+                    className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 hover:text-slate-950 transition-colors shadow-2xs cursor-pointer"
+                    title={`Edit ${activeCampaign.name}`}
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      sounds.playTap();
+                      setShowDeleteConfirm(true);
+                    }}
+                    className="p-1.5 rounded-lg border border-rose-200 hover:bg-rose-50 text-rose-600 hover:text-rose-800 transition-colors shadow-2xs cursor-pointer"
+                    title={`Delete ${activeCampaign.name}`}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               )}
             </div>
@@ -753,6 +830,162 @@ export default function SafarHubView() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Safar Campaign Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="glass-panel w-full max-w-lg rounded-3xl p-6 sm:p-8 border border-black/[0.08] bg-white shadow-2xl space-y-6">
+            <div className="flex items-center justify-between border-b border-neutral-100 pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center">
+                  <Edit3 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-neutral-950">Edit Safar Campaign</h3>
+                  <p className="text-xs text-neutral-500">Update event information and total days</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowEditModal(false)}
+                className="p-1 rounded-lg text-neutral-400 hover:text-neutral-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleEditCampaignSubmit} className="space-y-4 text-xs">
+              <div>
+                <label className="block text-neutral-800 font-bold mb-1">
+                  Campaign Title / Safar Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full px-3 py-2 bg-neutral-50 border border-neutral-300 rounded-xl text-neutral-950 font-bold focus:outline-none focus:border-neutral-950"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-neutral-800 font-bold mb-1">
+                    City / Destination
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editCity}
+                    onChange={(e) => setEditCity(e.target.value)}
+                    className="w-full px-3 py-2 bg-neutral-50 border border-neutral-300 rounded-xl text-neutral-950 font-bold focus:outline-none focus:border-neutral-950"
+                  />
+                </div>
+                <div>
+                  <label className="block text-neutral-800 font-bold mb-1">
+                    Hijri Year
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editHijri}
+                    onChange={(e) => setEditHijri(e.target.value)}
+                    className="w-full px-3 py-2 bg-neutral-50 border border-neutral-300 rounded-xl font-mono text-neutral-950 font-bold focus:outline-none focus:border-neutral-950"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-neutral-800 font-bold mb-1">
+                    Venue / Complex
+                  </label>
+                  <input
+                    type="text"
+                    value={editVenue}
+                    onChange={(e) => setEditVenue(e.target.value)}
+                    className="w-full px-3 py-2 bg-neutral-50 border border-neutral-300 rounded-xl text-neutral-950 font-bold focus:outline-none focus:border-neutral-950"
+                  />
+                </div>
+                <div>
+                  <label className="block text-neutral-800 font-bold mb-1">
+                    Total Recording Days
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="40"
+                    value={editTotalDays}
+                    onChange={(e) => setEditTotalDays(parseInt(e.target.value, 10))}
+                    className="w-full px-3 py-2 bg-neutral-50 border border-neutral-300 rounded-xl font-mono text-neutral-950 font-bold focus:outline-none focus:border-neutral-950"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-neutral-800 font-bold mb-1">
+                  Central Server Vault Destination Path
+                </label>
+                <input
+                  type="text"
+                  value={editServerDest}
+                  onChange={(e) => setEditServerDest(e.target.value)}
+                  className="w-full px-3 py-2 bg-neutral-50 border border-neutral-300 rounded-xl font-mono text-neutral-950 font-bold focus:outline-none focus:border-neutral-950"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-neutral-200">
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="px-4 py-2 rounded-xl text-neutral-700 font-semibold hover:bg-neutral-100 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl text-xs font-semibold glass-button-primary shadow-xs cursor-pointer flex items-center gap-1.5"
+                >
+                  <span>Save Changes</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Safar Campaign Dialog */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="glass-panel w-full max-w-sm rounded-3xl p-6 border border-rose-200 bg-white shadow-2xl space-y-4 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto shadow-xs">
+              <Trash2 className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-slate-900">Delete Safar Campaign?</h3>
+              <p className="text-xs text-slate-600 mt-1">
+                Are you sure you want to delete <strong>{activeCampaign.name}</strong>? This removes all associated deliverable dates from AnyShare.
+              </p>
+            </div>
+            <div className="flex justify-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold glass-pill hover:bg-slate-100 text-slate-700 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                className="px-5 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white cursor-pointer shadow-xs transition-colors"
+              >
+                Yes, Delete Safar
+              </button>
+            </div>
           </div>
         </div>
       )}
