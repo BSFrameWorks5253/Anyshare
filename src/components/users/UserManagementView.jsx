@@ -115,7 +115,7 @@ export default function UserManagementView({ onSelectUserForFilter, onNavigateTo
       username: clean,
       email: newUserEmail.trim() || `${clean}@anything.local`,
       role: newUserRole,
-      avatar: `https://images.unsplash.com/photo-${1534528741775 + users.length * 1000}?auto=format&fit=crop&w=120&q=80`
+      avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(newUserName.trim() || cleanUsername)}&backgroundColor=0f172a&textColor=ffffff`
     });
 
     setNewUserName('');

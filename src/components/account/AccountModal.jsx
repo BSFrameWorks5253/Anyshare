@@ -24,7 +24,8 @@ import {
   Mail,
   ShieldCheck,
   Search,
-  QrCode
+  QrCode,
+  Zap
 } from 'lucide-react';
 
 export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpenQRScanner }) {
@@ -36,7 +37,8 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
     items,
     updateEcosystemUser,
     runRetentionCleanup,
-    isAdmin
+    isAdmin,
+    syncWithOneTapNode
   } = useApp();
   
   const [activeTab, setActiveTab] = useState('profile'); // 'profile' | 'team'
@@ -46,6 +48,14 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
   const [emailInput, setEmailInput] = useState(currentUser.email || '');
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [cleanupResult, setCleanupResult] = useState(null);
+  const [syncingOneTap, setSyncingOneTap] = useState(false);
+
+  const handleSyncFromOneTap = async () => {
+    setSyncingOneTap(true);
+    sounds.playTap();
+    await syncWithOneTapNode();
+    setSyncingOneTap(false);
+  };
 
   // New user form state
   const [showAddUser, setShowAddUser] = useState(false);
@@ -225,17 +235,29 @@ export default function AccountModal({ isOpen, onClose, onOpenDbInspector, onOpe
                   </div>
 
                   {!isEditingProfile && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        sounds.playTap();
-                        setIsEditingProfile(true);
-                      }}
-                      className="px-3 py-1.5 rounded-xl text-xs font-black glass-pill hover:bg-neutral-100 text-neutral-900 border border-[rgba(0,0,0,0.08)]/40 flex items-center gap-1.5 cursor-pointer shadow-xs"
-                    >
-                      <Edit2 className="w-3.5 h-3.5 text-[#334155]" />
-                      <span>Edit</span>
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        disabled={syncingOneTap}
+                        onClick={handleSyncFromOneTap}
+                        className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200/80 flex items-center gap-1.5 cursor-pointer shadow-2xs transition-colors"
+                        title="Pull real profile from One Tap node"
+                      >
+                        <Zap className="w-3.5 h-3.5 text-indigo-600 fill-indigo-600" />
+                        <span>{syncingOneTap ? 'Syncing...' : 'Sync from Node'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          sounds.playTap();
+                          setIsEditingProfile(true);
+                        }}
+                        className="px-3 py-1.5 rounded-xl text-xs font-black glass-pill hover:bg-neutral-100 text-neutral-900 border border-[rgba(0,0,0,0.08)]/40 flex items-center gap-1.5 cursor-pointer shadow-xs"
+                      >
+                        <Edit2 className="w-3.5 h-3.5 text-[#334155]" />
+                        <span>Edit</span>
+                      </button>
+                    </div>
                   )}
                 </div>
 

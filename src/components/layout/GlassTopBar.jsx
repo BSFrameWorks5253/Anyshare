@@ -195,10 +195,10 @@ export default function GlassTopBar({
             type="button"
             onClick={() => {
               sounds.playTap();
-              if (onOpenLogin) {
-                onOpenLogin();
-              } else {
+              if (onOpenAccount) {
                 onOpenAccount();
+              } else if (onOpenLogin) {
+                onOpenLogin();
               }
             }}
             className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-slate-100/90 border border-transparent hover:border-slate-200/80 transition-all cursor-pointer group"

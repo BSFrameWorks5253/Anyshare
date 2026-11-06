@@ -502,13 +502,13 @@ export const INITIAL_EVENTS = [
 
 // Default Ecosystem Users from master Anything session
 export const DEFAULT_ECOSYSTEM_USER = {
-  id: 'CREATIVE-ADMIN-MASTER',
-  name: 'Master Architect',
-  email: 'admin@anything.local',
-  username: 'admin',
+  id: 'user_burhanuddin',
+  name: 'Burhanuddin',
+  email: 'sounasathburhan5252@gmail.com',
+  username: 'burhanuddin',
   role: 'admin',
-  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
-  provider: 'anything'
+  avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Burhanuddin&backgroundColor=0f172a&textColor=ffffff',
+  provider: 'onetap'
 };
 
 export const INITIAL_USERS = [
@@ -519,7 +519,7 @@ export const INITIAL_USERS = [
     email: 'zaid@anything.local',
     username: 'zaid_cuts',
     role: 'member',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
+    avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Zaid+Editor&backgroundColor=1e293b&textColor=ffffff',
     provider: 'anything'
   }
 ];

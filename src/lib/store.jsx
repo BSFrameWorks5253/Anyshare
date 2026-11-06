@@ -28,21 +28,21 @@ const STORAGE_KEYS = {
 };
 
 export function AppProvider({ children }) {
-  // 1. Resolve Ecosystem User (from Anything master website / child app session)
+  // 1. Resolve Ecosystem User (from Anything master website / One Tap session)
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const ecoSession = localStorage.getItem(STORAGE_KEYS.ECOSYSTEM_SESSION);
       if (ecoSession) {
         const parsed = JSON.parse(ecoSession);
-        if (parsed?.user?.id) {
+        if (parsed?.user?.id && parsed.user.name !== 'Master Architect' && parsed.user.email !== 'admin@anything.local') {
           return {
             id: parsed.user.id,
-            name: parsed.user.name || 'Anything Creator',
-            email: parsed.user.email || 'creator@anything.local',
-            username: parsed.user.username || (parsed.user.email ? parsed.user.email.split('@')[0] : 'creator'),
+            name: parsed.user.name || 'Burhanuddin',
+            email: parsed.user.email || 'sounasathburhan5252@gmail.com',
+            username: parsed.user.username || 'burhanuddin',
             role: parsed.user.role || 'admin',
-            avatar: parsed.user.avatar || DEFAULT_ECOSYSTEM_USER.avatar,
-            provider: parsed.user.provider || 'anything'
+            avatar: (parsed.user.avatar && !parsed.user.avatar.includes('unsplash')) ? parsed.user.avatar : DEFAULT_ECOSYSTEM_USER.avatar,
+            provider: parsed.user.provider || 'onetap'
           };
         }
       }
@@ -95,7 +95,17 @@ export function AppProvider({ children }) {
   const [users, setUsers] = useState(() => {
     try {
       const saved = localStorage.getItem('anyshare_team_users_v1');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          return parsed.map(u => {
+            if (u.id === 'CREATIVE-ADMIN-MASTER' || u.name === 'Master Architect' || u.email === 'admin@anything.local') {
+              return DEFAULT_ECOSYSTEM_USER;
+            }
+            return u;
+          });
+        }
+      }
     } catch (e) {}
     return INITIAL_USERS;
   });
@@ -316,6 +326,32 @@ export function AppProvider({ children }) {
             }));
 
             // If bridge is active, check for newly created Safar paths or renders in One Tap
+            try {
+              // Sync user profile from One Tap workstation
+              const resProfile = await fetch('http://127.0.0.1:5253/api/user-profile', { method: 'GET', mode: 'cors' });
+              if (resProfile.ok) {
+                const profileData = await resProfile.json();
+                if (profileData?.user?.name) {
+                  setCurrentUser(prev => {
+                    if (prev.name === 'Master Architect' || prev.email === 'admin@anything.local' || prev.id === 'CREATIVE-ADMIN-MASTER' || prev.id === 'user_burhanuddin') {
+                      const u = {
+                        id: profileData.user.id || 'user_burhanuddin',
+                        name: profileData.user.name,
+                        email: profileData.user.email || 'sounasathburhan5252@gmail.com',
+                        username: profileData.user.username || 'burhanuddin',
+                        role: profileData.user.role || 'admin',
+                        avatar: (profileData.user.avatar && !profileData.user.avatar.includes('unsplash')) ? profileData.user.avatar : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(profileData.user.name)}&backgroundColor=0f172a&textColor=ffffff`,
+                        provider: 'onetap'
+                      };
+                      localStorage.setItem(STORAGE_KEYS.ECOSYSTEM_SESSION, JSON.stringify({ user: u, timestamp: Date.now() }));
+                      return u;
+                    }
+                    return prev;
+                  });
+                }
+              }
+            } catch (err) {}
+
             try {
               const resTasks = await fetch('http://127.0.0.1:5253/api/tasks', { method: 'GET', mode: 'cors' });
               if (resTasks.ok) {
@@ -913,6 +949,66 @@ export function AppProvider({ children }) {
     window.dispatchEvent(new CustomEvent('anything:ecosystem-auth-change', { detail: payload }));
     sounds.playSuccess();
     return { success: true };
+  };
+
+  // 1-Click Sync & Login from One Tap Desktop (Port 5253)
+  const syncWithOneTapNode = async () => {
+    try {
+      const res = await fetch('http://127.0.0.1:5253/api/user-profile', { method: 'GET', mode: 'cors' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.user?.name) {
+          const syncedUser = {
+            id: data.user.id || 'user_burhanuddin',
+            name: data.user.name,
+            email: data.user.email || 'sounasathburhan5252@gmail.com',
+            username: data.user.username || 'burhanuddin',
+            role: data.user.role || 'admin',
+            avatar: (data.user.avatar && !data.user.avatar.includes('unsplash')) ? data.user.avatar : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(data.user.name)}&backgroundColor=0f172a&textColor=ffffff`,
+            provider: 'onetap'
+          };
+
+          setCurrentUser(syncedUser);
+          const payload = {
+            version: '1.0.0',
+            user: syncedUser,
+            syncedAt: new Date().toISOString()
+          };
+          localStorage.setItem(STORAGE_KEYS.ECOSYSTEM_SESSION, JSON.stringify(payload));
+          window.dispatchEvent(new CustomEvent('anything:ecosystem-auth-change', { detail: payload }));
+
+          // Update users roster
+          setUsers(prev => {
+            const clean = prev.filter(u => u.id !== 'CREATIVE-ADMIN-MASTER' && u.name !== 'Master Architect' && u.email !== 'admin@anything.local');
+            const exists = clean.some(u => u.username === syncedUser.username || u.id === syncedUser.id);
+            if (exists) {
+              return clean.map(u => (u.username === syncedUser.username || u.id === syncedUser.id) ? { ...u, ...syncedUser } : u);
+            }
+            return [syncedUser, ...clean];
+          });
+
+          if (data.workstation) {
+            setBridge(prev => ({
+              ...prev,
+              is_online: true,
+              label: data.workstation.label || prev.label,
+              last_heartbeat_at: new Date().toISOString()
+            }));
+          }
+
+          addToast({
+            title: 'One Tap Workstation Synchronized',
+            message: `Connected as ${syncedUser.name} (@${syncedUser.username}) with ${syncedUser.role.toUpperCase()} privileges.`,
+            type: 'success'
+          });
+          sounds.playSuccess();
+          return { success: true, user: syncedUser };
+        }
+      }
+    } catch (err) {
+      console.warn('Sync with One Tap failed:', err);
+    }
+    return { success: false, error: 'Could not connect to One Tap desktop bridge on port 5253. Make sure One Tap is running.' };
   };
 
   // Listen for ecosystem auth changes from Anything website or child apps
@@ -1759,7 +1855,7 @@ export function AppProvider({ children }) {
       email: email.trim() || `${cleanUsername}@anything.local`,
       username: cleanUsername,
       role: role || 'member',
-      avatar: `https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80`,
+      avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name.trim() || cleanUsername)}&backgroundColor=0f172a&textColor=ffffff`,
       provider: 'anything'
     };
     setUsers(prev => [...prev, newUser]);
@@ -2397,6 +2493,7 @@ export function AppProvider({ children }) {
       canInstallPWA: Boolean(deferredInstallPrompt),
       installPWA,
       updateEcosystemUser,
+      syncWithOneTapNode,
       createNewProductionItem,
       toggleBridgeOnline,
       triggerBridgeScan,

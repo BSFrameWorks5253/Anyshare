@@ -20,11 +20,13 @@ import {
   ShieldCheck,
   Copy,
   Check,
-  FlipHorizontal
+  FlipHorizontal,
+  Zap,
+  ArrowRight
 } from 'lucide-react';
 
 export default function QRScannerModal({ isOpen, onClose }) {
-  const { currentUser, updateEcosystemUser, bridge, setBridge } = useApp();
+  const { currentUser, updateEcosystemUser, bridge, setBridge, syncWithOneTapNode } = useApp();
   
   // Tab states: 'scan' | 'upload' | 'manual' | 'generate'
   const [activeTab, setActiveTab] = useState('scan');
@@ -38,7 +40,42 @@ export default function QRScannerModal({ isOpen, onClose }) {
   const [copiedToken, setCopiedToken] = useState(false);
   
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isSyncingOneTap, setIsSyncingOneTap] = useState(false);
   const [successInfo, setSuccessInfo] = useState(null);
+
+  const handleDirectOneTapSync = async () => {
+    setIsSyncingOneTap(true);
+    setCameraError('');
+    sounds.playTap();
+    try {
+      const res = await syncWithOneTapNode();
+      if (res?.success && res.user) {
+        setSuccessInfo({
+          user: res.user,
+          workstation: {
+            nodeId: 'node_studio_pc_01',
+            label: 'Studio-PC-01 (Primary One Tap Node)',
+            gpu: 'NVIDIA RTX 4090 (24GB VRAM)',
+            bridgePort: 5253
+          },
+          token: 'local_direct_sync'
+        });
+        try {
+          confetti({
+            particleCount: 90,
+            spread: 70,
+            origin: { y: 0.6 }
+          });
+        } catch (e) {}
+      } else {
+        setCameraError(res?.error || 'Could not connect to One Tap desktop bridge on port 5253. Make sure One Tap is running.');
+      }
+    } catch (e) {
+      setCameraError('Direct sync failed: ' + (e?.message || 'Connection error'));
+    } finally {
+      setIsSyncingOneTap(false);
+    }
+  };
   
   const scannerRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -170,13 +207,15 @@ export default function QRScannerModal({ isOpen, onClose }) {
         return;
       }
 
-      const user = payload.user || {
-        id: 'user_master_01',
-        name: 'Master Architect',
-        username: 'admin',
-        email: 'admin@anything.local',
-        role: 'admin',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'
+      const rawUser = payload.user || {};
+      const user = {
+        id: rawUser.id || 'user_burhanuddin',
+        name: rawUser.name || 'Burhanuddin',
+        username: rawUser.username || 'burhanuddin',
+        email: rawUser.email || 'sounasathburhan5252@gmail.com',
+        role: rawUser.role || 'admin',
+        avatar: (rawUser.avatar && !rawUser.avatar.includes('unsplash')) ? rawUser.avatar : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(rawUser.name || 'Burhanuddin')}&backgroundColor=0f172a&textColor=ffffff`,
+        provider: rawUser.provider || 'onetap'
       };
       const workstation = payload.workstation || {
         nodeId: 'node_studio_pc_01',
@@ -336,12 +375,12 @@ export default function QRScannerModal({ isOpen, onClose }) {
       createdAt: new Date().toISOString(),
       expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
       user: {
-        id: currentUser.id || 'user_master_01',
-        name: currentUser.name || 'Master Architect',
-        username: currentUser.username || 'admin',
-        email: currentUser.email || 'admin@anything.local',
+        id: currentUser.id || 'user_burhanuddin',
+        name: currentUser.name || 'Burhanuddin',
+        username: currentUser.username || 'burhanuddin',
+        email: currentUser.email || 'sounasathburhan5252@gmail.com',
         role: currentUser.role || 'admin',
-        avatar: currentUser.avatar
+        avatar: (currentUser.avatar && !currentUser.avatar.includes('unsplash')) ? currentUser.avatar : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(currentUser.name || 'Burhanuddin')}&backgroundColor=0f172a&textColor=ffffff`
       },
       workstation: {
         nodeId: 'node_studio_pc_01',
@@ -511,13 +550,13 @@ export default function QRScannerModal({ isOpen, onClose }) {
               <div className="p-4 rounded-2xl bg-white border border-[rgba(0,0,0,0.08)]/30 shadow-sm max-w-md mx-auto text-left space-y-3">
                 <div className="flex items-center gap-3 pb-3 border-b border-[rgba(0,0,0,0.08)]/15">
                   <img
-                    src={successInfo.user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'}
+                    src={successInfo.user.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(successInfo.user.name || 'Burhanuddin')}&backgroundColor=0f172a&textColor=ffffff`}
                     alt={successInfo.user.name}
-                    className="w-11 h-11 rounded-full object-cover border-2 border-[#0f172a]"
+                    className="w-11 h-11 rounded-full object-cover border-2 border-indigo-600"
                   />
                   <div>
                     <h4 className="text-sm font-black text-neutral-950">{successInfo.user.name}</h4>
-                    <p className="text-xs font-mono text-[#1e293b] font-bold">@{successInfo.user.username}</p>
+                    <p className="text-xs font-mono text-[#1e293b] font-bold">@{successInfo.user.username} • {successInfo.user.email}</p>
                     <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded bg-neutral-100 text-neutral-900 border border-neutral-300">
                       {successInfo.user.role}
                     </span>
@@ -556,6 +595,34 @@ export default function QRScannerModal({ isOpen, onClose }) {
               {/* TAB 1: LIVE CAMERA SCANNER */}
               {activeTab === 'scan' && (
                 <div className="space-y-4">
+                  {/* Direct 1-Click Sync from Local One Tap Desktop */}
+                  <div className="p-3.5 rounded-2xl bg-indigo-50/80 border border-indigo-200/90 shadow-2xs flex items-center justify-between gap-3 text-left">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                        <Zap className="w-4 h-4 fill-white" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-900 leading-tight">Same Computer? 1-Click Sync</h4>
+                        <p className="text-[11px] text-slate-600 font-medium">Link Burhanuddin profile & One Tap node without webcam</p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={isSyncingOneTap}
+                      onClick={handleDirectOneTapSync}
+                      className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all cursor-pointer shadow-2xs shrink-0 flex items-center gap-1.5 disabled:opacity-60"
+                    >
+                      {isSyncingOneTap ? (
+                        <span>Syncing...</span>
+                      ) : (
+                        <>
+                          <span>1-Click Sync</span>
+                          <ArrowRight className="w-3 h-3" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+
                   <div className="relative rounded-3xl overflow-hidden bg-black/90 border-2 border-[rgba(0,0,0,0.08)]/40 aspect-square max-w-sm mx-auto shadow-inner flex items-center justify-center">
                     {/* Viewfinder Target Reticle */}
                     <div className="absolute inset-8 border-2 border-dashed border-[#0f172a]/60 rounded-2xl pointer-events-none z-10 flex flex-col justify-between p-2">
