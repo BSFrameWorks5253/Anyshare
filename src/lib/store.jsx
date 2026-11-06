@@ -13,6 +13,7 @@ import {
 import { supabase, SUPABASE_CONFIG } from './supabase';
 import { sounds } from './sound';
 import confetti from 'canvas-confetti';
+import { parseSafarPath, autoResolveSafarCampaign } from './pathParser';
 
 const AppContext = createContext(null);
 
@@ -122,6 +123,11 @@ export function AppProvider({ children }) {
     return [];
   });
 
+  const safarCampaignsRef = useRef(safarCampaigns);
+  useEffect(() => {
+    safarCampaignsRef.current = safarCampaigns;
+  }, [safarCampaigns]);
+
   // User Safar Creation & Upload Approval Requests
   const [safarRequests, setSafarRequests] = useState(() => {
     try {
@@ -187,7 +193,111 @@ export function AppProvider({ children }) {
     }
   };
 
-  // Auto-probe One Tap Workstation Bridge on port 5253
+  // Automatically creates a Safar campaign when a new workstation path is seen,
+  // and automatically injects/appends the production date to the Safar path if not added by user/One Tap.
+  const autoHandleSeenWorkstationPath = (rawPath, meta = {}) => {
+    if (!rawPath || typeof rawPath !== 'string') return null;
+    const currentList = safarCampaignsRef.current || safarCampaigns;
+    const resolution = autoResolveSafarCampaign(rawPath, currentList, {
+      username: currentUser?.username || 'admin',
+      ...meta
+    });
+    if (!resolution) return null;
+
+    if (resolution.isNew) {
+      const newCamp = resolution.campaign;
+      setSafarCampaigns(prev => {
+        if (prev.some(c => c.id === newCamp.id || (c.baseDirectory && c.baseDirectory.toLowerCase() === newCamp.baseDirectory.toLowerCase()))) {
+          return prev;
+        }
+        return [newCamp, ...prev];
+      });
+
+      if (nexusChannelRef.current) {
+        nexusChannelRef.current.send({
+          type: 'broadcast',
+          event: 'safar_campaign_created',
+          payload: newCamp
+        }).catch(() => {});
+      }
+
+      const dateNote = resolution.wasDateAdded
+        ? `Date was not added by user — One Tap auto-added: \\${resolution.parsed.autoAddedDateFolder}`
+        : `Production date folder detected: \\${resolution.parsed.resolvedDateFolder}`;
+
+      addToast({
+        title: 'One Tap: Safar Auto-Created',
+        message: `Created "${newCamp.safarName}". ${dateNote}`,
+        type: 'success',
+        safarName: newCamp.safarName
+      });
+
+      const notif = {
+        id: 'notif_safar_auto_' + Date.now() + Math.random().toString(36).substring(2, 6),
+        recipient_user_id: 'all',
+        kind: 'safar_created',
+        title: `One Tap Auto-Created Safar: ${newCamp.safarName}`,
+        message: `Workstation path "${rawPath}" registered. ${dateNote}`,
+        delivery_state: 'supabase_live',
+        read_at: null,
+        created_at: new Date().toISOString()
+      };
+      setNotifications(prev => [notif, ...prev]);
+
+      sounds.playChime();
+      return resolution;
+    } else {
+      // Existing Safar
+      if (resolution.parsed?.resolvedDateFolder) {
+        const folderName = resolution.parsed.resolvedDateFolder.toLowerCase();
+        setSafarCampaigns(prev => prev.map(c => {
+          if (c.id !== resolution.campaign.id && c.baseDirectory?.toLowerCase() !== resolution.campaign.baseDirectory?.toLowerCase()) {
+            return c;
+          }
+          let dateFound = false;
+          const updatedDates = (c.dates || []).map(d => {
+            if (
+              (d.dateFolder && d.dateFolder.toLowerCase() === folderName) ||
+              (d.dateLabel && folderName.includes(d.dateLabel.toLowerCase())) ||
+              (d.dayNumber === resolution.parsed.dates?.[0]?.dayNumber)
+            ) {
+              dateFound = true;
+              return {
+                ...d,
+                datePath: resolution.resolvedDatePath,
+                last_seen_at: new Date().toISOString()
+              };
+            }
+            return d;
+          });
+
+          if (!dateFound && resolution.parsed.hasUserDate) {
+            const dayNum = resolution.parsed.dates?.[0]?.dayNumber || (c.dates.length + 1);
+            const formattedDay = dayNum < 10 ? `0${dayNum}` : `${dayNum}`;
+            const newDateItem = {
+              id: `${c.id}_d${formattedDay}`,
+              dayNumber: dayNum,
+              dateLabel: resolution.parsed.dates?.[0]?.dateLabel || `${(c.hijriYear || '1448').replace(/[^0-9]/g, '')}-02-${formattedDay}`,
+              dateFolder: resolution.parsed.resolvedDateFolder,
+              datePath: resolution.resolvedDatePath,
+              hijriDate: `${dayNum} Safar al-Muzaffar ${c.hijriYear || '1448 H'}`,
+              title: `Majlis ${dayNum} — ${c.city || 'Event'} Discourse`,
+              assignedEditor: currentUser?.username || 'admin',
+              status: 'editing_pending',
+              uploaded_at: null,
+              file_size_gb: 40.0
+            };
+            updatedDates.push(newDateItem);
+          }
+
+          return { ...c, dates: updatedDates, lastDetectedPath: resolution.resolvedDatePath };
+        }));
+      }
+      return resolution;
+    }
+  };
+
+  // Auto-probe One Tap Workstation Bridge on port 5253 & watch for newly created Safar paths
   useEffect(() => {
     let isMounted = true;
     const probeBridge = async () => {
@@ -204,6 +314,26 @@ export function AppProvider({ children }) {
               workstation_storage_free_gb: data.storageFreeGB || prev.workstation_storage_free_gb,
               last_heartbeat_at: new Date().toISOString()
             }));
+
+            // If bridge is active, check for newly created Safar paths or renders in One Tap
+            try {
+              const resTasks = await fetch('http://127.0.0.1:5253/api/tasks', { method: 'GET', mode: 'cors' });
+              if (resTasks.ok) {
+                const tasksData = await resTasks.json();
+                if (tasksData?.tasks && Array.isArray(tasksData.tasks)) {
+                  tasksData.tasks.forEach(task => {
+                    const p = task.safarPath || task.folderPath || task.path || task.filePath;
+                    if (p) autoHandleSeenWorkstationPath(p, { safarName: task.safarName });
+                  });
+                }
+                if (tasksData?.safars && Array.isArray(tasksData.safars)) {
+                  tasksData.safars.forEach(s => {
+                    const p = s.baseDirectory || s.path || s.folderPath;
+                    if (p) autoHandleSeenWorkstationPath(p, s);
+                  });
+                }
+              }
+            } catch (err) {}
           }
         }
       } catch (e) {
@@ -301,6 +431,10 @@ export function AppProvider({ children }) {
         if (!isSubscribed) return;
         const incoming = payload.payload?.safars;
         if (Array.isArray(incoming) && incoming.length > 0) {
+          incoming.forEach(s => {
+            const p = s.baseDirectory || s.path || s.folderPath || (s.name ? `F:\\${s.name}` : null);
+            if (p) autoHandleSeenWorkstationPath(p, s);
+          });
           setSafarCampaigns(incoming);
           sounds.playChime();
           addToast({
@@ -308,6 +442,13 @@ export function AppProvider({ children }) {
             message: `Workstation node synced ${incoming.length} Safar campaign(s) into AnyShare.`,
             type: 'success'
           });
+        }
+      })
+      .on('broadcast', { event: 'safar_path_seen' }, ({ payload }) => {
+        if (!isSubscribed || !payload) return;
+        const p = payload.path || payload.folderPath || payload.safarPath || payload.filePath;
+        if (p) {
+          autoHandleSeenWorkstationPath(p, payload);
         }
       })
       .on('broadcast', { event: 'pairing_created' }, payload => {
@@ -414,6 +555,12 @@ export function AppProvider({ children }) {
         const batchSize = payload?.batchSize || 1;
         const message = payload?.message || `Rendered deliverables ready for ${safarName} (${dateFolder}).`;
 
+        // Automatically auto-create Safar or inject date if new workstation path seen
+        const pathCandidate = payload?.safarPath || payload?.folderPath || payload?.path || payload?.filePath || payload?.outputPath || (payload?.safarName ? `F:\\${payload.safarName}` : null);
+        if (pathCandidate) {
+          autoHandleSeenWorkstationPath(pathCandidate, payload);
+        }
+
         const notif = {
           id: 'notif_render_' + Date.now() + Math.random().toString(36).substring(2, 6),
           recipient_user_id: 'all',
@@ -452,6 +599,12 @@ export function AppProvider({ children }) {
         const dateFolder = payload?.dateFolder || 'Deliverable';
         const batchSize = payload?.batchSize || 1;
         const message = `Workstation finished export of ${batchSize} deliverable(s) for ${safarName} (${dateFolder}). Status set to Upload Pending.`;
+
+        // Automatically auto-create Safar or inject date if new workstation path seen
+        const pathCandidate = payload?.safarPath || payload?.folderPath || payload?.path || payload?.filePath || payload?.outputPath || (payload?.safarName ? `F:\\${payload.safarName}` : null);
+        if (pathCandidate) {
+          autoHandleSeenWorkstationPath(pathCandidate, payload);
+        }
 
         // Automatically move matching date deliverable to 'upload_pending'
         setSafarCampaigns(prev => prev.map(c => {
@@ -509,6 +662,11 @@ export function AppProvider({ children }) {
       .on('broadcast', { event: 'task_status_updated' }, ({ payload }) => {
         if (!isSubscribed || !payload) return;
         const { safarName, dateFolder, status, timestamp } = payload;
+
+        const pathCandidate = payload?.safarPath || payload?.folderPath || payload?.path || payload?.filePath || (payload?.safarName ? `F:\\${payload.safarName}` : null);
+        if (pathCandidate) {
+          autoHandleSeenWorkstationPath(pathCandidate, payload);
+        }
         setSafarCampaigns(prev => prev.map(c => {
           const nameMatches = !safarName ||
             (c.safarName && c.safarName.toLowerCase().includes(safarName.toLowerCase())) ||
@@ -843,9 +1001,20 @@ export function AppProvider({ children }) {
             return Array.from(map.values());
           });
           detectedTasksCount = data.tasks.length;
+
+          // Auto-discover and create Safars from any task paths
+          data.tasks.forEach(task => {
+            const candidatePath = task.safarPath || task.folderPath || task.path || task.filePath;
+            if (candidatePath) {
+              autoHandleSeenWorkstationPath(candidatePath, { safarName: task.safarName });
+            }
+          });
         }
         if (data?.safars && Array.isArray(data.safars) && data.safars.length > 0) {
-          setSafarCampaigns(data.safars);
+          data.safars.forEach(s => {
+            const path = s.baseDirectory || s.path || s.folderPath || (s.name ? `F:\\${s.name}` : null);
+            if (path) autoHandleSeenWorkstationPath(path, s);
+          });
           detectedSafarsCount = data.safars.length;
         }
         setBridge(prev => ({
@@ -865,7 +1034,10 @@ export function AppProvider({ children }) {
       if (resSafar.ok) {
         const dataSafar = await resSafar.json();
         if (dataSafar?.safars && Array.isArray(dataSafar.safars) && dataSafar.safars.length > 0) {
-          setSafarCampaigns(dataSafar.safars);
+          dataSafar.safars.forEach(s => {
+            const path = s.baseDirectory || s.path || s.folderPath || (s.name ? `F:\\${s.name}` : null);
+            if (path) autoHandleSeenWorkstationPath(path, s);
+          });
           detectedSafarsCount = dataSafar.safars.length;
           setBridge(prev => ({ ...prev, is_online: true, last_heartbeat_at: now, last_scan_at: now }));
         }
@@ -901,52 +1073,49 @@ export function AppProvider({ children }) {
   };
 
   // Detect and register a Safar campaign directly from a workstation directory path
+  // Automatically injects/appends the production date to the Safar path if not added by user!
   const detectSafarFromPath = ({ folderPath, safarName, city, hijriYear, totalDays = 10, driveRoot }) => {
     sounds.playTap();
-    const cleanName = (safarName || folderPath.split(/[\\/]/).filter(Boolean).pop() || 'Detected Safar').replace(/[_]/g, ' ');
-    const cleanId = 'safar_' + Date.now();
-    const detectedDrive = driveRoot || (folderPath.match(/^[a-zA-Z]:/) ? folderPath.slice(0, 3).toUpperCase() : 'F:\\');
-    const daysCount = parseInt(totalDays, 10) || 10;
-    const year = hijriYear || '1448 H';
-
-    const dates = Array.from({ length: daysCount }, (_, i) => {
-      const dayNum = i + 1;
-      const formattedDay = dayNum < 10 ? `0${dayNum}` : `${dayNum}`;
-      return {
-        id: `${cleanId}_d${formattedDay}`,
-        dayNumber: dayNum,
-        dateLabel: `${year.replace(/[^0-9]/g, '') || '1448'}-02-${formattedDay}`,
-        dateFolder: `${year.replace(/[^0-9]/g, '') || '1448'}-02-${formattedDay}_Day_${formattedDay}`,
-        hijriDate: `${dayNum} Safar al-Muzaffar ${year}`,
-        title: `Majlis ${dayNum} — ${city || 'Event Discourse'}`,
-        assignedEditor: currentUser.username || 'admin',
-        status: 'editing_pending',
-        uploaded_at: null,
-        uploaded_by: null,
-        file_size_gb: 40.0,
-        server_path: null
-      };
+    const parsed = parseSafarPath(folderPath, {
+      safarName,
+      city,
+      hijriYear,
+      totalDays,
+      defaultDrive: driveRoot,
+      username: currentUser?.username || 'admin'
     });
 
+    if (!parsed) {
+      addToast({
+        title: 'Invalid Folder Path',
+        message: 'Could not parse directory path. Please check the drive path.',
+        type: 'error'
+      });
+      return { success: false };
+    }
+
+    const cleanId = 'safar_' + Date.now();
     const newDetectedCampaign = {
       id: cleanId,
-      safarName: cleanName,
-      name: cleanName,
-      hijriYear: year,
-      city: city || 'Local Workstation Node',
+      safarName: parsed.safarName,
+      name: parsed.safarName,
+      hijriYear: parsed.hijriYear,
+      city: parsed.city,
       serialNumber: `SN-${Date.now().toString().slice(-4)}`,
-      driveRoot: detectedDrive,
+      driveRoot: parsed.driveRoot,
       venue: 'Main Complex',
-      baseDirectory: folderPath,
-      serverDestination: `//aljamea-nas.local/Central_Vault/${cleanName.replace(/[^a-zA-Z0-9_]/g, '_')}`,
-      totalDays: daysCount,
+      baseDirectory: parsed.safarBasePath,
+      serverDestination: `//aljamea-nas.local/Central_Vault/${parsed.safarName.replace(/[^a-zA-Z0-9_]/g, '_')}`,
+      totalDays: parsed.totalDays,
       is_archived: false,
       is_safar_done: false,
       detected_by: 'onetap_workstation',
       detected_at: new Date().toISOString(),
       created_at: new Date().toISOString(),
-      created_by: currentUser.username || 'admin',
-      dates
+      created_by: currentUser?.username || 'admin',
+      dates: parsed.dates,
+      auto_date_injected: parsed.isAutoDateAdded,
+      lastDetectedPath: parsed.resolvedDatePath
     };
 
     setSafarCampaigns(prev => [newDetectedCampaign, ...prev]);
@@ -959,15 +1128,19 @@ export function AppProvider({ children }) {
       }).catch(() => {});
     }
 
+    const dateNote = parsed.isAutoDateAdded
+      ? `Date was not added by user — One Tap automatically appended: \\${parsed.autoAddedDateFolder}`
+      : `Production date folder detected: \\${parsed.resolvedDateFolder}`;
+
     addToast({
       title: 'Safar Detected & Registered',
-      message: `"${cleanName}" on drive ${detectedDrive} registered with ${daysCount} production dates.`,
+      message: `"${parsed.safarName}" on drive ${parsed.driveRoot}. ${dateNote}`,
       type: 'success',
-      safarName: cleanName
+      safarName: parsed.safarName
     });
 
     sounds.playSuccess();
-    return { success: true, campaign: newDetectedCampaign };
+    return { success: true, campaign: newDetectedCampaign, parsed };
   };
 
   // Clear all mock and local test data
@@ -1927,6 +2100,8 @@ export function AppProvider({ children }) {
       markTaskStatus,
       markAllSafarDatesStatus,
       detectSafarFromPath,
+      autoHandleSeenWorkstationPath,
+      parseSafarPath,
       clearMockDataAndRescan
     }}>
       {children}

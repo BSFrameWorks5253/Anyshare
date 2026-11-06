@@ -476,6 +476,12 @@ export default function SafarHubView() {
                       <span className="font-bold text-slate-950">@{dateItem.assignedEditor || 'unassigned'}</span>
                     </div>
                     <div className="flex justify-between">
+                      <span className="text-slate-600 font-sans font-medium">Workstation Date Path:</span>
+                      <span className="font-bold text-slate-950 truncate max-w-[200px]" title={dateItem.datePath || `${activeCampaign.baseDirectory || 'F:\\'}\\${dateItem.dateFolder || dateItem.dateLabel}`}>
+                        {dateItem.datePath || `${activeCampaign.baseDirectory || 'F:\\'}\\${dateItem.dateFolder || dateItem.dateLabel}`}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
                       <span className="text-slate-600 font-sans font-medium">Vault Archive Path:</span>
                       <span className="font-bold text-slate-950 truncate max-w-[190px]" title={dateItem.server_path || 'Pending upload'}>
                         {dateItem.server_path ? dateItem.server_path : 'Not Yet Uploaded'}
