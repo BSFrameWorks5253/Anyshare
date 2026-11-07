@@ -165,9 +165,20 @@ export function AppProvider({ children }) {
   const nexusChannelRef = useRef(null);
 
   // Helper to deduplicate date deliverables by normalized key (prevents duplicates)
+  const isJunkSafarOrHardware = (name) => {
+    const s = String(name || '').trim().toLowerCase();
+    if (!s) return true;
+    if (/^(?:intelvga|dptf|mei|realtek|nvidia|amd|driver|drivers|windows|system|\$recycle\.bin)/i.test(s)) return true;
+    const rootKey = s.replace(/[\s_-]+/g, ' ');
+    if (['in process', 'to upload', 'to delete', 'uploaded data', 'uploaded', 'upload', 'pending', 'safars', 'safar', 'working safar', 'working', 'client', 'clients', 'final', 'output', 'export'].includes(rootKey)) return true;
+    return false;
+  };
+
   const dedupeDatesInSafars = (safars) => {
     if (!Array.isArray(safars)) return [];
-    return safars.map(s => {
+    return safars
+      .filter(s => !isJunkSafarOrHardware(s.safarName || s.name))
+      .map(s => {
       const seen = new Set();
       const cleanDates = [];
       (s.dates || []).forEach(d => {
