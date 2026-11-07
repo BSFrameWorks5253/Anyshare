@@ -23,6 +23,8 @@ import QRScannerModal from './components/auth/QRScannerModal';
 import UserManagementView from './components/users/UserManagementView';
 import SafarHubView from './components/safar/SafarHubView';
 import TaskTrackerView from './components/tracker/TaskTrackerView';
+import PhotoTrackerView from './components/photo/PhotoTrackerView';
+import AppLoader from './components/common/AppLoader';
 import RealtimeToastContainer from './components/common/RealtimeToastContainer';
 import ProductionDashboardTemplate from './components/template/ProductionDashboardTemplate';
 import LoginModal from './components/auth/LoginModal';
@@ -47,6 +49,14 @@ export default function App() {
     bridge,
     triggerBridgeScan
   } = useApp();
+
+  const [isInitialBoot, setIsInitialBoot] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitialBoot(false);
+    }, 600);
+    return () => clearTimeout(timer);
+  }, []);
 
   const [currentView, setCurrentView] = useState('overview');
 
@@ -275,6 +285,13 @@ export default function App() {
             </div>
           )}
 
+          {/* VIEW: PHOTO DATA & GOOGLE DRIVE SYNC (GS SCRIPT) */}
+          {currentView === 'photo' && (
+            <div className="animate-fadeIn">
+              <PhotoTrackerView />
+            </div>
+          )}
+
           {/* VIEW: SAFAR HUB & UPLOAD MATRIX */}
           {currentView === 'safar' && (
             <div className="animate-fadeIn">
@@ -440,6 +457,14 @@ export default function App() {
           setIsQRScannerOpen(true);
         }}
       />
+
+      {/* Luxury Loading Screen on Initial Boot / Refresh */}
+      {isInitialBoot && (
+        <AppLoader
+          message="Connecting to One Tap Workstation & Cloud Drive..."
+          subtext="Syncing real-time Safar campaigns, render queues and photo deliverables"
+        />
+      )}
 
     </GlassShell>
   );

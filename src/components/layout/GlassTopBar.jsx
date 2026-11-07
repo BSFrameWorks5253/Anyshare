@@ -13,6 +13,7 @@ import {
   Users,
   Briefcase,
   Layers,
+  Camera,
   ChevronDown,
   Menu
 } from 'lucide-react';
@@ -88,6 +89,19 @@ export default function GlassTopBar({
           >
             <Layers className="w-3.5 h-3.5 text-indigo-600" />
             <span>Task Tracker</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => { sounds.playTap(); onNavigate('photo'); }}
+            className={`h-7 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+              currentView === 'photo'
+                ? 'bg-white text-slate-900 shadow-2xs font-bold'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+            }`}
+          >
+            <Camera className="w-3.5 h-3.5 text-rose-500" />
+            <span>Photo Sync</span>
           </button>
 
           <button

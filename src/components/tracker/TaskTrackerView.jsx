@@ -3,6 +3,8 @@ import { useApp } from '../../lib/store';
 import { TRACKER_STAGE_CONFIG } from '../../lib/mockData';
 import { sounds } from '../../lib/sound';
 import { parseSafarPath } from '../../lib/pathParser';
+import OngoingSafarKanban from './OngoingSafarKanban';
+import SkeletonLoader from '../common/SkeletonLoader';
 import {
   CheckCircle2,
   Clock,
@@ -48,7 +50,12 @@ export default function TaskTrackerView() {
     isAdmin,
     users,
     bridge,
+    isLoading,
+    isScanning: storeScanning,
     triggerBridgeScan,
+    triggerBridgeResetAndRescan,
+    removeTrackerDateFolder,
+    addTrackerDateFolder,
     detectSafarFromPath,
     clearMockDataAndRescan,
     toggleSafarDone,
@@ -61,11 +68,13 @@ export default function TaskTrackerView() {
     requestDesktopNotificationPermission
   } = useApp();
 
+  const [trackerMode, setTrackerMode] = useState('kanban'); // 'kanban' | 'campaigns'
   const [activeTab, setActiveTab] = useState('active'); // 'active' | 'archived' | 'all'
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDrive, setSelectedDrive] = useState('all');
   const [isDetectModalOpen, setIsDetectModalOpen] = useState(false);
-  const [isScanning, setIsScanning] = useState(false);
+  const [localScanning, setLocalScanning] = useState(false);
+  const isScanning = localScanning || storeScanning;
 
   // Folder detection modal inputs
   const [detectFolderInput, setDetectFolderInput] = useState('F:\\Safar_1448_Colombo');
@@ -160,9 +169,9 @@ export default function TaskTrackerView() {
 
   // Trigger workstation scan with feedback
   const handleScanWorkstation = async () => {
-    setIsScanning(true);
+    setLocalScanning(true);
     await triggerBridgeScan();
-    setTimeout(() => setIsScanning(false), 800);
+    setTimeout(() => setLocalScanning(false), 800);
   };
 
   // Extract unique drive roots
@@ -287,7 +296,22 @@ export default function TaskTrackerView() {
             title="Scan One Tap desktop node for Safar projects & render queues"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isScanning ? 'animate-spin' : ''}`} />
-            <span>{isScanning ? 'Scanning Drives...' : 'Scan One Tap Drives'}</span>
+            <span>{isScanning ? 'Scanning Drives...' : 'Scan Drives'}</span>
+          </button>
+
+          {/* Reset & Clean Rescan Button */}
+          <button
+            type="button"
+            disabled={isScanning}
+            onClick={() => {
+              sounds.playTap();
+              if (triggerBridgeResetAndRescan) triggerBridgeResetAndRescan();
+            }}
+            className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 flex items-center gap-1.5 cursor-pointer shadow-xs transition-all disabled:opacity-60"
+            title="Clear phantom records, rescan disk fresh, and deduplicate folders"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isScanning ? 'animate-spin' : ''}`} />
+            <span>Reset & Clean Rescan</span>
           </button>
 
           {/* Detect Custom Folder / Drive */}
@@ -340,6 +364,43 @@ export default function TaskTrackerView() {
         </div>
       </div>
 
+      {/* Tracker Mode Toggle (Ongoing Safar Kanban vs All Campaigns Matrix) */}
+      <div className="flex items-center justify-between gap-3 flex-wrap pt-1">
+        <div className="flex items-center gap-1 bg-slate-100/90 p-1 rounded-2xl border border-slate-200/80">
+          <button
+            type="button"
+            onClick={() => { sounds.playTap(); setTrackerMode('kanban'); }}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+              trackerMode === 'kanban'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5 text-indigo-400" />
+            <span>Ongoing Safar Kanban</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => { sounds.playTap(); setTrackerMode('campaigns'); }}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+              trackerMode === 'campaigns'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+            }`}
+          >
+            <Calendar className="w-3.5 h-3.5 text-slate-400" />
+            <span>All Campaigns & Matrix ({safarCampaigns.length})</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Conditional Rendering: Kanban vs Campaigns */}
+      {isScanning ? (
+        <SkeletonLoader variant="kanban" message="Syncing workstation Safar folders & render pipeline..." />
+      ) : trackerMode === 'kanban' ? (
+        <OngoingSafarKanban />
+      ) : (
+        <>
       {/* 2. KPI Bar (Total Safars, Total Days, 6 Stage Counts & % Delivered) */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {STAGE_KEYS.map((stageKey) => {
@@ -723,6 +784,9 @@ export default function TaskTrackerView() {
                               status
                             });
                           }}
+                          onRemoveFolder={() => {
+                            removeTrackerDateFolder(safar.safarName || safar.name, dateItem.dateFolder || dateItem.dateLabel);
+                          }}
                         />
                       ))}
                     </div>
@@ -732,6 +796,8 @@ export default function TaskTrackerView() {
             );
           })}
         </div>
+      )}
+      </>
       )}
 
       {/* 5. Workstation Directory Detection Modal */}
@@ -1055,7 +1121,7 @@ export default function TaskTrackerView() {
 }
 
 // Single Date Deliverable Row with 6-Stage Stepper
-function DateDeliverableRow({ safarName, dateItem, safarBaseDirectory, isAdmin, onMarkStatus, onUpdateEditor }) {
+function DateDeliverableRow({ safarName, dateItem, safarBaseDirectory, isAdmin, onMarkStatus, onUpdateEditor, onRemoveFolder }) {
   const currentStageIndex = STAGE_KEYS.indexOf(dateItem.status);
   const currentConfig = TRACKER_STAGE_CONFIG[dateItem.status] || TRACKER_STAGE_CONFIG.editing_pending;
   const fullDatePath = dateItem.datePath || (safarBaseDirectory ? `${safarBaseDirectory}\\${dateItem.dateFolder || dateItem.dateLabel}` : null);
@@ -1251,6 +1317,22 @@ function DateDeliverableRow({ safarName, dateItem, safarBaseDirectory, isAdmin, 
               title="Official sign-off & deliver to AlJamea"
             >
               Mark Submitted
+            </button>
+          )}
+
+          {onRemoveFolder && (
+            <button
+              type="button"
+              onClick={() => {
+                if (window.confirm(`Remove "${dateItem.dateFolder || dateItem.dateLabel}" from Task Tracker?`)) {
+                  sounds.playTap();
+                  onRemoveFolder();
+                }
+              }}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+              title="Remove / Exclude folder from Task Tracker"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
             </button>
           )}
         </div>

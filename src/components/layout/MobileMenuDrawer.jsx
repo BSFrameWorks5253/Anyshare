@@ -5,6 +5,7 @@ import UserAvatarWithReflection from '../common/UserAvatarWithReflection';
 import {
   LayoutDashboard,
   Layers,
+  Camera,
   Briefcase,
   CalendarDays,
   Users,
@@ -228,6 +229,35 @@ export default function MobileMenuDrawer({
                   </div>
                 </div>
                 <ChevronRight className={`w-4 h-4 ${currentView === 'tracker' ? 'text-white' : 'text-slate-400'}`} />
+              </button>
+
+              {/* Photo Data & Drive Sync */}
+              <button
+                type="button"
+                onClick={() => handleNavClick('photo')}
+                className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs transition-all cursor-pointer ${
+                  currentView === 'photo'
+                    ? 'bg-slate-950 text-white font-bold shadow-xs'
+                    : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80 font-semibold'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`p-1.5 rounded-lg ${currentView === 'photo' ? 'bg-rose-600 text-white' : 'bg-rose-50 text-rose-600'}`}>
+                    <Camera className="w-4 h-4" />
+                  </div>
+                  <div className="text-left">
+                    <div className="flex items-center gap-1.5">
+                      <span>Photo Sync & Drive</span>
+                      <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-rose-100 text-rose-700 border border-rose-200">
+                        GS Script
+                      </span>
+                    </div>
+                    <div className={`text-[10px] font-normal ${currentView === 'photo' ? 'text-slate-300' : 'text-slate-500'}`}>
+                      Google Drive tracking & WhatsApp alerts
+                    </div>
+                  </div>
+                </div>
+                <ChevronRight className={`w-4 h-4 ${currentView === 'photo' ? 'text-white' : 'text-slate-400'}`} />
               </button>
 
               {/* Productions Queue */}

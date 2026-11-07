@@ -14,6 +14,11 @@ import { supabase, SUPABASE_CONFIG } from './supabase';
 import { sounds } from './sound';
 import confetti from 'canvas-confetti';
 import { parseSafarPath, autoResolveSafarCampaign } from './pathParser';
+import {
+  sendWhatsAppNotification,
+  markPhotoFolderUploaded,
+  DEFAULT_WHATSAPP_PHONE
+} from './googleAppsScriptService';
 
 const AppContext = createContext(null);
 
@@ -154,8 +159,31 @@ export function AppProvider({ children }) {
 
   const [pushEnabled, setPushEnabled] = useState(false);
   const [activeRenderJob, setActiveRenderJob] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
   const renderIntervalRef = useRef(null);
   const nexusChannelRef = useRef(null);
+
+  // Helper to deduplicate date deliverables by normalized key (prevents duplicates)
+  const dedupeDatesInSafars = (safars) => {
+    if (!Array.isArray(safars)) return [];
+    return safars.map(s => {
+      const seen = new Set();
+      const cleanDates = [];
+      (s.dates || []).forEach(d => {
+        const name = d.dateFolder || d.folderName || d.name || '';
+        const key = name.toLowerCase().replace(/[\s_\-]/g, '');
+        if (!key || seen.has(key)) return;
+        seen.add(key);
+        cleanDates.push({ ...d, dateFolder: name });
+      });
+      return {
+        ...s,
+        dates: cleanDates,
+        totalDays: cleanDates.length
+      };
+    });
+  };
 
   // Floating Glass Toasts & Desktop Notifications
   const [toasts, setToasts] = useState([]);
@@ -356,17 +384,9 @@ export function AppProvider({ children }) {
               const resTasks = await fetch('http://127.0.0.1:5253/api/tasks', { method: 'GET', mode: 'cors' });
               if (resTasks.ok) {
                 const tasksData = await resTasks.json();
-                if (tasksData?.tasks && Array.isArray(tasksData.tasks)) {
-                  tasksData.tasks.forEach(task => {
-                    const p = task.safarPath || task.folderPath || task.path || task.filePath;
-                    if (p) autoHandleSeenWorkstationPath(p, { safarName: task.safarName });
-                  });
-                }
-                if (tasksData?.safars && Array.isArray(tasksData.safars)) {
-                  tasksData.safars.forEach(s => {
-                    const p = s.baseDirectory || s.path || s.folderPath;
-                    if (p) autoHandleSeenWorkstationPath(p, s);
-                  });
+                if (tasksData?.safars && Array.isArray(tasksData.safars) && tasksData.safars.length > 0) {
+                  const cleaned = dedupeDatesInSafars(tasksData.safars);
+                  setSafarCampaigns(cleaned);
                 }
               }
             } catch (err) {}
@@ -467,18 +487,53 @@ export function AppProvider({ children }) {
         if (!isSubscribed) return;
         const incoming = payload.payload?.safars;
         if (Array.isArray(incoming) && incoming.length > 0) {
-          incoming.forEach(s => {
-            const p = s.baseDirectory || s.path || s.folderPath || (s.name ? `F:\\${s.name}` : null);
-            if (p) autoHandleSeenWorkstationPath(p, s);
-          });
-          setSafarCampaigns(incoming);
+          const cleanedSafars = dedupeDatesInSafars(incoming);
+          setSafarCampaigns(cleanedSafars);
+          setIsLoading(false);
+          setIsScanning(false);
           sounds.playChime();
           addToast({
-            title: 'One Tap Safars Detected',
-            message: `Workstation node synced ${incoming.length} Safar campaign(s) into AnyShare.`,
+            title: 'One Tap Safars Synced',
+            message: `Workstation node synced ${cleanedSafars.length} Safar campaign(s) directly from disk.`,
             type: 'success'
           });
         }
+      })
+      .on('broadcast', { event: 'tracker_task_removed' }, ({ payload }) => {
+        if (!isSubscribed || !payload) return;
+        const { safarName, dateFolder } = payload;
+        const normTarget = (dateFolder || '').toLowerCase().replace(/[\s_\-]/g, '');
+        setSafarCampaigns(prev => prev.map(s => {
+          const sName = s.safarName || s.name || '';
+          if (sName.toLowerCase() !== (safarName || '').toLowerCase()) return s;
+          const remaining = (s.dates || []).filter(d => {
+            const k = (d.dateFolder || d.name || '').toLowerCase().replace(/[\s_\-]/g, '');
+            return k !== normTarget;
+          });
+          return { ...s, dates: remaining, totalDays: remaining.length };
+        }));
+      })
+      .on('broadcast', { event: 'tracker_task_added' }, ({ payload }) => {
+        if (!isSubscribed || !payload) return;
+        const { safarName, dateFolder, driveRoot } = payload;
+        setSafarCampaigns(prev => prev.map(s => {
+          const sName = s.safarName || s.name || '';
+          if (sName.toLowerCase() !== (safarName || '').toLowerCase()) return s;
+          const normKey = (dateFolder || '').toLowerCase().replace(/[\s_\-]/g, '');
+          if ((s.dates || []).some(d => (d.dateFolder || '').toLowerCase().replace(/[\s_\-]/g, '') === normKey)) {
+            return s;
+          }
+          const newDate = {
+            id: `date_${Date.now()}`,
+            dateFolder,
+            status: 'editing_pending',
+            assignedEditor: 'admin',
+            is_present: true,
+            file_size_gb: 0,
+            renderVideoCount: 0
+          };
+          return { ...s, dates: [...(s.dates || []), newDate], totalDays: (s.dates?.length || 0) + 1 };
+        }));
       })
       .on('broadcast', { event: 'safar_path_seen' }, ({ payload }) => {
         if (!isSubscribed || !payload) return;
@@ -774,11 +829,6 @@ export function AppProvider({ children }) {
       .on('broadcast', { event: 'task_status_updated' }, ({ payload }) => {
         if (!isSubscribed || !payload) return;
         const { safarName, dateFolder, status, timestamp } = payload;
-
-        const pathCandidate = payload?.safarPath || payload?.folderPath || payload?.path || payload?.filePath || (payload?.safarName ? `F:\\${payload.safarName}` : null);
-        if (pathCandidate) {
-          autoHandleSeenWorkstationPath(pathCandidate, payload);
-        }
         setSafarCampaigns(prev => prev.map(c => {
           const nameMatches = !safarName ||
             (c.safarName && c.safarName.toLowerCase().includes(safarName.toLowerCase())) ||
@@ -1173,21 +1223,12 @@ export function AppProvider({ children }) {
             return Array.from(map.values());
           });
           detectedTasksCount = data.tasks.length;
-
-          // Auto-discover and create Safars from any task paths
-          data.tasks.forEach(task => {
-            const candidatePath = task.safarPath || task.folderPath || task.path || task.filePath;
-            if (candidatePath) {
-              autoHandleSeenWorkstationPath(candidatePath, { safarName: task.safarName });
-            }
-          });
         }
+
         if (data?.safars && Array.isArray(data.safars) && data.safars.length > 0) {
-          data.safars.forEach(s => {
-            const path = s.baseDirectory || s.path || s.folderPath || (s.name ? `F:\\${s.name}` : null);
-            if (path) autoHandleSeenWorkstationPath(path, s);
-          });
-          detectedSafarsCount = data.safars.length;
+          const cleaned = dedupeDatesInSafars(data.safars);
+          setSafarCampaigns(cleaned);
+          detectedSafarsCount = cleaned.length;
         }
         setBridge(prev => ({
           ...prev,
@@ -2252,6 +2293,35 @@ export function AppProvider({ children }) {
       }).catch(() => {});
     } catch (e) {}
 
+    // Automatic WhatsApp & Google Drive Photo Sync when marked uploaded
+    if (status === 'uploaded') {
+      const activeCamp = (safarCampaignsRef.current || []).find(c =>
+        (c.safarName && c.safarName.toLowerCase() === safarName.toLowerCase()) ||
+        (c.name && c.name.toLowerCase() === safarName.toLowerCase()) ||
+        (c.id === safarName)
+      );
+      const totalDates = activeCamp?.dates?.length || 10;
+      const uploadedDates = (activeCamp?.dates || []).filter(d => d.status === 'uploaded' || d.status === 'submitted' || d.dateFolder === dateFolder).length;
+      const pendingDates = Math.max(0, totalDates - uploadedDates);
+
+      // 1. Tag in Google Drive & Sheet via Google Apps Script
+      markPhotoFolderUploaded({
+        safarName,
+        dateFolder,
+        markedBy: currentUser.name || 'Workstation',
+        websiteUrl: typeof window !== 'undefined' ? window.location.origin : ''
+      }).catch(() => {});
+
+      // 2. Dispatch WhatsApp Notification to 8369811201
+      sendWhatsAppNotification({
+        folderName: dateFolder,
+        uploadedCount: uploadedDates,
+        pendingCount: pendingDates,
+        websiteUrl: typeof window !== 'undefined' ? window.location.origin : '',
+        phone: DEFAULT_WHATSAPP_PHONE
+      }).catch(() => {});
+    }
+
     addToast({
       title: `Status: ${status.replace('_', ' ').toUpperCase()}`,
       message: `${safarName} — ${dateFolder} updated to ${status.replace('_', ' ')}.`,
@@ -2468,10 +2538,138 @@ export function AppProvider({ children }) {
     return { success: true };
   };
 
+  // 1-Click Clean Reset & Rescan from Workstation Node
+  const triggerBridgeResetAndRescan = async () => {
+    setIsScanning(true);
+    try {
+      const res = await fetch('http://127.0.0.1:5253/api/tasks/reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ preserve_submitted: true }),
+        mode: 'cors'
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.safars) {
+          const cleaned = dedupeDatesInSafars(data.safars);
+          setSafarCampaigns(cleaned);
+        }
+        sounds.playChime();
+        addToast({
+          title: 'Workstation Reset & Rescan Complete',
+          message: 'Cleared non-present folders. Fresh disk deliverables synced.',
+          type: 'success'
+        });
+        return;
+      }
+    } catch (e) {
+      console.warn('LAN reset failed, requesting via Nexus Realtime:', e);
+    } finally {
+      setTimeout(() => setIsScanning(false), 600);
+    }
+
+    // Broadcast reset request to desktop node via Supabase
+    if (nexusChannelRef.current) {
+      nexusChannelRef.current.send({
+        type: 'broadcast',
+        event: 'request_workstation_scan',
+        payload: { requestedAt: new Date().toISOString(), cleanReset: true }
+      }).catch(() => {});
+    }
+  };
+
+  // Remove / Exclude a Date Folder from Tracker (syncs with Workstation & Cloud)
+  const removeTrackerDateFolder = async (safarName, dateFolder) => {
+    try {
+      await fetch('http://127.0.0.1:5253/api/tasks/remove', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ safar_name: safarName, date_folder: dateFolder }),
+        mode: 'cors'
+      });
+    } catch (e) {}
+
+    if (nexusChannelRef.current) {
+      nexusChannelRef.current.send({
+        type: 'broadcast',
+        event: 'tracker_task_removed',
+        payload: { safarName, dateFolder }
+      }).catch(() => {});
+    }
+
+    const normTarget = (dateFolder || '').toLowerCase().replace(/[\s_\-]/g, '');
+    setSafarCampaigns(prev => prev.map(s => {
+      const sName = s.safarName || s.name || '';
+      if (sName.toLowerCase() !== (safarName || '').toLowerCase()) return s;
+      const remaining = (s.dates || []).filter(d => {
+        const k = (d.dateFolder || d.name || '').toLowerCase().replace(/[\s_\-]/g, '');
+        return k !== normTarget;
+      });
+      return { ...s, dates: remaining, totalDays: remaining.length };
+    }));
+
+    addToast({
+      title: 'Folder Removed',
+      message: `Excluded "${dateFolder}" from tracking.`,
+      type: 'info'
+    });
+  };
+
+  // Add a manual date deliverable folder (syncs with Workstation & Cloud)
+  const addTrackerDateFolder = async (safarName, dateFolder, driveRoot = 'F:\\') => {
+    try {
+      await fetch('http://127.0.0.1:5253/api/tasks/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ safar_name: safarName, date_folder: dateFolder, drive_root: driveRoot }),
+        mode: 'cors'
+      });
+    } catch (e) {}
+
+    if (nexusChannelRef.current) {
+      nexusChannelRef.current.send({
+        type: 'broadcast',
+        event: 'tracker_task_added',
+        payload: { safarName, dateFolder, driveRoot }
+      }).catch(() => {});
+    }
+
+    setSafarCampaigns(prev => prev.map(s => {
+      const sName = s.safarName || s.name || '';
+      if (sName.toLowerCase() !== (safarName || '').toLowerCase()) return s;
+      const normKey = (dateFolder || '').toLowerCase().replace(/[\s_\-]/g, '');
+      if ((s.dates || []).some(d => (d.dateFolder || '').toLowerCase().replace(/[\s_\-]/g, '') === normKey)) {
+        return s;
+      }
+      const newDate = {
+        id: `date_${Date.now()}`,
+        dateFolder,
+        status: 'editing_pending',
+        assignedEditor: currentUser?.username || 'admin',
+        is_present: true,
+        file_size_gb: 0,
+        renderVideoCount: 0
+      };
+      return {
+        ...s,
+        dates: [...(s.dates || []), newDate],
+        totalDays: (s.dates?.length || 0) + 1
+      };
+    }));
+
+    addToast({
+      title: 'Date Folder Added',
+      message: `Added "${dateFolder}" to ${safarName}.`,
+      type: 'success'
+    });
+  };
+
   return (
     <AppContext.Provider value={{
       currentUser,
       isAdmin,
+      isLoading,
+      isScanning,
       users,
       switchUser,
       addTeamUser,
@@ -2497,6 +2695,9 @@ export function AppProvider({ children }) {
       createNewProductionItem,
       toggleBridgeOnline,
       triggerBridgeScan,
+      triggerBridgeResetAndRescan,
+      removeTrackerDateFolder,
+      addTrackerDateFolder,
       requestRender,
       abortRender,
       activeRenderJob,
